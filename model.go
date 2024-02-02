@@ -12,6 +12,8 @@ type (
 	}
 
 	Status string
+
+	Contacts []Contact
 )
 
 const (

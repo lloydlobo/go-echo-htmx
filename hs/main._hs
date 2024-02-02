@@ -1,0 +1,11 @@
+def hashCache()
+    set $initial to window.location.hash.slice(2).charAt(0).toUpperCase()
+    set $after to window.location.hash.slice(3)
+    
+    -- Handles popstate event for back/forward button or closing page..?
+    -- Then automatically calls hashCache _hyperscript function from within JavaScript
+    js
+        window.addEventListener('popstate', function(){
+            hashCache();
+        });
+end
