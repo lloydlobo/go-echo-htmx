@@ -7,68 +7,77 @@
 //     # $ air
 //   - install templ `go install github.com/a-h/templ/cmd/templ@latest`
 //     # $ `templ generate`
+//   - build command
+//     # $ go build -tags netgo -ldflags '-s -w' -o app
+//   - pre-deploy command
+//     # $ go install github.com/a-h/templ/cmd/templ@latest
+//     # $ templ generate
+//   - Create a tailwind.config.js file
+//     # $ ./tailwindcss init
+//   - Start a watcher
+//     # $ tailwindcss -i globals.css -o .\static\css\style.css --watch
+//   - Compile and minify your CSS for production
+//     # $ tailwindcss -i globals.css -o .\static\css\style.css --minify
+//
+// Errorlog:
+//
+//   - Error: listen tcp :8000: bind: Only one usage of each socket address (protocol/network address/port) is normally permitted.
+//     >>> While spamming POST "/contacts" -> should rate limit
+//
+// TODO: Export routes as json!!
 package main
 
 import (
-	"crypto/rand"
-	"encoding/base64"
 	"fmt"
 	"net/http"
 	"os"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/a-h/templ"
 	"github.com/google/uuid"
-)
 
-// TODO: Export toutes as json!!
-
-type (
-	Filter struct {
-		url      string
-		name     string
-		selected bool
-	}
-
-	// Action implements enumeration of actions
-	Action int
-)
-
-// Enumerate Action related constants in one type
-const (
-	Create Action = iota
-	Toggle
-	Edit
-	Update
-	Delete
+	"github.com/lloydlobo/go-headcount/components"
+	"github.com/lloydlobo/go-headcount/internal"
+	"github.com/lloydlobo/go-headcount/model"
+	"github.com/lloydlobo/go-headcount/services"
 )
 
 var (
-	filters = []Filter{
-		{url: "#/", name: "All", selected: true},
-		{url: "#/active", name: "Active", selected: false},
-		{url: "#/completed", name: "Completed", selected: false},
+	filters = []services.Filter{
+		{Url: "#/", Name: "All", Selected: true},
+		{Url: "#/active", Name: "Active", Selected: false},
+		{Url: "#/completed", Name: "Completed", Selected: false},
 	}
 
-	// Tracks current count of Contact
-	idCounter uint64
+	idCounter uint64         // Tracks current count of Contact till when session resets. Start from 0.
+	seq       = 1            // Tracks times contact is created while server is running. Start from 1.
+	lock      = sync.Mutex{} // Lock and defer Unlock during mutation of contacts
 )
 
-func main() {
-	runMain()
-}
-
-func templRenderer(w http.ResponseWriter, r *http.Request, component templ.Component) {
+// Render the component to http.RespnseWriter and set header content type to text/html.
+func RenderView(w http.ResponseWriter, r *http.Request, component templ.Component) {
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	component.Render(r.Context(), w)
 }
 
-func (c *Contacts) crudOps(action Action, contact Contact) Contact {
+//---------
+// SERVICES
+//---------
+
+type (
+	ContactsServiceWrapper struct {
+		Contacts *model.Contacts
+	}
+)
+
+// TODO: Move this to services/
+func (c *ContactsServiceWrapper) CrudOps(action services.Action, contact model.Contact) model.Contact {
 	index := -1
 
-	if action != Create {
-		for i, r := range *c {
+	if action != services.ActionCreate {
+		for i, r := range *c.Contacts {
 			if r.ID == contact.ID {
 				index = i
 				break
@@ -77,102 +86,115 @@ func (c *Contacts) crudOps(action Action, contact Contact) Contact {
 	}
 
 	switch action {
-	case Create:
-		*c = append(*c, contact)
+	case services.ActionCreate:
+		lock.Lock()
+		defer lock.Unlock()
+		*c.Contacts = append(*c.Contacts, contact)
+		idCounter += 1
+		seq += 1
 		return contact
-	case Toggle:
-		(*c)[index].Status = contact.Status
+	case services.ActionToggle:
+		lock.Lock()
+		defer lock.Unlock()
+		(*c.Contacts)[index].Status = contact.Status
 		return contact
-	case Update:
+	case services.ActionUpdate:
+		lock.Lock()
+		defer lock.Unlock()
 		name := strings.Trim(contact.Name, " ")
 		phone := strings.Trim(contact.Phone, " ")
-		// TODO: add email regexp validation
-		email := strings.Trim(contact.Email, " ")
-
+		email := strings.Trim(contact.Email, " ") // TODO: add email regexp validation
 		if len(name) != 0 && len(phone) != 0 && len(email) != 0 {
-			(*c)[index].Name = contact.Name
-			(*c)[index].Email = contact.Email
+			(*c.Contacts)[index].Name = contact.Name
+			(*c.Contacts)[index].Email = contact.Email
 		} else {
-			// Remove if name is empty
-			*c = append((*c)[:index], (*c)[index+1:]...)
-			return Contact{}
+			// remove if name is empty
+			*c.Contacts = append((*c.Contacts)[:index], (*c.Contacts)[index+1:]...)
+			return model.Contact{}
 		}
 		return contact
-	case Delete:
-		*c = append((*c)[:index], (*c)[index+1:]...)
+	case services.ActionDelete:
+		lock.Lock()
+		defer lock.Unlock()
+		*c.Contacts = append((*c.Contacts)[:index], (*c.Contacts)[index+1:]...)
 	default:
-		// Edit should do nothing but retuurn contact from store
+		// edit should do nothing but return contact from store
 	}
 
-	if index != (-1) && action != Delete {
-		return (*c)[index]
+	if index != (-1) && action != services.ActionDelete {
+		lock.Lock()
+		defer lock.Unlock()
+		return (*c.Contacts)[index]
 	}
 
-	return Contact{}
-}
-
-func runMain() {
-	flagUnimplemented := false
-
-	c := InitializeModels()
-	c = append(c, Contact{ID: uuid.New(), Name: "John Doe", Email: "john@doe.com", Phone: "1234567890", Status: StatusActive})
-
-	// SetupRoutes()
-
-	handler := func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprintf(w, "200")
-	}
-
-	http.Handle("/healthcheck", http.HandlerFunc(handler))
-	http.Handle("/", http.HandlerFunc(c.pageHandler))
-
-	// Serve *._hs (Hyperscript) files
-	http.Handle("/hs/", http.StripPrefix("/hs/", http.FileServer(http.Dir("./hs"))))
-
-	// use the http.Handle to register the file server handler for a specific route
-	if flagUnimplemented { // this is used to serve axe-core for the todomvc test. [See](https://github.dev/syarul/todomvc-go-templ-htmx-_hyperscript/blob/main/main.go)
-		dir := "./cypress-example=todomvc/node_modules"
-		http.Handle("/node_modules/", http.StripPrefix("/node_modules/", http.FileServer(http.Dir(dir))))
-	}
-
-	// start the server
-	port, ok := os.LookupEnv("PORT")
-	if !ok {
-		port = "8000"
-	}
-
-	addr := fmt.Sprintf(":%s", port)
-	fmt.Printf("Server is running on http://localhost%s\n", addr)
-
-	// Start the HTTP server
-	if err := http.ListenAndServe(addr, nil); err != nil {
-		fmt.Printf("Error: %s\n", err)
-	}
-}
-
-func InitializeModels() Contacts {
-	contacts := []Contact{}
-	return contacts
+	return model.Contact{}
 }
 
 //---------
 // HANDLERS
 //---------
 
+// contactsHandler handles GET|POST request to "/contacts".
+func (c *ContactsServiceWrapper) contactsHandler(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case http.MethodGet:
+		lock.Lock()
+		defer lock.Unlock()
+		if len(*c.Contacts) == 0 {
+			fmt.Fprintln(w, nil) // templateString.Execute(w, nil)
+			return
+		}
+		currentContact := (*c.Contacts)[0]
+		RenderView(w, r, components.ContactLi(currentContact))
+		return
+	case http.MethodPost:
+		contact := model.Contact{
+			ID:    uuid.New(),
+			Name:  fmt.Sprintf("John %v", seq) + r.FormValue("name"),
+			Email: fmt.Sprintf("john%v@doe.com", seq) + r.FormValue("email"),
+			Phone: r.FormValue("phone"),
+			Status: func() (status model.Status) {
+				if r.FormValue("status") == "on" {
+					return model.StatusActive
+				}
+				return model.StatusInactive
+			}(),
+		} // log.Println(seq, idCounter, contact)
+		createdContact := c.CrudOps(services.ActionCreate, contact)
+		RenderView(w, r, components.ContactLi(createdContact))
+		return
+	default: // http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		http.Error(w, http.StatusText(http.StatusNotImplemented), http.StatusNotImplemented)
+		return
+	}
+}
+
+// pageHandler implements rendering `templ` index.html for `GET` at route `"/"`.
+//
 // Naive handler:
 //
 //	func (c *Contacts) pageHandler(w http.ResponseWriter, r *http.Request) {
 //		x := fmt.Sprintf("Hello, this is a simple Go server!\n%+v", c)
 //		fmt.Fprintln(w, x)
 //	}
-func (c *Contacts) pageHandler(w http.ResponseWriter, r *http.Request) {
+//
+// Naive handler with template:
+//
+//	tmpl, err := template.ParseFiles("index.html")
+//	if err != nil {
+//		fmt.Println("Error parsing template:", err)
+//		return
+//	}
+//	data := struct{ Name string }{"John"}
+//	if err := tmpl.Execute(w, data); err != nil {
+//		fmt.Println("Error executing template:", err)
+//	}
+func (c *ContactsServiceWrapper) pageHandler(w http.ResponseWriter, r *http.Request) {
 	cookieName := "seesionId"
-
 	_, err := r.Cookie(cookieName)
 
 	if err == http.ErrNoCookie { // when err IS ErrNoCookie
-		newCookieValue, err := genRandStr(32)
-
+		newCookieValue, err := internal.GenRandStr(32)
 		if err != nil {
 			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 			return
@@ -187,39 +209,60 @@ func (c *Contacts) pageHandler(w http.ResponseWriter, r *http.Request) {
 
 		http.SetCookie(w, &newCookie)
 
-		// Start with new contact data when session is resest
-		*c = make([]Contact, 0)
-		// idContact=0
+		// Start with new contact data when session is reset
+		*c.Contacts = make([]model.Contact, 0)
+		idCounter = 0
 	}
 
-	// TODO:
-	// 	templRenderer(w, r, Page(*t, filters, defChecked(*t), hasCompleteTask(*t), selectedFilter(filters)))
-	templRenderer(w, r, Page(*c, filters))
-
-	// tmpl, err := template.ParseFiles("index.html")
-	// if err != nil {
-	// 	fmt.Println("Error parsing template:", err)
-	// 	return
-	// }
-	//
-	// data := struct{ Name string }{"John"}
-	// if err := tmpl.Execute(w, data); err != nil {
-	// 	fmt.Println("Error executing template:", err)
-	// }
+	// TODO: 	templRenderer(w, r, Page(*t, filters, defChecked(*t), hasCompleteTask(*t), selectedFilter(filters)))
+	RenderView(w, r, components.Page(*c.Contacts, filters))
 }
 
-//---------------
-// RAND GEN UTILS
-//---------------
+func initializeModels() model.Contacts {
+	contacts := []model.Contact{}
+	return contacts
+}
 
-// TODO: test me
-func genRandStr(length int) (string, error) {
-	bytes := make([]byte, length)
+func runMain() {
+	flagWithGzip := true // TODO: move to Config
 
-	_, err := rand.Read(bytes)
-	if err != nil {
-		return "", err
+	initialContacts := initializeModels()
+	// log := slog.New(slog.NewJSONHandler(os.Stdout))
+	// store, err := db.NewContactsStore(os.Getenv("TABLE_NAME"), os.Getenv("AWS_REGION"))
+	// cs := services.NewContacts(log, store)
+	// h := handlers.New(log, cs)
+	c := ContactsServiceWrapper{Contacts: &initialContacts}
+	// sessionHandler := session.NewMiddleware(h, session.WithSecure(secureFlag))
+	// server := &http.Server{Addr: "localhost:8000", Handler: sessionHandler, ReadTimeout: time.Second*10, WriteTimeout: time.Second*10,}
+	// server.ListenAndServer()
+
+	// Routes: SetupRoutes()
+	handler := func(w http.ResponseWriter, r *http.Request) { fmt.Fprintf(w, "200") }
+	http.Handle("/healthcheck", http.HandlerFunc(handler))
+	if flagWithGzip { // with gzip 1.2 kB | min=3m startup_max=63ms
+		http.Handle("/", internal.Gzip(http.HandlerFunc(c.pageHandler)))
+	} else { // without gzip 2.6 kB | min=3ms startup_max=46ms
+		http.Handle("/", http.HandlerFunc(c.pageHandler))
 	}
+	http.Handle("/contacts", http.HandlerFunc(c.contactsHandler))
 
-	return base64.URLEncoding.EncodeToString(bytes), nil
+	// serve static folder assets
+	http.Handle("/static/", internal.Gzip(http.StripPrefix("/static/", http.FileServer(http.Dir("static/")))))
+
+	// start the server
+	port, ok := os.LookupEnv("PORT")
+	if !ok {
+		port = "8000"
+	}
+	addr := fmt.Sprintf(":%s", port)
+
+	// Start the HTTP server
+	fmt.Printf("Listening on localhost%s\n", addr)
+	if err := http.ListenAndServe(addr, nil); err != nil {
+		fmt.Printf("Error: %s\n", err)
+	}
+}
+
+func main() {
+	runMain()
 }

@@ -1,0 +1,11 @@
+package tpl 
+
+templ ToggleAll(checked bool) {
+	<input
+		id="toggle-all"
+		class="toggle-all"
+		type="checkbox"
+		checked?={ checked }
+		_="install ToggleAll"
+	/>
+}

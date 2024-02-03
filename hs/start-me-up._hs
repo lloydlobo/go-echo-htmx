@@ -1,5 +1,0 @@
-def startMeUp()
-    log "
-        Hello, Go </>htmx _hyperscript
-    "
-end
