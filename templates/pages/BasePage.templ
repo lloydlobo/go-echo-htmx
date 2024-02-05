@@ -1,0 +1,76 @@
+package pages
+
+import "github.com/lloydlobo/go-headcount/templates/components"
+
+templ Base() {
+	<html lang="en" data-framework="htmx">
+		<head>
+			<meta charset="UTF-8"/>
+			<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+			@components.Title(false)
+			<link rel="stylesheet" href="/static/css/style.css"/>
+			<link rel="stylesheet" href="/static/css/missing.min.css"/>
+			<script type="text/hyperscript" src="/static/hs/start-me-up._hs"></script>
+			<script type="text/hyperscript" src="/static/hs/main._hs"></script>
+			<script defer src="/static/js/htmx.min.js"></script>
+			<script defer src="/static/js/_hyperscript.min.js"></script>
+			<style type="text/css">
+                input:invalid { border: 3px red solid; }
+            </style>
+			<style type="text/tailwindcss">
+			    @layer utilities { .content-auto { content-visibility: auto; } }
+			</style>
+		</head>
+		// hx-ext="theme"
+		<body>
+			@components.Navbar(false)
+			<div
+				id="mainContainer"
+				hx-boost="true"
+				hx-target="mainContainer"
+				hx-swap="innerHTML"
+				class="flex flex-col gap-8 !w-full items-center my-10"
+			>
+				{ children... }
+			</div>
+			<div class="toast-container" class="fixed flex flex-col gap-2 bottom-0 right-0 p-3"></div>
+		</body>
+	</html>
+}
+
+// <p class="hidden">
+// 	<label>
+// 		Enter your phone number in the format (123) - 456 - 7890 (
+// 		<input
+// 			name="tel1"
+// 			type="tel"
+// 			pattern="[0-9]{3}"
+// 			placeholder="###"
+// 			aria-label="3-digit area code"
+// 			size="2"
+// 		/>) -
+// 		<input name="tel2" type="tel" pattern="[0-9]{3}" placeholder="###" aria-label="3-digit prefix" size="2"/>
+// 		-
+// 		<input name="tel3" type="tel" pattern="[0-9]{4}" placeholder="####" aria-label="4-digit number" size="3"/>
+// 	</label>
+// </p>
+
+// <form class="hidden">
+// 	<div>
+// 		<label for="uname">Choose a username: </label>
+// 		<input
+// 			type="text"
+// 			id="uname"
+// 			name="name"
+// 			required
+// 			size="45"
+// 			pattern="[a-z]{4,8}"
+// 			title="4 to 8 lowercase letters"
+// 		/>
+// 		<span class="validity"></span>
+// 		<p>Usernames must be lowercase and 4-8 characters in length.</p>
+// 	</div>
+// 	<div>
+// 		<button>Submit</button>
+// 	</div>
+// </form>

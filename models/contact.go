@@ -1,4 +1,4 @@
-package model
+package models
 
 import "github.com/google/uuid"
 
@@ -11,9 +11,9 @@ type (
 		Status Status    `json:"status" form:"status"`
 	}
 
-	Status string
-
 	Contacts []Contact
+
+	Status string
 )
 
 const (

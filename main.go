@@ -15,16 +15,14 @@
 //   - Create a tailwind.config.js file
 //     # $ ./tailwindcss init
 //   - Start a watcher
-//     # $ tailwindcss -i globals.css -o .\static\css\style.css --watch
+//     # $ tailwindcss -i .\templates\css\globals.css -o .\static\css\style.css --watch
 //   - Compile and minify your CSS for production
-//     # $ tailwindcss -i globals.css -o .\static\css\style.css --minify
+//     # $ tailwindcss -i .\templates\css\globals.css -o .\static\css\style.css --minify
 //
 // Errorlog:
 //
 //   - Error: listen tcp :8000: bind: Only one usage of each socket address (protocol/network address/port) is normally permitted.
 //     >>> While spamming POST "/contacts" -> should rate limit
-//
-// TODO: Export routes as json!!
 package main
 
 import (
@@ -38,10 +36,12 @@ import (
 	"github.com/a-h/templ"
 	"github.com/google/uuid"
 
-	"github.com/lloydlobo/go-headcount/components"
+	"github.com/lloydlobo/go-headcount/handlers"
 	"github.com/lloydlobo/go-headcount/internal"
-	"github.com/lloydlobo/go-headcount/model"
+	"github.com/lloydlobo/go-headcount/models"
 	"github.com/lloydlobo/go-headcount/services"
+	"github.com/lloydlobo/go-headcount/templates/components"
+	"github.com/lloydlobo/go-headcount/templates/pages"
 )
 
 var (
@@ -57,6 +57,7 @@ var (
 )
 
 // Render the component to http.RespnseWriter and set header content type to text/html.
+// Note: copied to handlers/default.go
 func RenderView(w http.ResponseWriter, r *http.Request, component templ.Component) {
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	component.Render(r.Context(), w)
@@ -68,12 +69,12 @@ func RenderView(w http.ResponseWriter, r *http.Request, component templ.Componen
 
 type (
 	ContactsServiceWrapper struct {
-		Contacts *model.Contacts
+		Contacts *models.Contacts
 	}
 )
 
 // TODO: Move this to services/
-func (c *ContactsServiceWrapper) CrudOps(action services.Action, contact model.Contact) model.Contact {
+func (c *ContactsServiceWrapper) CrudOps(action services.Action, contact models.Contact) models.Contact {
 	index := -1
 
 	if action != services.ActionCreate {
@@ -110,7 +111,7 @@ func (c *ContactsServiceWrapper) CrudOps(action services.Action, contact model.C
 		} else {
 			// remove if name is empty
 			*c.Contacts = append((*c.Contacts)[:index], (*c.Contacts)[index+1:]...)
-			return model.Contact{}
+			return models.Contact{}
 		}
 		return contact
 	case services.ActionDelete:
@@ -127,7 +128,7 @@ func (c *ContactsServiceWrapper) CrudOps(action services.Action, contact model.C
 		return (*c.Contacts)[index]
 	}
 
-	return model.Contact{}
+	return models.Contact{}
 }
 
 //---------
@@ -148,16 +149,16 @@ func (c *ContactsServiceWrapper) contactsHandler(w http.ResponseWriter, r *http.
 		RenderView(w, r, components.ContactLi(currentContact))
 		return
 	case http.MethodPost:
-		contact := model.Contact{
+		contact := models.Contact{
 			ID:    uuid.New(),
 			Name:  fmt.Sprintf("John %v", seq) + r.FormValue("name"),
 			Email: fmt.Sprintf("john%v@doe.com", seq) + r.FormValue("email"),
 			Phone: r.FormValue("phone"),
-			Status: func() (status model.Status) {
+			Status: func() (status models.Status) {
 				if r.FormValue("status") == "on" {
-					return model.StatusActive
+					return models.StatusActive
 				}
-				return model.StatusInactive
+				return models.StatusInactive
 			}(),
 		} // log.Println(seq, idCounter, contact)
 		createdContact := c.CrudOps(services.ActionCreate, contact)
@@ -210,27 +211,37 @@ func (c *ContactsServiceWrapper) pageHandler(w http.ResponseWriter, r *http.Requ
 		http.SetCookie(w, &newCookie)
 
 		// Start with new contact data when session is reset
-		*c.Contacts = make([]model.Contact, 0)
+		*c.Contacts = make([]models.Contact, 0)
 		idCounter = 0
 	}
 
 	// TODO: 	templRenderer(w, r, Page(*t, filters, defChecked(*t), hasCompleteTask(*t), selectedFilter(filters)))
-	RenderView(w, r, components.Page(*c.Contacts, filters))
+	// RenderView(w, r, components.Page(*c.Contacts, filters))
+	RenderView(w, r, pages.IndexPage())
 }
 
-func initializeModels() model.Contacts {
-	contacts := []model.Contact{}
+func initializeModels() models.Contacts {
+	contacts := []models.Contact{}
 	return contacts
 }
 
 func runMain() {
 	flagWithGzip := true // TODO: move to Config
 
+	{ // @wip
+		/*
+			// log := slog.New(slog.NewJSONHandler(os.Stdout))
+			// store, err := db.NewContactsStore(os.Getenv("TABLE_NAME"), os.Getenv("AWS_REGION"))
+			// cs := services.NewContacts(log, store)
+			// h := handlers.New(log, cs)
+		*/
+		cs := services.NewContacts() // -> &{[] 0 0 {0 0}}
+		h := handlers.New(cs)        // -> &{0xc000022d80}
+		fmt.Printf("cs: %v\n", cs)
+		fmt.Printf("h: %v\n", h)
+	}
+
 	initialContacts := initializeModels()
-	// log := slog.New(slog.NewJSONHandler(os.Stdout))
-	// store, err := db.NewContactsStore(os.Getenv("TABLE_NAME"), os.Getenv("AWS_REGION"))
-	// cs := services.NewContacts(log, store)
-	// h := handlers.New(log, cs)
 	c := ContactsServiceWrapper{Contacts: &initialContacts}
 	// sessionHandler := session.NewMiddleware(h, session.WithSecure(secureFlag))
 	// server := &http.Server{Addr: "localhost:8000", Handler: sessionHandler, ReadTimeout: time.Second*10, WriteTimeout: time.Second*10,}

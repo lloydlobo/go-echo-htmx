@@ -1,0 +1,9 @@
+package pages
+
+import "github.com/lloydlobo/go-headcount/templates/components"
+
+templ HxPage() {
+	@components.Title(true)
+	@components.Navbar(true)
+	{ children... }
+}

@@ -1,0 +1,14 @@
+package components
+
+import "github.com/lloydlobo/go-headcount/templates"
+
+templ Title(swapOob bool) {
+	<title
+		id="pageTitle"
+		if swapOob {
+			hx-swap-oob="true"
+		}
+	>
+		{ templates.GetPageTitle(ctx) }
+	</title>
+}

@@ -1,0 +1,31 @@
+package pages
+
+templ IndexPage() {
+	if !true {
+		@HxPage() {
+			@IndexContent()
+		}
+	} else {
+		@Base() {
+			@IndexContent()
+		}
+	}
+}
+
+templ IndexContent() {
+	<main>
+		<span hx-get="/contacts" hx-trigger="load"></span>
+		<div class={ "lg:content-auto" }>
+			<span hx-get="/contacts" hx-target="#hx-contacts" hx-swap="beforeend" hx-trigger="load"></span>
+			<button
+				hx-post="/contacts"
+				hx-target="#hx-contacts"
+				hx-swap="beforeend"
+				class={ "btn" }
+			>
+				New +
+			</button>
+			<ul id="hx-contacts"></ul>
+		</div>
+	</main>
+}

@@ -23,3 +23,6 @@ tmp/build-errors.log
 
 # Scratches
 .scratches/
+
+# templ build artifacts
+templates/**/*_templ.go

@@ -15,11 +15,10 @@ graph TD
     end
 
     subgraph "View"
-        %% Components[View]
-        Components -->|Client side AJAX| htmx
+        Components -->| uses| htmx
         subgraph "Hypermedia (event driven)"
-            _hyperscript -->|Client Logic| Components
-            htmx -->|Server side AJAX| HTTPHandler
+            _hyperscript -->|Client side interactivity| Components
+            htmx -->|Carries out event driven AJAX| HTTPHandler
         end
     end
 
@@ -29,7 +28,8 @@ graph TD
     end
 
     subgraph "Database access code"
-        DatabaseCode -->|Handles database activity| SQLite
+        %%DatabaseCode -->|Handles database activity| SQLite
+        DatabaseCode -->|uses| SQLite
     end
 
     subgraph "SQLite"
@@ -43,5 +43,5 @@ graph TD
     %% HTTPHandler -->|renders| Components
     %% Service1 -->|use| DatabaseCode
     %% Service2 -->|use| DatabaseCode
-    %% DatabaseCode -->|uses| SQLite;
+    %%DatabaseCode -->|uses| SQLite;
 ```

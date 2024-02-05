@@ -3,7 +3,7 @@ package components
 import (
 	"time"
 
-	"github.com/lloydlobo/go-headcount/model"
+	"github.com/lloydlobo/go-headcount/models"
 	"github.com/lloydlobo/go-headcount/services"
 )
 
@@ -32,13 +32,6 @@ templ timeComponent(d time.Time) {
 //-----
 // COMPONENTS / UI
 //-----
-
-// button
-templ button(text string, className string ) {
-	<button class={ className }>{ text }</button>
-}
-
-//
 templ filter(filters []services.Filter) {
 	<ul class="filters" _="on load set $filter to me">
 		for _, filter := range filters {
@@ -55,7 +48,7 @@ templ filter(filters []services.Filter) {
 	</ul>
 }
 
-templ ContactLi(contact model.Contact) {
+templ ContactLi(contact models.Contact) {
 	<li class="flex gap-2">
 		<span class="text-clifford">{ contact.Name }</span>
 		<span>{ contact.Email }</span>
@@ -63,17 +56,19 @@ templ ContactLi(contact model.Contact) {
 }
 
 //
-templ Page(contacts []model.Contact, filters []services.Filter) {
+templ Page(contacts []models.Contact, filters []services.Filter) {
 	<html lang="en" data-framework="htmx">
 		<head>
 			<meta charset="UTF-8"/>
 			<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-			<title>headcount</title>
+			@Title(false)
 			<link rel="stylesheet" href="/static/css/style.css"/>
+			<link rel="stylesheet" href="/static/css/missing.min.css"/>
 			<script type="text/hyperscript" src="/static/hs/start-me-up._hs"></script>
 			<script type="text/hyperscript" src="/static/hs/main._hs"></script>
-			<script defer src="/static/js/htmx.min.js"></script>
-			<script defer src="/static/js/_hyperscript.min.js"></script>
+			<script src="/static/js/_hyperscript.min.js"></script>
+			<script src="/static/js/htmx.min.js"></script>
+			<script src="/static/js/htmx.title.js"></script>
 			<style type="text/css">
                 input:invalid {
                     border: 3px red solid;
@@ -88,13 +83,13 @@ templ Page(contacts []model.Contact, filters []services.Filter) {
 			</style>
 		</head>
 		<body>
+			@Navbar(false)
 			<section class="app">
-				<article class="prose">
+				<article class="prose foo">
 					<div class="flex gap-1">
 						<p>head<b>count</b></p>
-						@button("Click me", "text-red-500 p-2 rounded")
 						<button
-							class="text-clifford"
+							class="text-clifford foo"
 							_="
                             on pointerdown
                                 repeat until event pointerup
@@ -111,7 +106,7 @@ templ Page(contacts []model.Contact, filters []services.Filter) {
 				<span hx-get="/contacts" hx-trigger="load"></span>
 				<div class={ "lg:content-auto", border }>
 					<span hx-get="/contacts" hx-target="#hx-contacts" hx-swap="beforeend" hx-trigger="load"></span>
-					<button hx-post="/contacts" hx-target="#hx-contacts" hx-swap="beforeend">
+					<button hx-post="/contacts" hx-target="#hx-contacts" hx-swap="beforeend" class="btn">
 						New +
 					</button>
 					<ul id="hx-contacts"></ul>
@@ -126,44 +121,34 @@ templ Page(contacts []model.Contact, filters []services.Filter) {
                 "
 			>
 				<p>head<b>count</b></p>
+				@radioButtons()
 			</footer>
 		</body>
 	</html>
 }
 
-// <p class="hidden">
-// 	<label>
-// 		Enter your phone number in the format (123) - 456 - 7890 (
-// 		<input
-// 			name="tel1"
-// 			type="tel"
-// 			pattern="[0-9]{3}"
-// 			placeholder="###"
-// 			aria-label="3-digit area code"
-// 			size="2"
-// 		/>) -
-// 		<input name="tel2" type="tel" pattern="[0-9]{3}" placeholder="###" aria-label="3-digit prefix" size="2"/>
-// 		-
-// 		<input name="tel3" type="tel" pattern="[0-9]{4}" placeholder="####" aria-label="4-digit number" size="3"/>
-// 	</label>
-// </p>
-
-// <form class="hidden">
-// 	<div>
-// 		<label for="uname">Choose a username: </label>
-// 		<input
-// 			type="text"
-// 			id="uname"
-// 			name="name"
-// 			required
-// 			size="45"
-// 			pattern="[a-z]{4,8}"
-// 			title="4 to 8 lowercase letters"
-// 		/>
-// 		<span class="validity"></span>
-// 		<p>Usernames must be lowercase and 4-8 characters in length.</p>
-// 	</div>
-// 	<div>
-// 		<button>Submit</button>
-// 	</div>
-// </form>
+templ radioButtons() {
+	<fieldset>
+		<legend>Color</legend>
+		<ul>
+			<li>
+				<label>
+					<input type="radio" name="color" value="ff0000"/>
+					Red
+				</label>
+			</li>
+			<li>
+				<label>
+					<input type="radio" name="color" value="00ff00"/>
+					Green
+				</label>
+			</li>
+			<li>
+				<label>
+					<input type="radio" name="color" value="0000ff"/>
+					Blue
+				</label>
+			</li>
+		</ul>
+	</fieldset>
+}
