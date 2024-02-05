@@ -49,17 +49,27 @@ func NewContacts() *ContactService {
 }
 
 func (c *ContactService) Seq() int {
+	c.lock.Lock()
+	defer c.lock.Unlock()
+
 	return c.seq
 }
 
 func (c *ContactService) ResetContacts() {
+	c.lock.Lock()
+	defer c.lock.Unlock()
+
 	c.Contacts = make([]models.Contact, 0)
 	c.idCounter = 0
 }
 
 func (c *ContactService) CrudOps(action Action, contact models.Contact) models.Contact {
+	c.lock.Lock()
+	defer c.lock.Unlock()
+
 	index := -1
 
+	// Find index by ID
 	if action != ActionCreate {
 		for i, r := range c.Contacts {
 			if r.ID == contact.ID {
@@ -71,53 +81,39 @@ func (c *ContactService) CrudOps(action Action, contact models.Contact) models.C
 
 	switch action {
 	case ActionCreate:
-		c.lock.Lock()
-		defer c.lock.Unlock()
-
 		c.Contacts = append(c.Contacts, contact)
 		c.idCounter += 1
 		c.seq += 1
-
 		return contact
+
 	case ActionToggle:
-		c.lock.Lock()
-		defer c.lock.Unlock()
-
-		(c.Contacts)[index].Status = contact.Status
-
+		c.Contacts[index].Status = contact.Status
 		return contact
-	case ActionUpdate:
-		c.lock.Lock()
-		defer c.lock.Unlock()
 
+	case ActionUpdate:
 		name := strings.Trim(contact.Name, " ")
 		phone := strings.Trim(contact.Phone, " ")
 		email := strings.Trim(contact.Email, " ") // TODO: add email regexp validation
 
 		if len(name) != 0 && len(phone) != 0 && len(email) != 0 {
-			(c.Contacts)[index].Name = contact.Name
-			(c.Contacts)[index].Email = contact.Email
-		} else { // remove if name is empty
-			c.Contacts = append((c.Contacts)[:index], (c.Contacts)[index+1:]...)
+			c.Contacts[index].Name = contact.Name
+			c.Contacts[index].Email = contact.Email
+		} else {
+			// remove if name is empty
+			c.Contacts = append(c.Contacts[:index], c.Contacts[index+1:]...)
 			return models.Contact{}
 		}
-
 		return contact
+
 	case ActionDelete:
-		c.lock.Lock()
-		defer c.lock.Unlock()
+		c.Contacts = append(c.Contacts[:index], c.Contacts[index+1:]...)
 
-		c.Contacts = append((c.Contacts)[:index], (c.Contacts)[index+1:]...)
 	default:
-		// edit should do nothing but return contact from store
+		// ActionEdit should do nothing but return contact from store
 	}
 
-	if index != (-1) && action != ActionDelete {
-		c.lock.Lock()
-		defer c.lock.Unlock()
-
-		return (c.Contacts)[index]
+	if index != -1 && action != ActionDelete {
+		return c.Contacts[index]
 	}
-
 	return models.Contact{}
 }
