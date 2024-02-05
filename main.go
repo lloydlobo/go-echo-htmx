@@ -1,28 +1,34 @@
 // References:
 //
 //   - https://github.dev/syarul/todomvc-go-templ-htmx-_hyperscript/blob/main/main.go
-//   - https://github.com/cosmtrek/air
-//     development:
+//
+// Develop:
+//
+//   - development with hot-module reloading: https://github.com/cosmtrek/air
 //     # $ air init
 //     # $ air
 //   - install templ `go install github.com/a-h/templ/cmd/templ@latest`
 //     # $ `templ generate`
+//   - create a tailwind.config.js file
+//     # $ ./tailwindcss init
+//   - start a watcher
+//     # $ tailwindcss -i .\templates\css\globals.css -o .\static\css\style.css --watch
+//   - compile and minify your CSS for production
+//     # $ tailwindcss -i .\templates\css\globals.css -o .\static\css\style.css --minify
+//
+// Build and Deploy:
+//
 //   - build command
 //     # $ go build -tags netgo -ldflags '-s -w' -o app
 //   - pre-deploy command
 //     # $ go install github.com/a-h/templ/cmd/templ@latest
 //     # $ templ generate
-//   - Create a tailwind.config.js file
-//     # $ ./tailwindcss init
-//   - Start a watcher
-//     # $ tailwindcss -i .\templates\css\globals.css -o .\static\css\style.css --watch
-//   - Compile and minify your CSS for production
-//     # $ tailwindcss -i .\templates\css\globals.css -o .\static\css\style.css --minify
 //
 // Errorlog:
 //
 //   - Error: listen tcp :8000: bind: Only one usage of each socket address (protocol/network address/port) is normally permitted.
 //     >>> While spamming POST "/contacts" -> should rate limit
+//     >>> Seems like `air` dev tool error.
 package main
 
 import (
