@@ -1,6 +1,9 @@
+// The services layer coordinates API and database activity to carry out
+// application logic.
 package services
 
 import (
+	"errors"
 	"strings"
 	"sync"
 
@@ -34,25 +37,23 @@ const ( // Hack: using `-1` as `default` case value to act as ActionGet operatio
 	ActionDelete
 )
 
-type ContactService struct {
-	Contacts  models.Contacts // FUTURE: map[int]*Contact
-	lock      sync.Mutex      // Lock and defer Unlock during mutation of contacts.
-	seq       int             // Tracks times contact is created while server is running. Start from 1.
-	idCounter int             // Tracks current count of Contact till when session resets. Start from 0.
-}
+var (
+	ErrUnknownAction error = errors.New("unknown action type")
+)
 
 func NewContacts() *ContactService {
 	return &ContactService{
-		Contacts: models.Contacts{},
+		Contacts: models.Contacts{}, // Contact store
 		seq:      1,
 	}
 }
 
-func (c *ContactService) Seq() int {
-	c.lock.Lock()
-	defer c.lock.Unlock()
-
-	return c.seq
+type ContactService struct {
+	// Contacts: models.Contacts{}, // Contact store -> *db.ContactStore
+	Contacts  models.Contacts // FUTURE: map[int]*Contact
+	lock      sync.Mutex      // Lock and defer Unlock during mutation of contacts.
+	seq       int             // Tracks times contact is created while server is running. Start from 1.
+	idCounter int             // Tracks current count of Contact till when session resets. Start from 0.
 }
 
 func (c *ContactService) ResetContacts() {
@@ -115,5 +116,17 @@ func (c *ContactService) CrudOps(action Action, contact models.Contact) models.C
 	if index != -1 && action != ActionDelete {
 		return c.Contacts[index]
 	}
-	return models.Contact{}
+
+	return models.Contact{} //, errors.Join(errs...)
+}
+
+// Get(ctx context.Context, sessionID string)
+func (cs *ContactService) Get() (contacts models.Contacts, err error) {
+	contacts, err = cs.Contacts, nil
+
+	if len(contacts) == 0 {
+		return models.Contacts{}, nil
+	}
+
+	return contacts, nil
 }

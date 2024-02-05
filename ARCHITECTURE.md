@@ -8,11 +8,17 @@ This architecture follows a typical "onion model" closely.
 
 ```mermaid
 graph TD
+    %% Processes HTTP requests
+    %% Does not contain application logic itself
+    %% Uses services that carry out application logic
+    %% Takes the responses from services and uses components to render HTML
+    %% Creates HTTP responses
     subgraph "HTTP Handler"
         HTTPHandler
-        %% HTTPHandler -->|Processes HTTP requests| Response
-        %% Response -->|Creates HTTP responses| Components
     end
+
+    HTTPHandler -->|uses| Service1
+    HTTPHandler -->|renders| Components
 
     subgraph "View"
         Components -->| uses| htmx
@@ -22,26 +28,33 @@ graph TD
         end
     end
 
+
+    %% Carries out application logic such as orchestrating API calls, or making database calls
+    %% Does not do anything related to HTML or HTTP
+    %% Is not aware of the specifics of database calls
     subgraph "Services"
-        Service1 -->|Carries out application logic| DatabaseCode
+        Service1
         %% Service2 -->|Carries out application logic| DatabaseCode
     end
 
+    %% Handles database activity such as inserting and querying records
+    %% Ensures that the database representation (records) doesn't leak to the service layer
     subgraph "Database access code"
-        %%DatabaseCode -->|Handles database activity| SQLite
-        DatabaseCode -->|uses| SQLite
+        Service1 --> |use| DatabaseCode
+        %% Service2 -->|Carries out application logic| DatabaseCode
     end
 
-    subgraph "SQLite"
+    %% subgraph "Models"
+    %%     DatabaseCode -->|use| Contact
+    %% end
+
+    DatabaseCode -->|uses| SQLite
+
+    subgraph "Some DB"
         SQLite[Database]
     end
 
-    HTTPHandler -->|uses| Service1
-    HTTPHandler -->|renders| Components
+    %% A more complex application may have a models package containing plain structs that represent common data structures in the application, such as User.
 
-    %% HTTPHandler -->|uses| Service2
-    %% HTTPHandler -->|renders| Components
-    %% Service1 -->|use| DatabaseCode
-    %% Service2 -->|use| DatabaseCode
-    %%DatabaseCode -->|uses| SQLite;
+    %% As per https://go.dev/wiki/CodeReviewComments#interfaces the HTTP handler defines the interface that it's expecting, rather than the service defining its own interface.
 ```

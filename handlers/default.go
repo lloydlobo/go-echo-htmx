@@ -1,3 +1,5 @@
+// The handlers layer reads HTTP requests, uses the service to perform CRUD like
+// operations, and renders the templ Components.
 package handlers
 
 import (
@@ -18,7 +20,7 @@ import (
 // ContactService defines the interface for contact-related operations.
 type ContactService interface {
 	CrudOps(action services.Action, contact models.Contact) models.Contact
-	Seq() int
+	Get() (models.Contacts, error)
 	ResetContacts()
 }
 
@@ -62,33 +64,42 @@ func (h *DefaultHandler) IndexPageHandler(w http.ResponseWriter, r *http.Request
 		}
 	}
 
-	renderView(w, r, pages.IndexPage())
+	h.RenderView(w, r, pages.IndexPage())
 }
 
 // ContactPartialsHandler handles requests for contact partials.
 func (h *DefaultHandler) ContactPartialsHandler(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
-		currentContact := h.ContactService.CrudOps(services.Action(-1), models.Contact{})
-		renderView(w, r, components.ContactLi(currentContact))
+
+		contacts, err := h.ContactService.Get()
+
+		if err != nil {
+			http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
+			return
+		}
+
+		// HTMX calls this via <span hx-get="/contacts" hx-target="#hx-contacts" hx-swap="beforeend" hx-trigger="load"></span>
+		// So beforeend ensures that swap does not mutate the previous elements
+		// PERF: reduce rendering calls and use double buffering like method (collect all <li> and render once at request.)
+		for _, contact := range contacts {
+			h.RenderView(w, r, components.ContactLi(contact))
+		}
 		return
+
 	case http.MethodPost:
-		contact := models.Contact{
-			ID:    uuid.New(),
-			Name:  fmt.Sprintf("John %v", h.ContactService.Seq()) + r.FormValue("name"),
-			Email: fmt.Sprintf("john%v@doe.com", h.ContactService.Seq()) + r.FormValue("email"),
-			Phone: r.FormValue("phone"),
-			Status: func() (status models.Status) {
-				if r.FormValue("status") == "on" {
-					return models.StatusActive
-				}
-				return models.StatusInactive
-			}(),
+		contact, err := h.NewContactFromRequestForm(r)
+
+		if err != nil {
+			// Akcshually form value or query error? TODO: use better errors from this method.
+			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		}
 
 		createdContact := h.ContactService.CrudOps(services.ActionCreate, contact)
-		renderView(w, r, components.ContactLi(createdContact))
+
+		h.RenderView(w, r, components.ContactLi(createdContact))
 		return
+
 	default:
 		// Note: after implementing all, use -> http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		http.Error(w, http.StatusText(http.StatusNotImplemented), http.StatusNotImplemented)
@@ -96,8 +107,43 @@ func (h *DefaultHandler) ContactPartialsHandler(w http.ResponseWriter, r *http.R
 	}
 }
 
-// renderView renders the provided templ.Component to http.ResponseWriter with text/html content type.
-func renderView(w http.ResponseWriter, r *http.Request, component templ.Component) {
+// TODO: seee which h.ContactService.CrudOps(...) can we use for craeting new.
+// TODO: move this to services.
+func (h *DefaultHandler) NewContactFromRequestForm(r *http.Request) (models.Contact, error) {
+	name := r.FormValue("name")
+	email := r.FormValue("email")
+	phone := r.FormValue("phone")
+	status := r.FormValue("status")
+
+	contact := models.Contact{
+		ID:    uuid.New(),
+		Name:  fmt.Sprintf("John %v", name),
+		Email: fmt.Sprintf("john%v@doe.com", email),
+		Phone: phone,
+		Status: func() (s models.Status) {
+			if status == "on" {
+				return models.StatusActive
+			}
+			return models.StatusInactive
+		}(),
+	}
+
+	return contact, nil
+}
+
+// YAGNI: See [HTTP Layer](https://templ.guide/project-structure/project-structure/#http-layer)
+type ViewProps struct {
+	Filter services.Filter
+	// Counts services.Counts
+}
+
+// Note that the View method uses the templ Components from the components directory to render the page.
+// func (h *DefaultHandler) View(w http.ResponseWriter, r *http.Request, props ViewProps) {
+// 		pages.Page(props.Count.Global, props.Counts.Session).Render(r.Context(), w)
+// }
+
+// RenderView renders the provided templ.Component to http.ResponseWriter with text/html content type.
+func (h *DefaultHandler) RenderView(w http.ResponseWriter, r *http.Request, component templ.Component) {
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	component.Render(r.Context(), w)
 }
