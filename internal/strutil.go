@@ -15,7 +15,6 @@ func Contains(slice []string, str string) bool {
 	return false
 }
 
-// TODO: test me
 func GenRandStr(length int) (string, error) {
 	bytes := make([]byte, length)
 

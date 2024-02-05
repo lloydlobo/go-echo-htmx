@@ -1,0 +1,79 @@
+/*
+ * globals.css
+ *
+ * This file is minified to static/css/style.css. 
+ * Checks docs in main.go
+ */
+
+/* Hack: using base from missing.style to overide tailwindcss base */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* 
+ * References:
+ *
+ * https://ui.shadcn.com/docs/installation/manual 
+ */
+
+/* @layer utilities { */
+/* .content-auto { */
+/* content-visibility: auto; */
+/* } */
+/* } */
+
+/* body { */
+/* @apply text-terminal-100; */
+/* background-color: hsl(240, 6%, 10%); */
+/* } */
+
+/* region HTMX */
+
+.htmx-swapping {
+    opacity: 0;
+    transition: opacity 300ms ease-out;
+}
+
+.htmx-settling {
+    transition: opacity 300ms ease-out;
+}
+
+.no-highlights {
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+.collapsed:not(.show) {
+    display: none;
+}
+
+.collapsing {
+    display: block;
+    overflow: hidden;
+    transition: height 0.35s ease;
+}
+
+.collapsed.show {
+    display: block;
+}
+
+.fade-out {
+    opacity: 0;
+    transition: opacity 0.35s ease;
+}
+
+.fade-in {
+    opacity: 1 !important;
+}
+
+/* endregion HTMX */
+
+/* region ui/Button */
+.button {}
+
+/* endregion ui/Button */
