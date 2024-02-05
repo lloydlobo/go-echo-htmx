@@ -58,6 +58,7 @@ def run_tailwindcss(in_filepath, out_filepath, with_watch=True):
         in_filepath,
         "-o",
         out_filepath,
+        "--minify",
         "--watch" if with_watch else "",
     ]
     try:
