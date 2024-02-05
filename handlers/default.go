@@ -7,6 +7,7 @@ import (
 
 	"github.com/a-h/templ"
 	"github.com/google/uuid"
+
 	"github.com/lloydlobo/go-headcount/internal"
 	"github.com/lloydlobo/go-headcount/models"
 	"github.com/lloydlobo/go-headcount/services"
@@ -18,7 +19,6 @@ type ContactService interface {
 	CrudOps(action services.Action, contact models.Contact) models.Contact
 	Seq() int
 	ResetContacts()
-	ResetIdCounter()
 }
 
 // Usage
@@ -63,7 +63,6 @@ func (h *DefaultHandler) IndexPageHandler(w http.ResponseWriter, r *http.Request
 
 			// Start with new contact data when session is reset
 			h.ContactService.ResetContacts()
-			h.ContactService.ResetIdCounter()
 		}
 	}
 
@@ -88,18 +87,19 @@ func (h *DefaultHandler) ContactPartialsHandler(w http.ResponseWriter, r *http.R
 				}
 				return models.StatusInactive
 			}(),
-		} // log.Println(seq, idCounter, contact)
+		}
 
 		createdContact := h.ContactService.CrudOps(services.ActionCreate, contact)
 		renderView(w, r, components.ContactLi(createdContact))
 		return
-	default: // http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+	default:
+		// Note: after implementing all, use -> http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		http.Error(w, http.StatusText(http.StatusNotImplemented), http.StatusNotImplemented)
 		return
 	}
 }
 
-// !!!!!THIS IS COPIED FROM MAIN.GO.
+// Render the component to http.RespnseWriter and set header content type to text/html.
 func renderView(w http.ResponseWriter, r *http.Request, component templ.Component) {
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	component.Render(r.Context(), w)

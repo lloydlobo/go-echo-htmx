@@ -15,23 +15,20 @@ css border() {
 	padding-bottom: 30px;
 }
 
-// FIXED DATA
-
 // 404
+//
 //  http.Handle("/404", templ.Handler(notFoundComponent(), templ.WithStatus(http.StatusNotFound)))
 templ notFoundComponent() {
 	<div>404 - Not found</div>
 }
 
 // timeComponent
+//
 //  http.Handle("/", templ.Handler(timeComponent(time.Now())))
 templ timeComponent(d time.Time) {
 	<div>{ d.String() }</div>
 }
 
-//-----
-// COMPONENTS / UI
-//-----
 templ filter(filters []services.Filter) {
 	<ul class="filters" _="on load set $filter to me">
 		for _, filter := range filters {
@@ -55,100 +52,102 @@ templ ContactLi(contact models.Contact) {
 	</li>
 }
 
-//
-templ Page(contacts []models.Contact, filters []services.Filter) {
-	<html lang="en" data-framework="htmx">
-		<head>
-			<meta charset="UTF-8"/>
-			<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-			@Title(false)
-			<link rel="stylesheet" href="/static/css/style.css"/>
-			<link rel="stylesheet" href="/static/css/missing.min.css"/>
-			<script type="text/hyperscript" src="/static/hs/start-me-up._hs"></script>
-			<script type="text/hyperscript" src="/static/hs/main._hs"></script>
-			<script src="/static/js/_hyperscript.min.js"></script>
-			<script src="/static/js/htmx.min.js"></script>
-			<script src="/static/js/htmx.title.js"></script>
-			<style type="text/css">
-                input:invalid {
-                    border: 3px red solid;
-                }
-            </style>
-			<style type="text/tailwindcss">
-			    @layer utilities {
-			         .content-auto {
-			            content-visibility: auto;
-			        }
-			    }
-			</style>
-		</head>
-		<body>
-			@Navbar(false)
-			<section class="app">
-				<article class="prose foo">
-					<div class="flex gap-1">
-						<p>head<b>count</b></p>
-						<button
-							class="text-clifford foo"
-							_="
-                            on pointerdown
-                                repeat until event pointerup
-                                    set rand to Math.random() * 360
-                                    transition
-                                        *background-color
-                                        to `hsl($rand 100% 90%)`
-                                        over 250ms
-                                end
-                            "
-						>beta</button>
-					</div>
-				</article>
-				<span hx-get="/contacts" hx-trigger="load"></span>
-				<div class={ "lg:content-auto", border }>
-					<span hx-get="/contacts" hx-target="#hx-contacts" hx-swap="beforeend" hx-trigger="load"></span>
-					<button hx-post="/contacts" hx-target="#hx-contacts" hx-swap="beforeend" class="btn">
-						New +
-					</button>
-					<ul id="hx-contacts"></ul>
-				</div>
-			</section>
-			<footer
-				class="info"
-				_="
-                  on load debounced at 10ms
-                  call startMeUp()
-                  hashCache()
-                "
-			>
-				<p>head<b>count</b></p>
-				@radioButtons()
-			</footer>
-		</body>
-	</html>
-}
+/*
+Notes:
 
-templ radioButtons() {
-	<fieldset>
-		<legend>Color</legend>
-		<ul>
-			<li>
-				<label>
-					<input type="radio" name="color" value="ff0000"/>
-					Red
-				</label>
-			</li>
-			<li>
-				<label>
-					<input type="radio" name="color" value="00ff00"/>
-					Green
-				</label>
-			</li>
-			<li>
-				<label>
-					<input type="radio" name="color" value="0000ff"/>
-					Blue
-				</label>
-			</li>
-		</ul>
-	</fieldset>
-}
+   templ Page(contacts []models.Contact, filters []services.Filter) {
+   	<html lang="en" data-framework="htmx">
+   		<head>
+   			<meta charset="UTF-8"/>
+   			<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+   			@Title(false)
+   			<link rel="stylesheet" href="/static/css/style.css"/>
+   			<link rel="stylesheet" href="/static/css/missing.min.css"/>
+   			<script type="text/hyperscript" src="/static/hs/start-me-up._hs"></script>
+   			<script type="text/hyperscript" src="/static/hs/main._hs"></script>
+   			<script src="/static/js/_hyperscript.min.js"></script>
+   			<script src="/static/js/htmx.min.js"></script>
+   			<script src="/static/js/htmx.title.js"></script>
+   			<style type="text/css">
+                   input:invalid {
+                       border: 3px red solid;
+                   }
+               </style>
+   			<style type="text/tailwindcss">
+   			    @layer utilities {
+   			         .content-auto {
+   			            content-visibility: auto;
+   			        }
+   			    }
+   			</style>
+   		</head>
+   		<body>
+   			@Navbar(false)
+   			<section class="app">
+   				<article class="prose foo">
+   					<div class="flex gap-1">
+   						<p>head<b>count</b></p>
+   						<button
+   							class="text-clifford foo"
+   							_="
+                               on pointerdown
+                                   repeat until event pointerup
+                                       set rand to Math.random() * 360
+                                       transition
+                                           *background-color
+                                           to `hsl($rand 100% 90%)`
+                                           over 250ms
+                                   end
+                               "
+   						>beta</button>
+   					</div>
+   				</article>
+   				<span hx-get="/contacts" hx-trigger="load"></span>
+   				<div class={ "lg:content-auto", border }>
+   					<span hx-get="/contacts" hx-target="#hx-contacts" hx-swap="beforeend" hx-trigger="load"></span>
+   					<button hx-post="/contacts" hx-target="#hx-contacts" hx-swap="beforeend" class="btn">
+   						New +
+   					</button>
+   					<ul id="hx-contacts"></ul>
+   				</div>
+   			</section>
+   			<footer
+   				class="info"
+   				_="
+                     on load debounced at 10ms
+                     call startMeUp()
+                     hashCache()
+                   "
+   			>
+   				<p>head<b>count</b></p>
+   				@radioButtons()
+   			</footer>
+   		</body>
+   	</html>
+   }
+   templ radioButtons() {
+   	<fieldset>
+   		<legend>Color</legend>
+   		<ul>
+   			<li>
+   				<label>
+   					<input type="radio" name="color" value="ff0000"/>
+   					Red
+   				</label>
+   			</li>
+   			<li>
+   				<label>
+   					<input type="radio" name="color" value="00ff00"/>
+   					Green
+   				</label>
+   			</li>
+   			<li>
+   				<label>
+   					<input type="radio" name="color" value="0000ff"/>
+   					Blue
+   				</label>
+   			</li>
+   		</ul>
+   	</fieldset>
+   }
+*/

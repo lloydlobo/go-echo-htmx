@@ -8,14 +8,21 @@ import (
 )
 
 type (
+	// Action implements enumeration of actions
+	Action int
+
+	// Usage
+	//
+	// 	var filters = []services.Filter{
+	// 			{Url: "#/", Name: "All", Selected: true},
+	// 			{Url: "#/active", Name: "Active", Selected: false},
+	// 			{Url: "#/completed", Name: "Completed", Selected: false},
+	// 	}
 	Filter struct {
 		Url      string
 		Name     string
 		Selected bool
 	}
-
-	// Action implements enumeration of actions
-	Action int
 )
 
 // Enumerate Action related constants in one type
@@ -28,15 +35,16 @@ const ( // Hack: using `-1` as `default` case value to act as ActionGet operatio
 )
 
 type ContactService struct {
-	Contacts  models.Contacts // map[int]*Contact
-	seq       int
-	idCounter int
-	lock      sync.Mutex
+	Contacts  models.Contacts // FUTURE: map[int]*Contact
+	lock      sync.Mutex      // Lock and defer Unlock during mutation of contacts.
+	seq       int             // Tracks times contact is created while server is running. Start from 1.
+	idCounter int             // Tracks current count of Contact till when session resets. Start from 0.
 }
 
 func NewContacts() *ContactService {
 	return &ContactService{
 		Contacts: models.Contacts{},
+		seq:      1,
 	}
 }
 
@@ -46,9 +54,6 @@ func (c *ContactService) Seq() int {
 
 func (c *ContactService) ResetContacts() {
 	c.Contacts = make([]models.Contact, 0)
-}
-
-func (c *ContactService) ResetIdCounter() {
 	c.idCounter = 0
 }
 
