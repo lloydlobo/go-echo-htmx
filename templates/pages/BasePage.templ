@@ -13,7 +13,6 @@ templ Base() {
 			<script type="module" src="/static/js/missing.css.overflow-nav.min.js"></script>
 			<script type="text/hyperscript" src="/static/hs/start-me-up._hs"></script>
 			<script type="text/hyperscript" src="/static/hs/main._hs"></script>
-			<script defer type="module" src="https://unpkg.com/missing.css@1.1.1/dist/js/overflow-nav.js"></script>
 			<script defer src="/static/js/htmx.min.js"></script>
 			<script defer src="/static/js/_hyperscript.min.js"></script>
 			<style type="text/css">
@@ -25,10 +24,14 @@ templ Base() {
                         --accent: oklch(0.62 0.20 258.32);
                         --graphical-fg: oklch(0.34 0.01 252.36);
                         --interactive-bg: oklch(0.28 0.01 256.82);
-                        // This is fg for button
-                        // --interactive-fg: oklch(0.86 0.01 248.11);
-                        // for header navbar bg:
-                        // --box-bg: oklch(0.1 0.02 248.35);
+                        --muted-fg: oklch(0.66 0.02 251 / 1);
+                        --muted-fg: oklch(0.97 0.01 248.12 / 0.1);
+                        // This is fg for button // --interactive-fg: oklch(0.86 0.01 248.11);
+                        // for header navbar bg: // --box-bg: oklch(0.1 0.02 248.35);
+                    }
+                    button,
+                    a.\<button\> {
+                        box-shadow: none;
                     }
                 }
                 input:invalid { border: 3px red solid; }

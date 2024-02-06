@@ -78,9 +78,9 @@ templ ContactLi(contact models.Contact) {
 		</td>
 		<td>
 			if contact.Status == models.StatusActive {
-				<output class="chip ok color">{ contact.Status.String() }</output>
+				<output class="chip ok color <small>">{ contact.Status.String() }</output>
 			} else {
-				<output class="chip warn color">{ contact.Status.String() }</output>
+				<output class="chip warn color <small>">{ contact.Status.String() }</output>
 			}
 		</td>
 	</tr>

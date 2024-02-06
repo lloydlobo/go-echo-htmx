@@ -288,14 +288,14 @@ func ContactLi(contact models.Contact) templ.Component {
 			return templ_7745c5c3_Err
 		}
 		if contact.Status == models.StatusActive {
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<output class=\"chip ok color\">")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<output class=\"chip ok color &lt;small&gt;\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var15 string
 			templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinStringErrs(contact.Status.String())
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates\components\components.templ`, Line: 80, Col: 59}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates\components\components.templ`, Line: 80, Col: 67}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var15))
 			if templ_7745c5c3_Err != nil {
@@ -306,14 +306,14 @@ func ContactLi(contact models.Contact) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		} else {
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<output class=\"chip warn color\">")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<output class=\"chip warn color &lt;small&gt;\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var16 string
 			templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.JoinStringErrs(contact.Status.String())
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates\components\components.templ`, Line: 82, Col: 61}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates\components\components.templ`, Line: 82, Col: 69}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var16))
 			if templ_7745c5c3_Err != nil {
