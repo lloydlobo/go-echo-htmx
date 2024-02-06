@@ -57,6 +57,7 @@ func runMain() {
 
 	// Serve static files
 	http.Handle("/static/", internal.Gzip(http.StripPrefix("/static/", http.FileServer(http.Dir("static/")))))
+	http.HandleFunc("/robots.txt", func(w http.ResponseWriter, r *http.Request) { http.ServeFile(w, r, "robots.txt") })
 
 	// Routes
 	http.Handle("/healthcheck", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { fmt.Fprint(w, http.StatusOK) }))
