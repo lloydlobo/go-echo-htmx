@@ -39,12 +39,17 @@ type DefaultHandler struct { // Log *slog.Logger
 	ContactService ContactService
 }
 
-// IndexPageHandler handles requests for the index page.
+// IndexPageHandler handles requests for GET "/index" page.
 func (h *DefaultHandler) IndexPageHandler(w http.ResponseWriter, r *http.Request) {
 	if err := h.handleCookieSession(w, r); err != nil {
-				http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-				return
-			}
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	indexHTML := pages.IndexPage()
+	h.RenderView(w, r, indexHTML)
+}
 
 // AboutPageHandler handles requests for GET "/about" page.
 func (h *DefaultHandler) AboutPageHandler(w http.ResponseWriter, r *http.Request) {
@@ -64,7 +69,6 @@ func (h *DefaultHandler) ContactPartialsHandler(w http.ResponseWriter, r *http.R
 	case http.MethodGet:
 
 		contacts, err := h.ContactService.Get()
-
 		if err != nil {
 			http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
 			return
@@ -74,23 +78,24 @@ func (h *DefaultHandler) ContactPartialsHandler(w http.ResponseWriter, r *http.R
 		// So beforeend ensures that swap does not mutate the previous elements
 		// PERF: reduce rendering calls and use double buffering like method (collect all <li> and render once at request.)
 		for _, contact := range contacts {
+			w.WriteHeader(http.StatusOK)
 			h.RenderView(w, r, components.ContactLi(contact))
 		}
 		return
 
 	case http.MethodPost:
-		contact, err := h.NewContactFromRequestForm(r)
+		contact, err := h.newContactFromRequestForm(r)
 		if err != nil { // Akcshually form value or query error? TODO: use better errors from this method.
 			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		}
 
 		createdContact := h.ContactService.CrudOps(services.ActionCreate, contact)
 
+		w.WriteHeader(http.StatusOK)
 		h.RenderView(w, r, components.ContactLi(createdContact))
 		return
 
-	default:
-		// Note: after implementing all, use -> http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+	default: // Note: after implementing all, use -> http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		http.Error(w, http.StatusText(http.StatusNotImplemented), http.StatusNotImplemented)
 		return
 	}
