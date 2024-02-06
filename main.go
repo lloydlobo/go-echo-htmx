@@ -70,6 +70,13 @@ func runMain() {
 			http.HandlerFunc(h.IndexPageHandler).ServeHTTP(w, r)
 		}
 	}))
+	http.Handle("/about", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if enableGzip {
+			internal.Gzip(http.HandlerFunc(h.AboutPageHandler)).ServeHTTP(w, r)
+		} else {
+			http.HandlerFunc(h.AboutPageHandler).ServeHTTP(w, r)
+		}
+	}))
 
 	// Routes for partials
 	http.Handle("/contacts", http.HandlerFunc(h.ContactPartialsHandler))

@@ -46,19 +46,16 @@ func (h *DefaultHandler) IndexPageHandler(w http.ResponseWriter, r *http.Request
 				return
 			}
 
-			newCookie := http.Cookie{
-				Name:     cookieName,
-				Value:    newCookieValue,
-				Expires:  time.Now().Add(time.Second * 6000),
-				HttpOnly: true,
-			}
-
-			http.SetCookie(w, &newCookie)
-			h.ContactService.ResetContacts() // Start with new contact data when session is reset
-		}
+// AboutPageHandler handles requests for GET "/about" page.
+func (h *DefaultHandler) AboutPageHandler(w http.ResponseWriter, r *http.Request) {
+	if err := h.handleCookieSession(w, r); err != nil {
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
 	}
 
-	h.RenderView(w, r, pages.IndexPage())
+	w.WriteHeader(http.StatusOK)
+	aboutHTML := pages.AboutPage()
+	h.RenderView(w, r, aboutHTML)
 }
 
 // ContactPartialsHandler handles requests for contact partials.
