@@ -98,7 +98,7 @@ func (h *DefaultHandler) ContactPartialsHandler(w http.ResponseWriter, r *http.R
 
 // TODO: seee which h.ContactService.CrudOps(...) can we use for craeting new.
 // TODO: move this to services.
-func (h *DefaultHandler) NewContactFromRequestForm(r *http.Request) (models.Contact, error) {
+func (h *DefaultHandler) newContactFromRequestForm(r *http.Request) (models.Contact, error) {
 
 	name := r.FormValue("name")
 	email := r.FormValue("email")
