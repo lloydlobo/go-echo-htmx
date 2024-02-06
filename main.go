@@ -40,7 +40,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 
@@ -60,7 +59,7 @@ func runMain() {
 	http.HandleFunc("/robots.txt", func(w http.ResponseWriter, r *http.Request) { http.ServeFile(w, r, "robots.txt") })
 
 	// Routes
-	http.Handle("/healthcheck", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { fmt.Fprint(w, http.StatusOK) }))
+	http.HandleFunc("/healthcheck", h.HealthcheckHandler) // http.Handle("/healthcheck", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { fmt.Fprint(w, http.StatusOK) }))
 
 	// Routes for pages
 	http.Handle("/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

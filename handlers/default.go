@@ -3,6 +3,7 @@
 package handlers
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"time"
@@ -101,8 +102,31 @@ func (h *DefaultHandler) ContactPartialsHandler(w http.ResponseWriter, r *http.R
 	}
 }
 
-// TODO: seee which h.ContactService.CrudOps(...) can we use for craeting new.
-// TODO: move this to services.
+// TODO: use with central error handling middleware
+func (h *DefaultHandler) NotFoundHandler(w http.ResponseWriter, r *http.Request) { // 404
+	w.WriteHeader(http.StatusNotFound)
+	html := pages.NotFoundPage()
+	h.RenderView(w, r, html)
+}
+
+// TODO: use with central error handling middleware
+func (h *DefaultHandler) InternalServerErrorHandler(w http.ResponseWriter, r *http.Request) { // 500
+	w.WriteHeader(http.StatusInternalServerError)
+	html := pages.ServerErrorPage()
+	h.RenderView(w, r, html)
+}
+
+func (h *DefaultHandler) HealthcheckHandler(w http.ResponseWriter, r *http.Request) { // "/healthcheck"
+	w.Header().Set("Content-Type", "application/json")
+
+	jsonResponse := map[string]string{"status": "ok"}
+
+	if err := json.NewEncoder(w).Encode(jsonResponse); err != nil {
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
+}
+
 func (h *DefaultHandler) newContactFromRequestForm(r *http.Request) (models.Contact, error) {
 
 	name := r.FormValue("name")
@@ -111,7 +135,7 @@ func (h *DefaultHandler) newContactFromRequestForm(r *http.Request) (models.Cont
 	status := r.FormValue("status")
 
 	if err := internal.ValidateEmail(email); err != nil {
-		return models.Contact{}, err
+		return models.Contact{}, fmt.Errorf("error while validating email: %v", err)
 	}
 
 	// TODO: escape user input
@@ -173,5 +197,6 @@ type ViewProps struct {
 // RenderView renders the provided templ.Component to http.ResponseWriter with text/html content type.
 func (h *DefaultHandler) RenderView(w http.ResponseWriter, r *http.Request, component templ.Component) {
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+
 	component.Render(r.Context(), w)
 }
