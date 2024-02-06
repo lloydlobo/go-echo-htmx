@@ -10,8 +10,8 @@ import "context"
 import "io"
 import "bytes"
 
-// 400: Resource Not Found
-func NotFoundPage() templ.Component {
+// 500: Internal Server Error
+func ServerErrorPage() templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templ_7745c5c3_W.(*bytes.Buffer)
 		if !templ_7745c5c3_IsBuffer {
@@ -24,7 +24,7 @@ func NotFoundPage() templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<main class=\"container\"><section><hgroup><h1>404</h1><h2>Resource not found</h2></hgroup><p>The requested resource could not be found but may be available again in the future.\r</p><a hx-swap=\"transition:true\" href=\"/\" class=\"button secondary\">Go Home</a></section></main>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<main class=\"container\"><section><hgroup><h1 aria-label=\"error status\">500</h1><h2 aria-label=\"error message\">Internal Server Error</h2></hgroup><p>An unexpected condition was encountered.\r</p></section></main>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

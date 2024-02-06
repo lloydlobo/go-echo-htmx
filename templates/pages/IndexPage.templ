@@ -15,17 +15,26 @@ templ IndexPage() {
 templ IndexContent() {
 	<main>
 		<span hx-get="/contacts" hx-trigger="load"></span>
+		<div class="box">
+			<form class="table rows">
+				<p><label for="name">Name</label> <input id="name"/></p>
+				<p><label for="email">Email</label> <input id="email"/></p>
+				<p><label for="phone">Phone</label> <input id="phone"/></p>
+				<span hx-get="/contacts" hx-target="#hx-contacts" hx-swap="beforeend" hx-trigger="load"></span>
+				<button
+					hx-post="/contacts"
+					hx-target="#hx-contacts"
+					hx-swap="beforeend"
+					class={ "btn" }
+				>
+					New +
+				</button>
+			</form>
+		</div>
 		<div class={ "lg:content-auto" }>
-			<span hx-get="/contacts" hx-target="#hx-contacts" hx-swap="beforeend" hx-trigger="load"></span>
-			<button
-				hx-post="/contacts"
-				hx-target="#hx-contacts"
-				hx-swap="beforeend"
-				class={ "btn" }
-			>
-				New +
-			</button>
-			<ul id="hx-contacts"></ul>
+			<div class="box">
+				<ul id="hx-contacts"></ul>
+			</div>
 		</div>
 	</main>
 }

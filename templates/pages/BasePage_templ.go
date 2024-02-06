@@ -33,7 +33,7 @@ func Base() templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<link rel=\"stylesheet\" href=\"/static/css/style.css\"><link rel=\"stylesheet\" href=\"/static/css/missing.min.css\"><script type=\"text/hyperscript\" src=\"/static/hs/start-me-up._hs\"></script><script type=\"text/hyperscript\" src=\"/static/hs/main._hs\"></script><script defer src=\"/static/js/htmx.min.js\"></script><script defer src=\"/static/js/_hyperscript.min.js\"></script><style type=\"text/css\">\r\n                input:invalid { border: 3px red solid; }\r\n            </style><style type=\"text/tailwindcss\">\r\n\t\t\t    @layer utilities { .content-auto { content-visibility: auto; } }\r\n\t\t\t</style></head><body>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<link rel=\"stylesheet\" href=\"/static/css/missing.min.css\"><script type=\"text/hyperscript\" src=\"/static/hs/start-me-up._hs\"></script><script type=\"text/hyperscript\" src=\"/static/hs/main._hs\"></script><script defer src=\"/static/js/htmx.min.js\"></script><script defer src=\"/static/js/_hyperscript.min.js\"></script><style type=\"text/css\">\r\n                input:invalid { border: 3px red solid; }\r\n            </style><style type=\"text/tailwindcss\">\r\n\t\t\t    @layer utilities { .content-auto { content-visibility: auto; } }\r\n\t\t\t</style></head><body>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

@@ -23,7 +23,7 @@ func Navbar(swapOob bool) templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<nav id=\"navbarContainer\"")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<header class=\"navbar\" data-overflow-nav><!-- rest of navbar... --><nav id=\"navbarContainer\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -33,7 +33,7 @@ func Navbar(swapOob bool) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(" class=\"flex justify-center items-center py-2 top-0 bg-neutral-700 z-50 md:flex-nowrap flex-wrap\"><div class=\"w-5/6 md:w-1/2\"><div class=\"flex\"><div class=\"flex md:flex-nowrap flex-wrap items-center justify-between w-full mr-auto ml-auto\"><a class=\"text-xl py-[0.3125rem] mr-4 no-highlights\" href=\"/\">headcount</a> <input class=\"peer hidden\" type=\"checkbox\" id=\"navbar-check\"> <label class=\"md:hidden\" for=\"navbar-check\">Menu</label><div id=\"navbar\" class=\"flex md:basis-auto basis-full flex-grow-[1] items-center collapsed md:!h-auto md:!flex\"><ul class=\"flex flex-col pl-0 mb-0 list-none mt-2 md:mt-0 me-auto md:flex-row\"><li>About</li></ul></div></div></div></div></nav>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(" aria-label=\"Site sections\" class=\"!flex-grow:1\"><ul role=\"list\"><li><a href=\"/\"><span>head<b>count</b></span></a></li><li><a href=\"/about\">About</a></li></ul></nav><nav aria-label=\"Social media links\"><ul role=\"list\"><li><a href=\"https://github.com/lloydlobo/go-headcount\">GitHub</a></li></ul></nav></header><span hx-get=\"/contacts\" hx-target=\"#contact-list\" hx-indicator=\"#loader\" hx-trigger=\"load\"><span class=\"htmx-indicator indicator\" id=\"loader\" alt=\"Loading...\" aria-busy=\"true\"></span></span>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

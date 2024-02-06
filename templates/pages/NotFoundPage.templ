@@ -1,5 +1,17 @@
 package pages
 
+// 400: Resource Not Found
 templ NotFoundPage() {
-	<div class="404">404 Not Found</div>
+	<main class="container">
+		<section>
+			<hgroup>
+				<h1>404</h1>
+				<h2>Resource not found</h2>
+			</hgroup>
+			<p>
+				The requested resource could not be found but may be available again in the future.
+			</p>
+			<a hx-swap="transition:true" href="/" class="button secondary">Go Home</a>
+		</section>
+	</main>
 }
