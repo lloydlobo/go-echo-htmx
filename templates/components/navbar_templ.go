@@ -33,7 +33,7 @@ func Navbar(swapOob bool) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(" aria-label=\"Site sections\" class=\"contents\"><ul role=\"list\"><li><a href=\"/\"><span>head<b>count</b></span></a></li><li><a href=\"/\"><img alt=\"\"></a></li><li><a href=\"/about\">About</a></li></ul></nav><nav aria-label=\"Social media links\" class=\"contents\"><ul role=\"list\"><li><a href=\"/\"><img alt=\"\"></a></li><li><a href=\"https://github.com/lloydlobo/go-headcount\">GitHub</a></li></ul></nav></header><span hx-get=\"/contacts\" hx-target=\"#contact-list\" hx-indicator=\"#loader\" hx-trigger=\"load\"><span class=\"htmx-indicator indicator !vh\" id=\"loader\" alt=\"Loading...\" aria-busy=\"true\"></span></span>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(" aria-label=\"Site sections\" class=\"contents\"><ul role=\"list\"><li><a href=\"/\"><span>head<b>count</b></span></a></li><li><a href=\"/about\">About</a></li></ul></nav><nav aria-label=\"Social media links\" class=\"contents\"><ul role=\"list\"><li><a href=\"https://github.com/lloydlobo/go-headcount\">GitHub</a></li></ul></nav></header><span hx-get=\"/contacts\" hx-target=\"#contact-list\" hx-indicator=\"#loader\" hx-trigger=\"load\"><span class=\"htmx-indicator indicator !vh\" id=\"loader\" alt=\"Loading...\" aria-busy=\"true\"></span></span>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

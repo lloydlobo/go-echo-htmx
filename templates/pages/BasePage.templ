@@ -29,13 +29,24 @@ templ Base() {
                         // This is fg for button // --interactive-fg: oklch(0.86 0.01 248.11);
                         // for header navbar bg: // --box-bg: oklch(0.1 0.02 248.35);
                     }
+                    // Note: The pointer cursor is for links
                     button,
                     a.\<button\> {
                         box-shadow: none;
                     }
                 }
-                input:invalid { border: 3px red solid; }
-			    .content-auto { content-visibility: auto; }
+                @media (width >= 1250px) {
+                    // hints to the browser about how content should be rendered and handled in terms of rendering performance.
+                    .content-auto { 
+                        content-visibility: auto; 
+                    }
+                }
+                input:invalid { 
+                    border: 3px red solid; 
+                }
+                td:has(.chip){ 
+                    vertical-align: middle; 
+                }
             </style>
 		</head>
 		// hx-ext="theme"
