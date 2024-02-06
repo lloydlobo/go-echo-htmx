@@ -41,13 +41,7 @@ type DefaultHandler struct { // Log *slog.Logger
 
 // IndexPageHandler handles requests for the index page.
 func (h *DefaultHandler) IndexPageHandler(w http.ResponseWriter, r *http.Request) {
-	{ // Note: do we need this now????
-		cookieName := "sessionId"
-		_, err := r.Cookie(cookieName)
-
-		if err == http.ErrNoCookie {
-			newCookieValue, err := internal.GenRandStr(32)
-			if err != nil {
+	if err := h.handleCookieSession(w, r); err != nil {
 				http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 				return
 			}
@@ -133,6 +127,34 @@ func (h *DefaultHandler) NewContactFromRequestForm(r *http.Request) (models.Cont
 	}
 
 	return contact, nil
+}
+
+func (h *DefaultHandler) handleCookieSession(w http.ResponseWriter, r *http.Request) error {
+	cookieName := "sessionID"
+
+	_, err := r.Cookie(cookieName)
+	if err == http.ErrNoCookie {
+
+		newCookieValue, err := internal.GenRandStr(32)
+		if err != nil {
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+			return err
+		}
+
+		newCookie := http.Cookie{
+			Name:     cookieName,
+			Value:    newCookieValue,
+			Expires:  time.Now().Add(time.Second * 6000),
+			HttpOnly: true,
+		}
+
+		http.SetCookie(w, &newCookie)
+		h.ContactService.ResetContacts()
+
+		return nil
+	}
+
+	return err
 }
 
 // YAGNI: See [HTTP Layer](https://templ.guide/project-structure/project-structure/#http-layer)
