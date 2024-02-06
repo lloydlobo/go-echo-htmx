@@ -71,7 +71,7 @@ func IndexPage() templ.Component {
 	})
 }
 
-func IndexContent() templ.Component {
+func radioGroup() templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templ_7745c5c3_W.(*bytes.Buffer)
 		if !templ_7745c5c3_IsBuffer {
@@ -84,24 +84,31 @@ func IndexContent() templ.Component {
 			templ_7745c5c3_Var4 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<main><span hx-get=\"/contacts\" hx-trigger=\"load\"></span><div class=\"box\"><form class=\"table rows\"><p><label for=\"name\">Name</label> <input id=\"name\"></p><p><label for=\"email\">Email</label> <input id=\"email\"></p><p><label for=\"phone\">Phone</label> <input id=\"phone\"></p><span hx-get=\"/contacts\" hx-target=\"#hx-contacts\" hx-swap=\"beforeend\" hx-trigger=\"load\"></span> ")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div role=\"radiogroup\" aria-labelledby=\"status-lbl\"><span id=\"status-lbl\">Status</span><div><div><label><input type=\"radio\" name=\"color\" value=\"ff0000\"> -</label></div><div><label><input type=\"radio\" name=\"color\" value=\"00ff00\"> Active</label></div><div><label><input type=\"radio\" name=\"color\" value=\"0000ff\"> Inactive</label></div></div></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		var templ_7745c5c3_Var5 = []any{"btn"}
-		templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var5...)
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
+		if !templ_7745c5c3_IsBuffer {
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteTo(templ_7745c5c3_W)
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<button hx-post=\"/contacts\" hx-target=\"#hx-contacts\" hx-swap=\"beforeend\" class=\"")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
+		return templ_7745c5c3_Err
+	})
+}
+
+func IndexContent() templ.Component {
+	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
+		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templ_7745c5c3_W.(*bytes.Buffer)
+		if !templ_7745c5c3_IsBuffer {
+			templ_7745c5c3_Buffer = templ.GetBuffer()
+			defer templ.ReleaseBuffer(templ_7745c5c3_Buffer)
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ.CSSClasses(templ_7745c5c3_Var5).String()))
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
+		ctx = templ.InitializeContext(ctx)
+		templ_7745c5c3_Var5 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var5 == nil {
+			templ_7745c5c3_Var5 = templ.NopComponent
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\">New +\r</button></form></div>")
+		ctx = templ.ClearChildren(ctx)
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<main><span hx-get=\"/contacts\" hx-target=\"#hx-contacts\" hx-swap=\"beforeend\" hx-trigger=\"load\"></span><section class=\"tool-bar\"><button type=\"button\">Cut</button> <button type=\"button\">Copy</button> <button type=\"button\">Paste</button><hr aria-orientation=\"vertical\"><label>Find: <input type=\"text\"></label></section><div class=\"box\"><form class=\"table rows\" hx-post=\"/contacts\" hx-target=\"#hx-contacts\" hx-swap=\"beforeend\"><p><label for=\"name\" class=\"!vh\">Name</label> <input type=\"text\" id=\"name\" name=\"name\" placeholder=\"Name\" required value=\"John Doe\"></p><p><label for=\"phone\" class=\"!vh\">Phone</label> <input type=\"tel\" id=\"phone\" name=\"phone\" placeholder=\"Phone\" required value=\"1029384756\"></p><p><label for=\"email\" class=\"!vh\">Email</label> <input type=\"email\" id=\"email\" name=\"email\" placeholder=\"Email\" required value=\"hi@johndoe.com\"></p><p><label for=\"status\" class=\"!vh\">Status</label> <input type=\"checkbox\" id=\"status\" name=\"status\" class=\"margin:0\"></p><!--\n                <button type=\"button\" hx-post=\"/contacts\" hx-target=\"#hx-contacts\" hx-swap=\"beforeend\" class={ \"btn\" }>\n                    New +\n                </button>\n                --><button type=\"submit\">New +</button></form></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

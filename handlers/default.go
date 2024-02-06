@@ -89,9 +89,7 @@ func (h *DefaultHandler) ContactPartialsHandler(w http.ResponseWriter, r *http.R
 
 	case http.MethodPost:
 		contact, err := h.NewContactFromRequestForm(r)
-
-		if err != nil {
-			// Akcshually form value or query error? TODO: use better errors from this method.
+		if err != nil { // Akcshually form value or query error? TODO: use better errors from this method.
 			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		}
 
@@ -110,16 +108,22 @@ func (h *DefaultHandler) ContactPartialsHandler(w http.ResponseWriter, r *http.R
 // TODO: seee which h.ContactService.CrudOps(...) can we use for craeting new.
 // TODO: move this to services.
 func (h *DefaultHandler) NewContactFromRequestForm(r *http.Request) (models.Contact, error) {
+
 	name := r.FormValue("name")
 	email := r.FormValue("email")
 	phone := r.FormValue("phone")
 	status := r.FormValue("status")
 
+	if err := internal.ValidateEmail(email); err != nil {
+		return models.Contact{}, err
+	}
+
+	// TODO: escape user input
 	contact := models.Contact{
 		ID:    uuid.New(),
-		Name:  fmt.Sprintf("John %v", name),
-		Email: fmt.Sprintf("john%v@doe.com", email),
-		Phone: phone,
+		Name:  fmt.Sprintf("%v", name),
+		Email: fmt.Sprintf("%v", email),
+		Phone: fmt.Sprintf("%v", phone),
 		Status: func() (s models.Status) {
 			if status == "on" {
 				return models.StatusActive

@@ -2,6 +2,7 @@ package internal
 
 import (
 	"encoding/base64"
+	"fmt"
 	"testing"
 )
 
@@ -59,6 +60,44 @@ func TestGenRandStr(t *testing.T) {
 			// Check if the decoded length matches the input length
 			if len(decodedBytes) != tt.length {
 				t.Errorf("Expected decoded length %d, got length %d", tt.length, len(decodedBytes))
+			}
+		})
+	}
+}
+
+func TestValidateEmail(t *testing.T) {
+	testCases := []struct {
+		email    string
+		expected bool // if it is validity
+	}{
+		{"test@example.com", true},
+		{"joe@joe.com", true},
+		{"name@name.com", true},
+		{"name-other@name.com", true},
+		{"name-other.com", false},
+		{"invalid.email", false},
+		{"missing@dotcom", false},
+		{"@missingusername.com", false},
+		{"", false},
+		{"with space@example.com", false},
+		{"with/special@chars.com", false},
+		{"john.doe@example.com", true},
+		{"john.doe", false},
+		{"john.doe@example", false},
+		{"john.doe@example.", false},
+		{"john.doe@example.com.", false},
+	}
+
+	for _, testCase := range testCases {
+		t.Run(fmt.Sprintf("Email: %s", testCase.email), func(t *testing.T) {
+			err := ValidateEmail(testCase.email)
+
+			if (err == nil) != testCase.expected {
+				if testCase.expected {
+					t.Errorf("Expected a valid email, but got an error: %v", err)
+				} else {
+					t.Errorf("Expected an invalid email, but got no error: %v", err)
+				}
 			}
 		})
 	}

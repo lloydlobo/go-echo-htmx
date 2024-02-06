@@ -2,10 +2,10 @@ package components
 
 templ Navbar(swapOob bool) {
 	<header class="navbar" data-overflow-nav>
-		// The navbar will remain horizontally scrollable.
-		// <button class="iconbutton" data-nav-expander aria-hidden>
-		// 	&#x2630; <!-- trigram for heaven -->
-		// </button>
+		// The navbar will still also remain horizontally scrollable.
+		<button class="iconbutton" data-nav-expander aria-hidden>
+			&#x2630; <!-- trigram for heaven -->
+		</button>
 		<!-- rest of navbar... -->
 		<nav
 			id="navbarContainer"
@@ -13,23 +13,23 @@ templ Navbar(swapOob bool) {
 				hx-swap-oob="true"
 			}
 			aria-label="Site sections"
-			class="!flex-grow:1"
+			class="contents"
 		>
 			<ul role="list">
 				<li><a href="/"><span>head<b>count</b></span></a></li>
+				<li><a href="/"><img alt=""/></a></li>
 				<li><a href="/about">About</a></li>
-				// <li><a href="/"><img alt="missing.js" src="/logo.png"/></a></li>
-				// <li><a href="/"><img alt=""/></a></li>
 			</ul>
 		</nav>
-		<nav aria-label="Social media links">
+		<nav aria-label="Social media links" class="contents">
 			<ul role="list">
-				// <li><a href="/"><img alt=""/></a></li>
+				<li><a href="/"><img alt=""/></a></li>
 				<li><a href="https://github.com/lloydlobo/go-headcount">GitHub</a></li>
 			</ul>
 		</nav>
 	</header>
+	// This should only appears during loading
 	<span hx-get="/contacts" hx-target="#contact-list" hx-indicator="#loader" hx-trigger="load">
-		<span class="htmx-indicator indicator" id="loader" alt="Loading..." aria-busy="true"></span>
+		<span class="htmx-indicator indicator !vh" id="loader" alt="Loading..." aria-busy="true"></span>
 	</span>
 }

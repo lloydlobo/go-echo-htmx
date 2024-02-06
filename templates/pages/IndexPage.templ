@@ -12,23 +12,52 @@ templ IndexPage() {
 	}
 }
 
+templ radioGroup() {
+	<div role="radiogroup" aria-labelledby="status-lbl">
+		<span id="status-lbl">Status</span>
+		<div>
+			<div><label><input type="radio" name="color" value="ff0000"/> -</label></div>
+			<div><label><input type="radio" name="color" value="00ff00"/> Active</label></div>
+			<div><label><input type="radio" name="color" value="0000ff"/> Inactive</label></div>
+		</div>
+	</div>
+}
+
 templ IndexContent() {
 	<main>
-		<span hx-get="/contacts" hx-trigger="load"></span>
+		// Initial AJAX call to load contacts
+		<span hx-get="/contacts" hx-target="#hx-contacts" hx-swap="beforeend" hx-trigger="load"></span>
+		<section class="tool-bar">
+			<button type="button">Cut</button>
+			<button type="button">Copy</button>
+			<button type="button">Paste</button>
+			<hr aria-orientation="vertical"/>
+			<label>Find: <input type="text"/></label>
+		</section>
 		<div class="box">
-			<form class="table rows">
-				<p><label for="name">Name</label> <input id="name"/></p>
-				<p><label for="email">Email</label> <input id="email"/></p>
-				<p><label for="phone">Phone</label> <input id="phone"/></p>
-				<span hx-get="/contacts" hx-target="#hx-contacts" hx-swap="beforeend" hx-trigger="load"></span>
-				<button
-					hx-post="/contacts"
-					hx-target="#hx-contacts"
-					hx-swap="beforeend"
-					class={ "btn" }
-				>
-					New +
-				</button>
+			<form class="table rows" hx-post="/contacts" hx-target="#hx-contacts" hx-swap="beforeend">
+				<p>
+					<label for="name" class="!vh">Name</label>
+					<input type="text" id="name" name="name" placeholder="Name" required value="John Doe"/>
+				</p>
+				<p>
+					<label for="phone" class="!vh">Phone</label>
+					<input type="tel" id="phone" name="phone" placeholder="Phone" required value="1029384756"/>
+				</p>
+				<p>
+					<label for="email" class="!vh">Email</label>
+					<input type="email" id="email" name="email" placeholder="Email" required value="hi@johndoe.com"/>
+				</p>
+				<p>
+					<label for="status" class="!vh">Status</label>
+					<input type="checkbox" id="status" name="status" class="margin:0"/>
+				</p>
+				<!--
+                <button type="button" hx-post="/contacts" hx-target="#hx-contacts" hx-swap="beforeend" class={ "btn" }>
+                    New +
+                </button>
+                -->
+				<button type="submit">New +</button>
 			</form>
 		</div>
 		<div class={ "lg:content-auto" }>
