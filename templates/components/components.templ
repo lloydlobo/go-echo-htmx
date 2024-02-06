@@ -1,6 +1,7 @@
 package components
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/lloydlobo/go-headcount/models"
@@ -45,11 +46,44 @@ templ filter(filters []services.Filter) {
 	</ul>
 }
 
+var TodoContactLiArgClazz = "activate" // or was it active?
+
+// .list-of-links - Removes underlines from all links inside an element -- sometimes advisable for lists of links.
 templ ContactLi(contact models.Contact) {
-	<li class="flex gap-2">
-		<span class="text-clifford">{ contact.Name }</span>
-		<span>{ contact.Email }</span>
-	</li>
+	<tr class={ "list-of-links", TodoContactLiArgClazz }>
+		<td scope="row">
+			//    querying all via ids may fail as we are appending each id. maybe choose a global id for each checkbox laabel/input???
+			<label for={ templ.EscapeString("ids" + contact.ID.String()) } aria-label="id">
+				<input
+					type="checkbox"
+					name={ templ.EscapeString("ids" + contact.ID.String()) }
+					value={ contact.ID.String() }
+				/>
+			</label>
+		</td>
+		<td>{ contact.Name }</td>
+		<td>
+			<address>
+				<a href={ templ.URL(fmt.Sprintf("tel:+%s", contact.Phone)) } class="">
+					{ contact.Phone }
+				</a>
+			</address>
+		</td>
+		<td>
+			<address>
+				<a href={ templ.URL(fmt.Sprintf("mailto:%s", contact.Email)) } class="">
+					{ contact.Email }
+				</a>
+			</address>
+		</td>
+		<td>
+			if contact.Status == models.StatusActive {
+				<output class="chip ok color <small>">{ contact.Status.String() }</output>
+			} else {
+				<output class="chip warn color <small>">{ contact.Status.String() }</output>
+			}
+		</td>
+	</tr>
 }
 
 /*

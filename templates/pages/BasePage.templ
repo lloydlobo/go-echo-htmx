@@ -8,18 +8,46 @@ templ Base() {
 			<meta charset="UTF-8"/>
 			<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 			@components.Title(false)
-			<link rel="stylesheet" href="/static/css/style.css"/>
 			<link rel="stylesheet" href="/static/css/missing.min.css"/>
+			<!-- Thie src /static/js/missing.css.overflow-nav.min.js is minified and compiled file from https://unpkg.com/missing.css@1.1.1/dist/js/overflow-nav.js, that also imports helpers from 19.js -->
+			<script type="module" src="/static/js/missing.css.overflow-nav.min.js"></script>
 			<script type="text/hyperscript" src="/static/hs/start-me-up._hs"></script>
 			<script type="text/hyperscript" src="/static/hs/main._hs"></script>
 			<script defer src="/static/js/htmx.min.js"></script>
 			<script defer src="/static/js/_hyperscript.min.js"></script>
 			<style type="text/css">
-                input:invalid { border: 3px red solid; }
+                @media (prefers-color-scheme: dark) {
+                    :root:not(.-no-dark-theme) {
+                        --fg: oklch(0.95 0.01 243.80);
+                        --bg: oklch(0.18 0.01 258.40 / 1);
+                        --box-bg: oklch(0.22 0.02 256.84 / 1);
+                        --accent: oklch(0.62 0.20 258.32);
+                        --graphical-fg: oklch(0.34 0.01 252.36);
+                        --interactive-bg: oklch(0.28 0.01 256.82);
+                        --muted-fg: oklch(0.66 0.02 251 / 1);
+                        --muted-fg: oklch(0.97 0.01 248.12 / 0.1);
+                        // This is fg for button // --interactive-fg: oklch(0.86 0.01 248.11);
+                        // for header navbar bg: // --box-bg: oklch(0.1 0.02 248.35);
+                    }
+                    // Note: The pointer cursor is for links
+                    button,
+                    a.\<button\> {
+                        box-shadow: none;
+                    }
+                }
+                @media (width >= 1250px) {
+                    // hints to the browser about how content should be rendered and handled in terms of rendering performance.
+                    .content-auto { 
+                        content-visibility: auto; 
+                    }
+                }
+                input:invalid { 
+                    border: 3px red solid; 
+                }
+                td:has(.chip){ 
+                    vertical-align: middle; 
+                }
             </style>
-			<style type="text/tailwindcss">
-			    @layer utilities { .content-auto { content-visibility: auto; } }
-			</style>
 		</head>
 		// hx-ext="theme"
 		<body>

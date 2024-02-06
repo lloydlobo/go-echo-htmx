@@ -71,7 +71,7 @@ func IndexPage() templ.Component {
 	})
 }
 
-func IndexContent() templ.Component {
+func radioGroup() templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templ_7745c5c3_W.(*bytes.Buffer)
 		if !templ_7745c5c3_IsBuffer {
@@ -84,12 +84,36 @@ func IndexContent() templ.Component {
 			templ_7745c5c3_Var4 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<main><span hx-get=\"/contacts\" hx-trigger=\"load\"></span>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div role=\"radiogroup\" aria-labelledby=\"status-lbl\"><span id=\"status-lbl\">Status</span><div><div><label><input type=\"radio\" name=\"color\" value=\"ff0000\"> -</label></div><div><label><input type=\"radio\" name=\"color\" value=\"00ff00\"> Active</label></div><div><label><input type=\"radio\" name=\"color\" value=\"0000ff\"> Inactive</label></div></div></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		var templ_7745c5c3_Var5 = []any{"lg:content-auto"}
-		templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var5...)
+		if !templ_7745c5c3_IsBuffer {
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteTo(templ_7745c5c3_W)
+		}
+		return templ_7745c5c3_Err
+	})
+}
+
+func IndexContent() templ.Component {
+	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
+		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templ_7745c5c3_W.(*bytes.Buffer)
+		if !templ_7745c5c3_IsBuffer {
+			templ_7745c5c3_Buffer = templ.GetBuffer()
+			defer templ.ReleaseBuffer(templ_7745c5c3_Buffer)
+		}
+		ctx = templ.InitializeContext(ctx)
+		templ_7745c5c3_Var5 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var5 == nil {
+			templ_7745c5c3_Var5 = templ.NopComponent
+		}
+		ctx = templ.ClearChildren(ctx)
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<main><span hx-get=\"/contacts\" hx-target=\"#hx-contacts\" hx-swap=\"beforeend\" hx-trigger=\"load\"></span><section class=\"tool-bar\"><button type=\"button\">Cut</button> <button type=\"button\">Copy</button> <button type=\"button\">Paste</button><hr aria-orientation=\"vertical\"><label>Find: <input type=\"text\"></label></section><div class=\"box\"><form class=\"table rows\" hx-post=\"/contacts\" hx-target=\"#hx-contacts\" hx-swap=\"beforeend\"><p><label for=\"name\" class=\"!vh\">Name</label> <input type=\"text\" pattern=\"[a-zA-Z ]{4,8}\" id=\"name\" name=\"name\" placeholder=\"Name\" required size=\"45\" title=\"Please enter a name with 4 to 8 characters, including spaces. Only letters are allowed.\" value=\"John Doe\"></p><p><label for=\"phone\" class=\"!vh\">Phone</label> <input type=\"tel\" pattern=\"[0-9]{10}\" id=\"phone\" name=\"phone\" placeholder=\"Phone\" required title=\"Please enter a 10-digit phone number.\" value=\"1029384756\"></p><p><label for=\"email\" class=\"!vh\">Email</label> <input type=\"email\" id=\"email\" name=\"email\" placeholder=\"Email\" required title=\"Please enter a valid email address.\" value=\"hi@johndoe.com\"></p><p><label for=\"status\" class=\"!vh\">Status</label> <input type=\"checkbox\" id=\"status\" name=\"status\" class=\"margin:0\"></p><button type=\"submit\" class=\"button\">Submit</button></form></div>")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var6 = []any{"content-auto"}
+		templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var6...)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -97,28 +121,11 @@ func IndexContent() templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ.CSSClasses(templ_7745c5c3_Var5).String()))
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\"><span hx-get=\"/contacts\" hx-target=\"#hx-contacts\" hx-swap=\"beforeend\" hx-trigger=\"load\"></span> ")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		var templ_7745c5c3_Var6 = []any{"btn"}
-		templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var6...)
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<button hx-post=\"/contacts\" hx-target=\"#hx-contacts\" hx-swap=\"beforeend\" class=\"")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ.CSSClasses(templ_7745c5c3_Var6).String()))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\">New +\r</button><ul id=\"hx-contacts\"></ul></div></main>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\"><div class=\"box\"><ul id=\"hx-contacts\"></ul></div></div></main>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

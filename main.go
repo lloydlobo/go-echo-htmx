@@ -1,28 +1,36 @@
-// References:
-//
-//   - https://github.dev/syarul/todomvc-go-templ-htmx-_hyperscript/blob/main/main.go
-//
 // Develop:
+//
+//   - install dependencies
+//     # $ go install github.com/a-h/templ/cmd/templ@latest
 //
 //   - development with hot-module reloading: https://github.com/cosmtrek/air
 //     # $ air init
 //     # $ air
+//
 //   - install templ `go install github.com/a-h/templ/cmd/templ@latest`
 //     # $ `templ generate`
+//
 //   - create a tailwind.config.js file
 //     # $ ./tailwindcss init
+//
 //   - start a watcher
 //     # $ tailwindcss -i .\templates\css\globals.css -o .\static\css\style.css --watch
+//
 //   - compile and minify your CSS for production
 //     # $ tailwindcss -i .\templates\css\globals.css -o .\static\css\style.css --minify
 //
 // Build and Deploy:
 //
+//   - pre-build commands
+//     # $ tailwindcss -i .\templates\css\globals.css -o .\static\css\style.css --minify
+//     # $ templ generate
+//
 //   - build command
 //     # $ go build -tags netgo -ldflags '-s -w' -o app
-//   - pre-deploy command
-//     # $ go install github.com/a-h/templ/cmd/templ@latest
-//     # $ templ generate
+//
+// References:
+//
+//   - https://github.dev/syarul/todomvc-go-templ-htmx-_hyperscript/blob/main/main.go
 //
 // Errorlog:
 //
@@ -32,38 +40,28 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"net/http"
-	"os"
 
 	"github.com/lloydlobo/go-headcount/handlers"
 	"github.com/lloydlobo/go-headcount/internal"
 	"github.com/lloydlobo/go-headcount/services"
 )
 
-// TODO:
-//
-//	log := slog.New(slog.NewJSONHandler(os.Stdout))
-//	store, err := db.NewContactsStore(os.Getenv("TABLE_NAME"), os.Getenv("AWS_REGION"))
-//	cs := services.NewContacts(log, store)
-//	h := handlers.New(log, cs)
-//	sessionHandler := session.NewMiddleware(h, session.WithSecure(secureFlag))
-//	server := &http.Server{Addr: "localhost:8000", Handler: sessionHandler, ReadTimeout: time.Second*10, WriteTimeout: time.Second*10,}
-//	server.ListenAndServer()
 func runMain() {
 	enableGzip := true
 
 	cs := services.NewContacts()
 	h := handlers.New(cs)
 
-	// Routes
+	// Serve static files
 	http.Handle("/static/", internal.Gzip(http.StripPrefix("/static/", http.FileServer(http.Dir("static/")))))
-	http.Handle("/healthcheck", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprintf(w, "200")
-	}))
+	http.HandleFunc("/robots.txt", func(w http.ResponseWriter, r *http.Request) { http.ServeFile(w, r, "robots.txt") })
 
-	// Routes::pages
+	// Routes
+	http.HandleFunc("/healthcheck", h.HealthcheckHandler) // http.Handle("/healthcheck", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { fmt.Fprint(w, http.StatusOK) }))
+
+	// Routes for pages
 	http.Handle("/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if enableGzip {
 			internal.Gzip(http.HandlerFunc(h.IndexPageHandler)).ServeHTTP(w, r)
@@ -71,20 +69,22 @@ func runMain() {
 			http.HandlerFunc(h.IndexPageHandler).ServeHTTP(w, r)
 		}
 	}))
+	http.Handle("/about", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if enableGzip {
+			internal.Gzip(http.HandlerFunc(h.AboutPageHandler)).ServeHTTP(w, r)
+		} else {
+			http.HandlerFunc(h.AboutPageHandler).ServeHTTP(w, r)
+		}
+	}))
 
-	// Routes::partials
+	// Routes for partials
 	http.Handle("/contacts", http.HandlerFunc(h.ContactPartialsHandler))
 
+	port := internal.LookupEnv("PORT", "8000")
+	log.Printf("Listening on localhost:%s\n", port)
+
 	// Start the server
-	port, ok := os.LookupEnv("PORT")
-	if !ok {
-		port = "8000"
-	}
-	addr := fmt.Sprintf(":%s", port)
-
-	log.Printf("Listening on localhost%s\n", addr)
-
-	if err := http.ListenAndServe(addr, nil); err != nil {
+	if err := http.ListenAndServe(":"+port, nil); err != nil {
 		log.Fatalf("Error starting server: %s\n", err)
 	}
 }

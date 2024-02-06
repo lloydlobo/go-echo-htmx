@@ -30,3 +30,9 @@ const (
 
 func (s Status) String() string  { return string(s) }
 func (s Status) IsEnabled() bool { return s == StatusActive }
+func (s Status) IsEnabledAsCheckboxValue() string {
+	if s == StatusActive {
+		return "on"
+	}
+	return ""
+}
