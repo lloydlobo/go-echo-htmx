@@ -8,13 +8,24 @@ templ Base() {
 			<meta charset="UTF-8"/>
 			<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 			@components.Title(false)
+			// Styles
 			<link rel="stylesheet" href="/static/css/missing.min.css"/>
 			<!-- Thie src /static/js/missing.css.overflow-nav.min.js is minified and compiled file from https://unpkg.com/missing.css@1.1.1/dist/js/overflow-nav.js, that also imports helpers from 19.js -->
+			// Scripts
 			<script type="module" src="/static/js/missing.css.overflow-nav.min.js"></script>
 			<script type="text/hyperscript" src="/static/hs/start-me-up._hs"></script>
 			<script type="text/hyperscript" src="/static/hs/main._hs"></script>
-			<script defer src="/static/js/htmx.min.js"></script>
+			<script src="/static/js/htmx.min.js"></script>
+			<script type="text/javascript">
+                htmx.logAll();
+            </script>
 			<script defer src="/static/js/_hyperscript.min.js"></script>
+			// CDN
+			<script defer src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+			<script defer type="module" src="https://unpkg.com/missing.css@1.1.1/dist/js/menu.js"></script>
+			<script defer src="https://unpkg.com/alpinejs@latest/dist/cdn.min.js"></script>
+			<script defer src="https://unpkg.com/htmx.org/dist/ext/debug.js"></script>
+			// Inline styles
 			<style type="text/css">
                 @media (prefers-color-scheme: dark) {
                     :root:not(.-no-dark-theme) {
@@ -41,12 +52,48 @@ templ Base() {
                         content-visibility: auto; 
                     }
                 }
-                input:invalid { 
-                    border: 3px red solid; 
+
+                input:invalid { border: 3px red solid; }
+
+                // td:has(.chip){ vertical-align: middle; }
+
+                ul.no-bullets {
+                    list-style-type: none;
+                    margin: 0;
+                    padding: 0 !important;
                 }
-                td:has(.chip){ 
-                    vertical-align: middle; 
+
+                main {
+                    max-width: min(100% - 1em, 1024px);
                 }
+
+                // #region HTMX
+                .htmx-indicator {
+                    display: none;
+                }
+                .htmx-request .htmx-indicator {
+                    display: inline;
+                }
+                .htmx-request.htmx-indicator {
+                    display: inline;
+                }
+                .htmx-settling tr.deactivate td {
+                    background: lightcoral;
+                }
+                .htmx-settling tr.activate td {
+                    background: darkseagreen;
+                }
+                tr td {
+                    transition: all 1.2s;
+                }
+                tr.htmx-swapping td {
+                    opacity: 0;
+                    transition: opacity 1s ease-out;
+                }
+                .smooth {
+                    transition: all 1s ease-in;
+                }
+                // #endregion HTMX
             </style>
 		</head>
 		// hx-ext="theme"

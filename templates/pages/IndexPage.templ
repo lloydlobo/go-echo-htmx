@@ -1,5 +1,7 @@
 package pages
 
+import "github.com/lloydlobo/go-headcount/templates/components"
+
 templ IndexPage() {
 	if !true {
 		@HxPage() {
@@ -12,118 +14,34 @@ templ IndexPage() {
 	}
 }
 
-templ radioGroup() {
-	<div role="radiogroup" aria-labelledby="status-lbl">
-		<span id="status-lbl">Status</span>
-		<div>
-			<div><label><input type="radio" name="color" value="ff0000"/> -</label></div>
-			<div><label><input type="radio" name="color" value="00ff00"/> Active</label></div>
-			<div><label><input type="radio" name="color" value="0000ff"/> Inactive</label></div>
-		</div>
-	</div>
-}
-
 templ IndexContent() {
+	//  this span requests GET "/contacts" and targets response HTML to element
+	//  with id hx-contacts
+	<span
+		inert
+		hx-get="/contacts"
+		hx-target="#hx-contacts"
+		hx-swap="beforeend"
+		hx-trigger="load"
+	></span>
 	<main>
-		// Initial AJAX call to load contacts
-		<span hx-get="/contacts" hx-target="#hx-contacts" hx-swap="beforeend" hx-trigger="load"></span>
-		<section class="tool-bar">
-			<button type="button">Cut</button>
-			<button type="button">Copy</button>
-			<button type="button">Paste</button>
-			<hr aria-orientation="vertical"/>
-			<label>Find: <input type="text"/></label>
-		</section>
-		<div class="box">
-			<form class="table rows" hx-post="/contacts" hx-target="#hx-contacts" hx-swap="beforeend">
-				<p>
-					<label for="name" class="!vh">Name</label>
-					<input type="text" pattern="[a-zA-Z ]{4,8}" id="name" name="name" placeholder="Name" required size="45" title="Please enter a name with 4 to 8 characters, including spaces. Only letters are allowed." value="John Doe"/>
-				</p>
-				<p>
-					<label for="phone" class="!vh">Phone</label>
-					<input type="tel" pattern="[0-9]{10}" id="phone" name="phone" placeholder="Phone" required title="Please enter a 10-digit phone number." value="1029384756"/>
-				</p>
-				<p>
-					<label for="email" class="!vh">Email</label>
-					<input type="email" id="email" name="email" placeholder="Email" required title="Please enter a valid email address." value="hi@johndoe.com"/>
-				</p>
-				<p>
-					<label for="status" class="!vh">Status</label>
-					<input type="checkbox" id="status" name="status" class="margin:0"/>
-				</p>
-				<button type="submit" class="button">Submit</button>
-			</form>
-		</div>
-		<div class={ "content-auto" }>
-			<div class="box">
-				<ul id="hx-contacts"></ul>
+		<section>
+			<div class="box container">
+				@components.ContactPostForm()
 			</div>
-		</div>
+		</section>
+		<section>
+			<div class={ "content-auto" }>
+				<div class="overflow:auto">
+					<form id="checked-contacts">
+						<div id="hx-contacts">
+							<div id="loader" class="smooth">
+								// @SkeletonTable
+							</div>
+						</div>
+					</form>
+				</div>
+			</div>
+		</section>
 	</main>
 }
-
-/*
-Notes:
-
-    // Naive handler:
-
-    func (c *Contacts) pageHandler(w http.ResponseWriter, r *http.Request) {
-    	x := fmt.Sprintf("Hello, this is a simple Go server!\n%+v", c)
-    	fmt.Fprintln(w, x)
-    }
-
-    // Naive handler with template:
-
-    tmpl, err := template.ParseFiles("index.html")
-    if err != nil {
-    	fmt.Println("Error parsing template:", err)
-    	return
-    }
-
-    data := struct{ Name string }{"John"}
-    if err := tmpl.Execute(w, data); err != nil {
-    	fmt.Println("Error executing template:", err)
-    }
-*/
-
-/*
-Notes:
-
-   <p class="hidden">
-   	<label>
-   		Enter your phone number in the format (123) - 456 - 7890 (
-   		<input
-   			name="tel1"
-   			type="tel"
-   			pattern="[0-9]{3}"
-   			placeholder="###"
-   			aria-label="3-digit area code"
-   			size="2"
-   		/>) -
-   		<input name="tel2" type="tel" pattern="[0-9]{3}" placeholder="###" aria-label="3-digit prefix" size="2"/>
-   		-
-   		<input name="tel3" type="tel" pattern="[0-9]{4}" placeholder="####" aria-label="4-digit number" size="3"/>
-   	</label>
-   </p>
-
-   <form class="hidden">
-   	<div>
-   		<label for="uname">Choose a username: </label>
-   		<input
-   			type="text"
-   			id="uname"
-   			name="name"
-   			required
-   			size="45"
-   			pattern="[a-z]{4,8}"
-   			title="4 to 8 lowercase letters"
-   		/>
-   		<span class="validity"></span>
-   		<p>Usernames must be lowercase and 4-8 characters in length.</p>
-   	</div>
-   	<div>
-   		<button>Submit</button>
-   	</div>
-   </form>
-*/

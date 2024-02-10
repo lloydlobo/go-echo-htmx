@@ -7,7 +7,8 @@ tmp_dir = "tmp"
 [build]
 args_bin = []
 bin = "tmp\\main.exe"
-cmd = "templ generate && go build -o ./tmp/main.exe ."
+# $ "templ generate && go build -o ./tmp/main.exe ./cmd/main.go"
+cmd = "make prebuild"
 delay = 1000
 exclude_dir = ["static", "assets", "tmp", "scripts", "vendor", "testdata"]
 exclude_file = []
