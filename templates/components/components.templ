@@ -1,3 +1,7 @@
+// Tip: See CSS elements, https://templ.guide/syntax-and-usage/css-style-management/#css-elements
+// If you want to make sure that the CSS element is only output once, even if you use a template many times, use a CSS expression.
+// See grid styling, https://yoksel.github.io/grid-cheatsheet/#section-grid-line-values
+
 package components
 
 import (
@@ -6,18 +10,6 @@ import (
 
 var TodoContactLiArgClazz = "activate" // or was it active?
 
-/*
-   tr {
-       display: grid;
-       gap: normal;
-       gap: 1em 1em;
-       grid-template-columns: minmax(4ch, 1fr) repeat(auto-fill, minmax(200px, 1fr)) 12ch;
-       grid-template-columns: 4ch repeat(auto-fill, minmax(200px, 1fr)) 12ch;
-       grid-template-columns: 4ch repeat(3, 200px) auto auto;
-       grid-template-columns: minmax(6ch, 1fr) repeat(auto-fit, minmax(185px, 1fr)) minmax(12ch, 1fr);
-   }
-*/
-// See grid styling, https://yoksel.github.io/grid-cheatsheet/#section-grid-line-values
 templ ContactsTable(contacts models.Contacts) {
 	<table class="table">
 		<thead>
@@ -55,15 +47,17 @@ templ ContactsTable(contacts models.Contacts) {
     </style>
 }
 
+// class={ func() (string) {
+//     if contact.Status == models.StatusActive {
+//         return "activate"
+//     }
+//     return "deactivate"
+// }() }
 templ ContactLi(contact models.Contact) {
 	<tr>
 		<td scope="row">
 			<label for={ templ.EscapeString("ids" + contact.ID.String()) } aria-label="id">
-				<input
-					type="checkbox"
-					name={ templ.EscapeString("ids" + contact.ID.String()) }
-					value={ contact.ID.String() }
-				/>
+				<input type="checkbox" name={ templ.EscapeString("ids" + contact.ID.String()) } value={ contact.ID.String() }/>
 			</label>
 		</td>
 		<td>{ contact.Name }</td>
@@ -135,12 +129,32 @@ templ ContactPostForm() {
 	</form>
 }
 
-// Dropdown
+// alpine js dropdown
+templ hoverExpandable() {
+	<div
+		x-data="{ showDropdown: false }"
+		class="smooth"
+	>
+		<button
+			@click="showDropdown = !showDropdown"
+			@mouseover="showDropdown = true"
+			@mouseleave="showDropdown = false"
+		>Hover me</button>
+		<div
+			x-cloak
+			x-show="showDropdown"
+			@mouseover="showDropdown = true"
+			@mouseleave="showDropdown = false"
+			x-transition.opacity
+			class="box smooth"
+		>Hello, World!</div>
+	</div>
+}
+
+// editDropdown
+//
 // Note: use arrow fn to access this as current button.
 // Note: type="button" avoids page to reload when clicked
-//
-// TIP: See CSS elements, https://templ.guide/syntax-and-usage/css-style-management/#css-elements
-// If you want to make sure that the CSS element is only output once, even if you use a template many times, use a CSS expression.
 templ editDropdown(contact models.Contact) {
 	<style type="text/css">
         .dropdown-btn {
@@ -148,25 +162,31 @@ templ editDropdown(contact models.Contact) {
             justify-content: space-between;
         }
     </style>
-	<button
-		_="on click toggle the *display of the next <ul/>"
-		type="button"
-		role="button"
-		class="iconbutton"
-		style="z-index:-1;"
-	>
-		@MoreHorizontalIcon()
-	</button>
-	<ul class="box no-bullets" style="display:none;position:absolute;z-index:1;">
-		<li class="margin-block-start">
-			<button
-				hx-put={ "/contacts/" + contact.ID.String() }
-				hx-trigger="edit"
-				type="button"
-				role="button"
-				title={ "Edit" + contact.Name }
-				class={ "width:100%", "dropdown-btn" }
-				onclick={ templ.ComponentScript{ Call: `
+	<div x-data="{showDropdown: false,}" class="smooth">
+		<!-- Trigger -->
+		<button @click="showDropdown = !showDropdown" type="button" role="button" class="iconbutton">
+			@MoreHorizontalIcon()
+		</button>
+		<!-- Content -->
+		<ul
+			x-cloak
+			x-show="showDropdown"
+			x-transition.opacity
+			x-transition:enter.duration.500ms
+			x-transition:leave.duration.300ms
+			@click.outside="showDropdown = false"
+			class="box no-bullets smooth"
+			style="display:none; position:absolute; z-index:1;"
+		>
+			<li class="margin-block-start">
+				<button
+					hx-put={ "/contacts/" + contact.ID.String() }
+					hx-trigger="edit"
+					type="button"
+					role="button"
+					title={ "Edit" + contact.Name }
+					class={ "width:100%", "dropdown-btn" }
+					onclick={ templ.ComponentScript{ Call: `
 Swal.fire({
     title: 'Confirm',
     text: 'Do you want to edit?',
@@ -176,37 +196,38 @@ Swal.fire({
     }
 });
                         `, } }
-			>
-				<span class="!vh">Edit</span>
-				<hr aria-orientation="vertical"/>
-				@PencilIcon()
-			</button>
-		</li>
-		// hx-trigger="confirmed"
-		// onclick={ templ.ComponentScript{ Call: `
-		//    Swal.fire({
-		//        title: 'Confirm',
-		//        text: 'Do you want to delete?',
-		//    }).then((result) => {
-		//        if (result.isConfirmed) {
-		//            htmx.trigger(this, 'confirmed');
-		//        }
-		//    });
-		// `, } }
-		<li>
-			<button
-				hx-delete={ "/contacts/" + contact.ID.String() }
-				type="button"
-				role="button"
-				title={ "Remove" + contact.Name }
-				class={ "width:100%", "dropdown-btn bad color" }
-			>
-				<span class="!vh">Delete</span>
-				<hr aria-orientation="vertical"/>
-				@TrashIcon()
-			</button>
-		</li>
-	</ul>
+				>
+					<span class="!vh">Edit</span>
+					<hr aria-orientation="vertical"/>
+					@PencilIcon()
+				</button>
+			</li>
+			// hx-trigger="confirmed"
+			// onclick={ templ.ComponentScript{ Call: `
+			//    Swal.fire({
+			//        title: 'Confirm',
+			//        text: 'Do you want to delete?',
+			//    }).then((result) => {
+			//        if (result.isConfirmed) {
+			//            htmx.trigger(this, 'confirmed');
+			//        }
+			//    });
+			// `, } }
+			<li>
+				<button
+					hx-delete={ "/contacts/" + contact.ID.String() }
+					type="button"
+					role="button"
+					title={ "Remove" + contact.Name }
+					class={ "width:100%", "dropdown-btn bad color" }
+				>
+					<span class="!vh">Delete</span>
+					<hr aria-orientation="vertical"/>
+					@TrashIcon()
+				</button>
+			</li>
+		</ul>
+	</div>
 }
 
 // //    querying all via ids may fail as we are appending each id. maybe choose a global id for each checkbox laabel/input???
@@ -234,4 +255,86 @@ templ ToggleAll(checked bool) {
 		checked?={ checked }
 		_="install ToggleAll"
 	/>
+}
+
+templ Toast(notificationText string) {
+	<div x-data style="z-index: 50;">
+		<div
+			id="topRight"
+			style="max-width: 500px; right: 4em; top: 4em;"
+			class="fixed max-w-xs space-y-2 right-4 top-4"
+		></div>
+		<div
+			id="bottomLeft"
+			style="max-width: 500px; bottom: 4em; left: 4em;"
+			class="fixed max-w-xs space-y-2 bottom-4 left-4"
+		></div>
+		<div class="flex gap-2">
+			<button
+				@click="$notify('Nihil distinctio suscipit iste impedit magnam eius iure culpa mollitia tenetur', {
+              wrapperId: 'bottomLeft',
+              templateId: 'alertStandard',
+              autoRemove: 3000
+            })"
+				class="underline"
+			>
+				Standard
+			</button>
+			<button
+				@click="$notify('Earum aliquid quaerat officiis.', {
+                wrapperId: 'bottomLeft',
+                templateId: 'alertClose',
+              })"
+				class="underline"
+			>
+				Dismiss
+			</button>
+			<button
+				@click="$notify('Lorem ipsum dolor sit amet consectetur adipisicing elit. Optio, natus.', {
+              wrapperId: 'topRight',
+              templateId: 'alertAnimate',
+              autoClose: 3000,
+              autoRemove: true
+            })"
+				class="underline"
+			>
+				Animate
+			</button>
+		</div>
+		<template id="alertStandard">
+			<div role="alert" class="box ">{ notificationText }</div>
+		</template>
+	</div>
+	<template id="alertClose">
+		<div x-data role="alert" class="box bg-gray-100 p-4 data-[notify-show=false]:hidden">
+			{ notificationText }
+			<button @click="$root.setAttribute('data-notify-show', false)" class="underline">Close</button>
+		</div>
+	</template>
+	<template id="alertAnimate">
+		<div
+			x-data
+			role="alert"
+			class="data-[notify-show=true]:animate-slide-in data-[notify-show=false]:animate-slide-out bg-gray-100 p-4"
+		>
+			{ notificationText }
+			<button @click="$root.setAttribute('data-notify-show', false)" class="underline">Close</button>
+		</div>
+	</template>
+}
+
+templ ToggleVH(isOpen bool) {
+	<div
+		x-data={ "{ open:" + func()string{
+        if isOpen{ 
+            return "true"
+        }
+        return "false"
+    }() + "}" }
+	>
+		<button @click="open = !open">Toggle visually hidden</button>
+		<div :class="{ 'vh': ! open }">
+			{ children... }
+		</div>
+	</div>
 }

@@ -86,7 +86,7 @@ func IndexContent() templ.Component {
 			templ_7745c5c3_Var4 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<span inert hx-get=\"/contacts\" hx-target=\"#hx-contacts\" hx-swap=\"beforeend\" hx-trigger=\"load\"></span><main><section><div class=\"box container\">")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<span inert hx-get=\"/contacts\" hx-target=\"#hx-contacts\" hx-swap=\"beforeend\" hx-trigger=\"load\"></span><main><section><!-- alpinejs modal, https://js.hyperui.dev/examples/layout-modal --><!-- Hide a block of HTML until after Alpine is finished initializing its contents --><div x-data=\"{ showModal: false, }\" @keydown.window.escape=\"showModal = false\"><button @click=\"showModal = !showModal\">New +</button><div x-cloak x-transition.opacity x-show=\"showModal\" class=\"fixed center\" style=\"inset: 0; background: #00000050\"></div><div x-cloak x-transition x-show=\"showModal\" class=\"fixed grid center\" style=\"inset: 0; z-index: 50;\"><div x-cloak @click.away=\"showModal = false\" class=\"container box\" style=\"min-height:300px; min-width:300px;\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -94,7 +94,7 @@ func IndexContent() templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div></section><section>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div></div></div></section><section>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -111,7 +111,7 @@ func IndexContent() templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\"><div class=\"overflow:auto\"><form id=\"checked-contacts\"><div id=\"hx-contacts\"><div id=\"loader\" class=\"smooth\"></div></div></form></div></div></section></main>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\"><div class=\"overflow:auto\"><form id=\"checked-contacts\"><div id=\"hx-contacts\"><div id=\"loader\" class=\"smooth\"><!-- @SkeletonTable --></div></div></form></div></div></section></main>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

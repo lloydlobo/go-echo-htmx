@@ -42,7 +42,7 @@
 // # References
 //
 //   - https://github.dev/syarul/todomvc-go-templ-htmx-_hyperscript/blob/main/main.go
-//	- https://github.com/google/exposure-notifications-server/blob/2041f77a0bda55a67214d23dc18f26b3ab895fd1/cmd/admin-console/main.go#L32
+//   - https://github.com/google/exposure-notifications-server/blob/2041f77a0bda55a67214d23dc18f26b3ab895fd1/cmd/admin-console/main.go#L32
 //
 // # Errorlog
 //

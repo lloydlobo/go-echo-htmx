@@ -26,8 +26,38 @@ templ IndexContent() {
 	></span>
 	<main>
 		<section>
-			<div class="box container">
-				@components.ContactPostForm()
+			<!-- alpinejs modal, https://js.hyperui.dev/examples/layout-modal -->
+			<!-- Hide a block of HTML until after Alpine is finished initializing its contents -->
+			<div
+				x-data="{ showModal: false, }"
+				@keydown.window.escape="showModal = false"
+			>
+				<button
+					@click="showModal = !showModal"
+				>New +</button>
+				<div
+					x-cloak
+					x-transition.opacity
+					x-show="showModal"
+					class="fixed center"
+					style="inset: 0; background: #00000050"
+				></div>
+				<div
+					x-cloak
+					x-transition
+					x-show="showModal"
+					class="fixed grid center"
+					style="inset: 0; z-index: 50;"
+				>
+					<div
+						x-cloak
+						@click.away="showModal = false"
+						class="container box"
+						style="min-height:300px; min-width:300px;"
+					>
+						@components.ContactPostForm()
+					</div>
+				</div>
 			</div>
 		</section>
 		<section>
@@ -36,7 +66,7 @@ templ IndexContent() {
 					<form id="checked-contacts">
 						<div id="hx-contacts">
 							<div id="loader" class="smooth">
-								// @SkeletonTable
+								<!-- @SkeletonTable -->
 							</div>
 						</div>
 					</form>

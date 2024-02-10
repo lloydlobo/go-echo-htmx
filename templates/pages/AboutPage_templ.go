@@ -10,6 +10,8 @@ import "context"
 import "io"
 import "bytes"
 
+import "github.com/lloydlobo/go-headcount/templates/components"
+
 func AboutPage() templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templ_7745c5c3_W.(*bytes.Buffer)
@@ -71,6 +73,10 @@ func AboutPage() templ.Component {
 	})
 }
 
+var (
+	notificationText = "Nihil distinctio suscipit iste impedit magnam eius iure culpa mollitia tenetur"
+)
+
 func AboutContent() templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templ_7745c5c3_W.(*bytes.Buffer)
@@ -84,7 +90,15 @@ func AboutContent() templ.Component {
 			templ_7745c5c3_Var4 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<main class=\"airy flow-gap\"><big-screen class=\"dense\"><h1>Quick and easy way to keep count of live gatherings</h1><p>Always stay aware of attendees, visitors, or even guests for an event.\r Coordinate over the internet, so that you won't need to check RSVPs once the event has begun.\r</p><tool-bar><strong><button aria-controls=\"signup-form\" aria-expanded=\"false\" type=\"button\">Sign up</button></strong> <a class=\"&lt;button&gt;\" href=\"#\">Learn more</a></tool-bar></big-screen><div><form hidden=\"\" id=\"signup-form\" class=\"box dense absolute\"><h4>Sign up to our mailing list</h4><div class=\"table rows\"><p><label for=\"email-in\">Email</label> <input type=\"email\" name=\"email\" id=\"email-in\" placeholder=\"you@example.com\"></p><p><label for=\"update-freq\">Update frequency</label> <radio-buttons id=\"update-freq\"><input type=\"radio\" name=\"upd-freq-in\" id=\"upd-all\" checked=\"\"> <label for=\"upd-all\">All updates</label> <input type=\"radio\" name=\"upd-freq-in\" id=\"upd-important\"> <label for=\"upd-important\">Most important</label> <input type=\"radio\" name=\"upd-freq-in\" id=\"upd-weekly\"> <label for=\"upd-weekly\">Weekly digest</label></radio-buttons></p><p><button>Sign Up</button></p></div></form></div><ul role=\"list\" class=\"f-switch dense\"><li class=\"box\"><h2 class=\"&lt;h4&gt;\">Real-time Attendance Tracking</h2><p>Instantly monitor the number of attendees present at your live gatherings.</p></li><li class=\"box\"><h2 class=\"&lt;h4&gt;\">Guest Management</h2><p>Easily manage guest lists, including attendees, visitors, and invited guests.</p></li><li class=\"box\"><h2 class=\"&lt;h4&gt;\">Online RSVP Coordination</h2><p>Effortlessly coordinate RSVPs over the internet, ensuring seamless event planning and management.</p></li></ul><p><b class=\"lede\">Simplify Event Planning with our App!\r</b> Stay on top of attendance, manage guests effortlessly, and coordinate RSVPs seamlessly \r with our powerful and user-friendly app.\r</p></main>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"center\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = components.Toast(notificationText).Render(ctx, templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div><main class=\"airy flow-gap\"><big-screen class=\"dense\"><h1>Quick and easy way to keep count of live gatherings</h1><p>Always stay aware of attendees, visitors, or even guests for an event. Coordinate over the internet, so that you won't need to check RSVPs once the event has begun.</p><tool-bar><strong><button aria-controls=\"signup-form\" aria-expanded=\"false\" type=\"button\">Sign up</button></strong> <a class=\"&lt;button&gt;\" href=\"#\">Learn more</a></tool-bar></big-screen><form hidden=\"\" id=\"signup-form\" class=\"absolute box dense\"><h4>Sign up to our mailing list</h4><div class=\"table rows\"><p><label for=\"email-in\">Email</label> <input type=\"email\" name=\"email\" id=\"email-in\" placeholder=\"you@example.com\"></p><p><label for=\"update-freq\">Update frequency</label> <radio-buttons id=\"update-freq\"><input type=\"radio\" name=\"upd-freq-in\" id=\"upd-all\" checked=\"\"> <label for=\"upd-all\">All updates</label> <input type=\"radio\" name=\"upd-freq-in\" id=\"upd-important\"> <label for=\"upd-important\">Most important</label> <input type=\"radio\" name=\"upd-freq-in\" id=\"upd-weekly\"> <label for=\"upd-weekly\">Weekly digest</label></radio-buttons></p><p><button>Sign Up</button></p></div></form><ul role=\"list\" class=\"f-switch dense\"><li class=\"box\"><h2 class=\"&lt;h4&gt;\">Real-time Attendance Tracking</h2><p>Instantly monitor the number of attendees present at your live gatherings.</p></li><li class=\"box\"><h2 class=\"&lt;h4&gt;\">Guest Management</h2><p>Easily manage guest lists, including attendees, visitors, and invited guests.</p></li><li class=\"box\"><h2 class=\"&lt;h4&gt;\">Online RSVP Coordination</h2><p>Effortlessly coordinate RSVPs over the internet, ensuring seamless event planning and management.</p></li></ul><p><b class=\"lede\">Simplify Event Planning with our App!</b> Stay on top of attendance, manage guests effortlessly, and coordinate RSVPs seamlessly  with our powerful and user-friendly app.</p></main>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

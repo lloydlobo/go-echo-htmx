@@ -1,5 +1,7 @@
 package pages
 
+import "github.com/lloydlobo/go-headcount/templates/components"
+
 templ AboutPage() {
 	if !true {
 		@HxPage() {
@@ -12,7 +14,14 @@ templ AboutPage() {
 	}
 }
 
+var (
+	notificationText = "Nihil distinctio suscipit iste impedit magnam eius iure culpa mollitia tenetur"
+)
+
 templ AboutContent() {
+	<div class="center">
+		@components.Toast(notificationText)
+	</div>
 	<main class="airy flow-gap">
 		<big-screen class="dense">
 			<h1>Quick and easy way to keep count of live gatherings</h1>
@@ -25,30 +34,27 @@ templ AboutContent() {
 				<a class="<button>" href="#">Learn more</a>
 			</tool-bar>
 		</big-screen>
-		// 
-		<div>
-			<form hidden="" id="signup-form" class="box dense absolute">
-				<h4>Sign up to our mailing list</h4>
-				<div class="table rows">
-					<p>
-						<label for="email-in">Email</label>
-						<input type="email" name="email" id="email-in" placeholder="you@example.com"/>
-					</p>
-					<p>
-						<label for="update-freq">Update frequency</label>
-						<radio-buttons id="update-freq">
-							<input type="radio" name="upd-freq-in" id="upd-all" checked=""/>
-							<label for="upd-all">All updates</label>
-							<input type="radio" name="upd-freq-in" id="upd-important"/>
-							<label for="upd-important">Most important</label>
-							<input type="radio" name="upd-freq-in" id="upd-weekly"/>
-							<label for="upd-weekly">Weekly digest</label>
-						</radio-buttons>
-					</p>
-					<p><button>Sign Up</button></p>
-				</div>
-			</form>
-		</div>
+		<form hidden="" id="signup-form" class="absolute box dense">
+			<h4>Sign up to our mailing list</h4>
+			<div class="table rows">
+				<p>
+					<label for="email-in">Email</label>
+					<input type="email" name="email" id="email-in" placeholder="you@example.com"/>
+				</p>
+				<p>
+					<label for="update-freq">Update frequency</label>
+					<radio-buttons id="update-freq">
+						<input type="radio" name="upd-freq-in" id="upd-all" checked=""/>
+						<label for="upd-all">All updates</label>
+						<input type="radio" name="upd-freq-in" id="upd-important"/>
+						<label for="upd-important">Most important</label>
+						<input type="radio" name="upd-freq-in" id="upd-weekly"/>
+						<label for="upd-weekly">Weekly digest</label>
+					</radio-buttons>
+				</p>
+				<p><button>Sign Up</button></p>
+			</div>
+		</form>
 		<ul role="list" class="f-switch dense">
 			<li class="box">
 				<h2 class="<h4>">Real-time Attendance Tracking</h2>
