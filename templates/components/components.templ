@@ -186,34 +186,24 @@ templ editDropdown(contact models.Contact) {
 					role="button"
 					title={ "Edit" + contact.Name }
 					class={ "width:100%", "dropdown-btn" }
-					onclick={ templ.ComponentScript{ Call: `
-Swal.fire({
-    title: 'Confirm',
-    text: 'Do you want to edit?',
-}).then((result) => {
-    if (result.isConfirmed) {
-        htmx.trigger(this, 'edit');
-    }
-});
-                        `, } }
 				>
 					<span class="!vh">Edit</span>
 					<hr aria-orientation="vertical"/>
 					@PencilIcon()
 				</button>
 			</li>
-			// hx-trigger="confirmed"
-			// onclick={ templ.ComponentScript{ Call: `
-			//    Swal.fire({
-			//        title: 'Confirm',
-			//        text: 'Do you want to delete?',
-			//    }).then((result) => {
-			//        if (result.isConfirmed) {
-			//            htmx.trigger(this, 'confirmed');
-			//        }
-			//    });
-			// `, } }
 			<li>
+				// hx-trigger="confirmed"
+				// onclick={ templ.ComponentScript{ Call: `
+				//    Swal.fire({
+				//        title: 'Confirm',
+				//        text: 'Do you want to delete?',
+				//    }).then((result) => {
+				//        if (result.isConfirmed) {
+				//            htmx.trigger(this, 'confirmed');
+				//        }
+				//    });
+				// `, } }
 				<button
 					hx-delete={ "/contacts/" + contact.ID.String() }
 					type="button"
@@ -323,7 +313,7 @@ templ Toast(notificationText string) {
 	</template>
 }
 
-templ ToggleVH(isOpen bool) {
+templ ToggleVisuallyHidden(isOpen bool) {
 	<div
 		x-data={ "{ open:" + func()string{
         if isOpen{ 

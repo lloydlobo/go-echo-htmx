@@ -275,19 +275,6 @@ func editDropdown(contact models.Contact) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templ.RenderScriptItems(ctx, templ_7745c5c3_Buffer, templ.ComponentScript{Call: `
-Swal.fire({
-    title: 'Confirm',
-    text: 'Do you want to edit?',
-}).then((result) => {
-    if (result.isConfirmed) {
-        htmx.trigger(this, 'edit');
-    }
-});
-                        `})
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<button hx-put=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
@@ -312,24 +299,6 @@ Swal.fire({
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\" onclick=\"")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		var templ_7745c5c3_Var12 templ.ComponentScript = templ.ComponentScript{Call: `
-Swal.fire({
-    title: 'Confirm',
-    text: 'Do you want to edit?',
-}).then((result) => {
-    if (result.isConfirmed) {
-        htmx.trigger(this, 'edit');
-    }
-});
-                        `}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var12.Call)
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\"><span class=\"!vh\">Edit</span><hr aria-orientation=\"vertical\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
@@ -342,8 +311,8 @@ Swal.fire({
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		var templ_7745c5c3_Var13 = []any{"width:100%", "dropdown-btn bad color"}
-		templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var13...)
+		var templ_7745c5c3_Var12 = []any{"width:100%", "dropdown-btn bad color"}
+		templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var12...)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -367,7 +336,7 @@ Swal.fire({
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ.CSSClasses(templ_7745c5c3_Var13).String()))
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ.CSSClasses(templ_7745c5c3_Var12).String()))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -416,9 +385,9 @@ func ToggleAll(checked bool) templ.Component {
 			defer templ.ReleaseBuffer(templ_7745c5c3_Buffer)
 		}
 		ctx = templ.InitializeContext(ctx)
-		templ_7745c5c3_Var14 := templ.GetChildren(ctx)
-		if templ_7745c5c3_Var14 == nil {
-			templ_7745c5c3_Var14 = templ.NopComponent
+		templ_7745c5c3_Var13 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var13 == nil {
+			templ_7745c5c3_Var13 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<input id=\"toggle-all\" class=\"toggle-all\" type=\"checkbox\"")
@@ -450,25 +419,38 @@ func Toast(notificationText string) templ.Component {
 			defer templ.ReleaseBuffer(templ_7745c5c3_Buffer)
 		}
 		ctx = templ.InitializeContext(ctx)
-		templ_7745c5c3_Var15 := templ.GetChildren(ctx)
-		if templ_7745c5c3_Var15 == nil {
-			templ_7745c5c3_Var15 = templ.NopComponent
+		templ_7745c5c3_Var14 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var14 == nil {
+			templ_7745c5c3_Var14 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div x-data style=\"z-index: 50;\"><div id=\"topRight\" style=\"max-width: 500px; right: 4em; top: 4em;\" class=\"fixed max-w-xs space-y-2 right-4 top-4\"></div><div id=\"bottomLeft\" style=\"max-width: 500px; bottom: 4em; left: 4em;\" class=\"fixed max-w-xs space-y-2 bottom-4 left-4\"></div><div class=\"flex gap-2\"><button @click=\"$notify(&#39;Nihil distinctio suscipit iste impedit magnam eius iure culpa mollitia tenetur&#39;, {\n              wrapperId: &#39;bottomLeft&#39;,\n              templateId: &#39;alertStandard&#39;,\n              autoRemove: 3000\n            })\" class=\"underline\">Standard</button> <button @click=\"$notify(&#39;Earum aliquid quaerat officiis.&#39;, {\n                wrapperId: &#39;bottomLeft&#39;,\n                templateId: &#39;alertClose&#39;,\n              })\" class=\"underline\">Dismiss</button> <button @click=\"$notify(&#39;Lorem ipsum dolor sit amet consectetur adipisicing elit. Optio, natus.&#39;, {\n              wrapperId: &#39;topRight&#39;,\n              templateId: &#39;alertAnimate&#39;,\n              autoClose: 3000,\n              autoRemove: true\n            })\" class=\"underline\">Animate</button></div><template id=\"alertStandard\"><div role=\"alert\" class=\"box \">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
+		var templ_7745c5c3_Var15 string
+		templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinStringErrs(notificationText)
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates\components\components.templ`, Line: 294, Col: 52}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var15))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div></template></div><template id=\"alertClose\"><div x-data role=\"alert\" class=\"box bg-gray-100 p-4 data-[notify-show=false]:hidden\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
 		var templ_7745c5c3_Var16 string
 		templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.JoinStringErrs(notificationText)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates\components\components.templ`, Line: 304, Col: 52}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates\components\components.templ`, Line: 299, Col: 21}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var16))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div></template></div><template id=\"alertClose\"><div x-data role=\"alert\" class=\"box bg-gray-100 p-4 data-[notify-show=false]:hidden\">")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(" <button @click=\"$root.setAttribute(&#39;data-notify-show&#39;, false)\" class=\"underline\">Close</button></div></template><template id=\"alertAnimate\"><div x-data role=\"alert\" class=\"data-[notify-show=true]:animate-slide-in data-[notify-show=false]:animate-slide-out bg-gray-100 p-4\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -478,19 +460,6 @@ func Toast(notificationText string) templ.Component {
 			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates\components\components.templ`, Line: 309, Col: 21}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var17))
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(" <button @click=\"$root.setAttribute(&#39;data-notify-show&#39;, false)\" class=\"underline\">Close</button></div></template><template id=\"alertAnimate\"><div x-data role=\"alert\" class=\"data-[notify-show=true]:animate-slide-in data-[notify-show=false]:animate-slide-out bg-gray-100 p-4\">")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		var templ_7745c5c3_Var18 string
-		templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.JoinStringErrs(notificationText)
-		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates\components\components.templ`, Line: 319, Col: 21}
-		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var18))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -505,7 +474,7 @@ func Toast(notificationText string) templ.Component {
 	})
 }
 
-func ToggleVH(isOpen bool) templ.Component {
+func ToggleVisuallyHidden(isOpen bool) templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templ_7745c5c3_W.(*bytes.Buffer)
 		if !templ_7745c5c3_IsBuffer {
@@ -513,9 +482,9 @@ func ToggleVH(isOpen bool) templ.Component {
 			defer templ.ReleaseBuffer(templ_7745c5c3_Buffer)
 		}
 		ctx = templ.InitializeContext(ctx)
-		templ_7745c5c3_Var19 := templ.GetChildren(ctx)
-		if templ_7745c5c3_Var19 == nil {
-			templ_7745c5c3_Var19 = templ.NopComponent
+		templ_7745c5c3_Var18 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var18 == nil {
+			templ_7745c5c3_Var18 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div x-data=\"")
@@ -535,7 +504,7 @@ func ToggleVH(isOpen bool) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templ_7745c5c3_Var19.Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = templ_7745c5c3_Var18.Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

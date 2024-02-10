@@ -49,7 +49,15 @@ func Base() templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div><footer><div><p x-cloak>Copyright © 2024<div x-data=\"{ date: new Date().getFullYear() }\"><template x-if=\"date != 2024\"><span>&nbsp;-&nbsp;</span> <span x-text=\"date\"></span></template></div></p></div></footer><div id=\"toast-container\" class=\"fixed bottom-0 right-0 flex flex-col gap-2 p-3\"></div></body></html>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div>")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = components.Footer().Render(ctx, templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div id=\"toast-container\" class=\"fixed bottom-0 right-0 flex flex-col gap-2 p-3\"></div></body></html>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

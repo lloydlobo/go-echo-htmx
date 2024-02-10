@@ -1,0 +1,15 @@
+package components
+
+templ Footer() {
+	<footer>
+		<div class="center">
+			<p x-cloak x-data="{ initialYear: 2024, date: new Date().getFullYear() }">
+				Copyright © <span x-text="initialYear"></span>
+				<template x-if="date != initialYear">
+					<span>&nbsp;-&nbsp;</span>
+					<span x-text="date"></span>
+				</template>
+			</p>
+		</div>
+	</footer>
+}

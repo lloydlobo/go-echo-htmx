@@ -110,19 +110,7 @@ templ Base() {
 			>
 				{ children... }
 			</div>
-			<footer>
-				<div>
-					<p x-cloak>
-						Copyright © 2024
-						<div x-data="{ date: new Date().getFullYear() }">
-							<template x-if="date != 2024">
-								<span>&nbsp;-&nbsp;</span>
-								<span x-text="date"></span>
-							</template>
-						</div>
-					</p>
-				</div>
-			</footer>
+			@components.Footer()
 			<div
 				id="toast-container"
 				class="fixed bottom-0 right-0 flex flex-col gap-2 p-3"
