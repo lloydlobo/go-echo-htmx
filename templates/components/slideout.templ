@@ -4,12 +4,24 @@ import "github.com/lloydlobo/go-headcount/templates"
 
 // Requires: <script defer src="https://unpkg.com/alpinejs@latest/dist/cdn.min.js"></script>
 templ Slideout(contents templ.Component, triggerText string, isOpen bool) {
-	<div x-cloak x-data={ "{ slideOut: " + templates.BoolToStrJS(isOpen) + " }" } @keydown.window.escape="slideOut = false">
+	<div
+		x-cloak
+		x-data={ "{ slideOut: " + templates.BoolToStrJS(isOpen) + " }" }
+		@keydown.window.escape="slideOut = false"
+	>
 		<!-- trigger -->
-		if triggerText != "" {
-			<button @click="slideOut = !slideOut" class="big">{ templ.EscapeString(triggerText) } </button>
-		} else {
-			<button @click="slideOut = !slideOut" class="big">Toggle</button>
+		if !isOpen {
+			if triggerText == "" {
+				<button
+					@click="slideOut = !slideOut"
+					class="big"
+				>Toggle</button>
+			} else {
+				<button
+					@click="slideOut = !slideOut"
+					class="big"
+				>{ templ.EscapeString(triggerText) } </button>
+			}
 		}
 		<!-- overlay -->
 		<div
