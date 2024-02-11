@@ -9,7 +9,7 @@ templ Slideout(contents templ.Component, triggerText string, isOpen bool) {
 		x-data={ "{ slideOut: " + templates.BoolToStrJS(isOpen) + " }" }
 		@keydown.window.escape="slideOut = false"
 	>
-		<!-- trigger -->
+		<!-- trigger open -->
 		if !isOpen {
 			if triggerText == "" {
 				<button
@@ -44,7 +44,17 @@ templ Slideout(contents templ.Component, triggerText string, isOpen bool) {
 			@click.away="slideOut = false"
 			class="fixed box"
 		>
-			// { children... }
+			<!-- trigger close -->
+			<button
+				@click="slideOut = !slideOut"
+				class="iconbutton"
+				title="Close"
+				type="button"
+				role="button"
+			>
+				@XIcon()
+			</button>
+			<!-- children content -->
 			@contents
 		</aside>
 	</div>

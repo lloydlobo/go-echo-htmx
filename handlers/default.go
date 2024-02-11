@@ -23,10 +23,12 @@ package handlers
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"log"
 	"net/http"
 	"regexp"
+	"strings"
 	"time"
 
 	"github.com/a-h/templ"
@@ -143,7 +145,7 @@ func (h *DefaultHandler) HandleCreateContact(w http.ResponseWriter, r *http.Requ
 		h.Log.Fatalf("expected %s but got %s", http.MethodPost, r.Method)
 	}
 
-	contact, err := h.parseNewContactFromRequestForm(r)
+	contact, err := h.parseContactFromRequestForm(r)
 	if err != nil { // Akcshually form value or query error? TODO: use better errors from this method.
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
@@ -174,39 +176,54 @@ func (h *DefaultHandler) HandleGetUpdateContactForm(w http.ResponseWriter, r *ht
 	}
 
 	contact := h.ContactService.CrudOps(services.ActionEdit, models.Contact{ID: id})
-	updatedContact := h.ContactService.CrudOps(services.ActionUpdate, contact)
 
 	w.WriteHeader(http.StatusOK)
-	html := components.Slideout(components.ContactPutForm(updatedContact), "Close", true)
+	html := components.Slideout(components.ContactPutForm(contact), "Close", true)
 	h.RenderView(w, r, html)
 }
 
 // HandleUpdateContact handles HTTP PUT - /contacts/{id}.
+//
+// Reference: https://htmx.org/examples/update-other-content/#events
+//
+//	<tbody id="contacts-table" hx-get="/contacts/table" hx-trigger="newContact from:body">
+//
+// When a successful contact creation occurs during a POST to /contacts, the
+// response includes an HX-Trigger response header that looks like this:
+//
+// HX-Trigger:newContact
+// This will trigger the table to issue a GET to /contacts/table and this
+// will render the newly added contact row (in addition to the rest of the table.)
 func (h *DefaultHandler) HandleUpdateContact(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPut {
 		h.Log.Fatalf("expected %s but got %s", http.MethodPut, r.Method)
 	}
 
 	// FIXME: error while validating email: mail: no address
-	contact, err := h.parseNewContactFromRequestForm(r)
+	contact, err := h.parseContactFromRequestForm(r)
 	if err != nil {
 		h.Log.Println("failed to parse contact from request form", err.Error(), http.StatusInternalServerError)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
+	h.Log.Printf("got form values to update: %+v", contact)
+
+	oldContact := h.ContactService.CrudOps(services.ActionEdit, contact)
+	if oldContact.ID != contact.ID {
+		err := errors.New("error matching records")
+		h.Log.Println(err.Error(), http.StatusNotFound)
+		http.Error(w, err.Error(), http.StatusNotFound)
+		return
+
+	}
+
 	updatedContact := h.ContactService.CrudOps(services.ActionUpdate, contact)
 
-	enableSwap := true
-	if enableSwap {
-		w.WriteHeader(http.StatusOK)
-		html := components.ContactLi(updatedContact)
-		h.RenderView(w, r, html)
-	} else {
-
-		w.WriteHeader(http.StatusNoContent)
-		fmt.Fprint(w, http.StatusNoContent)
-	}
+	w.Header().Add("HX-Trigger", "newContact")
+	w.WriteHeader(http.StatusOK)
+	html := components.ContactLi(updatedContact)
+	h.RenderView(w, r, html)
 }
 
 // HandleDeleteContact handles HTTP DELETE - /contacts/{id}.
@@ -266,12 +283,25 @@ func (h *DefaultHandler) HandleHealthcheck(w http.ResponseWriter, r *http.Reques
 
 // --------------------------------------------------------------------------------------------------
 
-func (h *DefaultHandler) parseNewContactFromRequestForm(r *http.Request) (models.Contact, error) {
+func (h *DefaultHandler) parseContactFromRequestForm(r *http.Request) (models.Contact, error) {
+	var (
+		uuidID uuid.UUID
+		err    error
+	)
 
+	id := r.FormValue("id")
 	name := r.FormValue("name")
 	email := r.FormValue("email")
 	phone := r.FormValue("phone")
 	status := r.FormValue("status")
+
+	if id != "" {
+		uuidID, err = uuid.Parse(id)
+		if err != nil {
+			h.Log.Printf("failed to parse form id value: %v", err)
+			return models.Contact{}, fmt.Errorf("error while validating email: %v", err)
+		}
+	}
 
 	if err := internal.ValidateEmail(email); err != nil {
 		h.Log.Printf("failed to validate email: %v", err)
@@ -280,10 +310,15 @@ func (h *DefaultHandler) parseNewContactFromRequestForm(r *http.Request) (models
 
 	// TODO: escape user input
 	contact := models.Contact{
-		ID:    uuid.New(),
-		Name:  fmt.Sprintf("%v", name),
-		Email: fmt.Sprintf("%v", email),
-		Phone: fmt.Sprintf("%v", phone),
+		ID: func() uuid.UUID {
+			if id == "" {
+				return uuid.New()
+			}
+			return uuidID
+		}(),
+		Name:  strings.Trim(name, " "),
+		Phone: strings.Trim(phone, " "),
+		Email: strings.Trim(email, " "),
 		Status: func() (s models.Status) {
 			if status == "on" {
 				return models.StatusActive

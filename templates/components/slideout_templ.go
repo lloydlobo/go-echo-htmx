@@ -34,7 +34,7 @@ func Slideout(contents templ.Component, triggerText string, isOpen bool) templ.C
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\" @keydown.window.escape=\"slideOut = false\"><!-- trigger -->")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\" @keydown.window.escape=\"slideOut = false\"><!-- trigger open -->")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -64,7 +64,15 @@ func Slideout(contents templ.Component, triggerText string, isOpen bool) templ.C
 				}
 			}
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<!-- overlay --><div x-cloak x-transition.opacity x-show=\"slideOut\" class=\"fixed\" style=\"inset: 0; background: #00000050;\"></div><!-- content --><aside x-cloak x-show=\"slideOut\" x-transition:enter=\"transition ease-out duration-300\" x-transition:enter-start=\"translate-x-full\" x-transition:enter-end=\"translate-x-0\" x-transition:leave=\"transition ease-in duration-300\" x-transition:leave-start=\"translate-x-0\" x-transition:leave-end=\"translate-x-full\" @click.away=\"slideOut = false\" class=\"fixed box\">")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<!-- overlay --><div x-cloak x-transition.opacity x-show=\"slideOut\" class=\"fixed\" style=\"inset: 0; background: #00000050;\"></div><!-- content --><aside x-cloak x-show=\"slideOut\" x-transition:enter=\"transition ease-out duration-300\" x-transition:enter-start=\"translate-x-full\" x-transition:enter-end=\"translate-x-0\" x-transition:leave=\"transition ease-in duration-300\" x-transition:leave-start=\"translate-x-0\" x-transition:leave-end=\"translate-x-full\" @click.away=\"slideOut = false\" class=\"fixed box\"><!-- trigger close --><button @click=\"slideOut = !slideOut\" class=\"iconbutton\" title=\"Close\" type=\"button\" role=\"button\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = XIcon().Render(ctx, templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</button><!-- children content -->")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -149,7 +157,7 @@ func paragraph(contents string) templ.Component {
 		var templ_7745c5c3_Var5 string
 		templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(contents)
 		if templ_7745c5c3_Err != nil {
-			return	templ.Error{Err: templ_7745c5c3_Err, FileName: `templates\components\slideout.templ`, Line: 98, Col: 14}
+			return	templ.Error{Err: templ_7745c5c3_Err, FileName: `templates\components\slideout.templ`, Line: 108, Col: 14}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 		if templ_7745c5c3_Err != nil {

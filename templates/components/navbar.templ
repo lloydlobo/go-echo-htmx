@@ -32,7 +32,9 @@ templ Navbar(swapOob bool) {
 			</ul>
 		</nav>
 	</header>
-	<!-- This should only appears during loading -->
+	<!-- 
+    Note: deprecated: using this directly at callsite i.e. in IndexPage
+    This should only appears during loading
 	<span
 		hx-get="/contacts"
 		hx-target="#contact-list"
@@ -46,4 +48,5 @@ templ Navbar(swapOob bool) {
 			aria-busy="true"
 		></span>
 	</span>
+     -->
 }

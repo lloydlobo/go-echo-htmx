@@ -38,9 +38,9 @@ func main() {
 	{
 		devENV := true
 		if devENV {
-			cs = services.NewContactsFromAPI()
+			cs = services.NewContactServiceFromAPI()
 		} else {
-			cs = services.NewContacts()
+			cs = services.NewContactService()
 		}
 	}
 	h := handlers.New(logger, cs)

@@ -25,11 +25,21 @@ templ ContactsTable(contacts models.Contacts) {
 		</thead>
 		// hx-swap="outerHTML swap:1s"
 		// hx-confirm="Are you sure?"
-		<tbody
-			id="tBody"
-			hx-target="closest tr"
-			hx-swap="outerHTML"
-		>
+		<!--
+		Reference: https://htmx.org/examples/update-other-content/#events
+            <tbody id="contacts-table" hx-get="/contacts/table" hx-trigger="newContact from:body">
+
+        When a successful contact creation occurs during a POST to /contacts, the 
+        response includes an HX-Trigger response header that looks like this:
+
+        HX-Trigger:newContact
+        This will trigger the table to issue a GET to /contacts/table and this 
+        will render the newly added contact row (in addition to the rest of the table.)
+
+        Very clean, event driven programming!
+        -->
+		<tbody id="contacts-table" hx-get="/contacts" hx-trigger="newContact from:body">
+			// <tbody id="tBody" hx-target="closest tr" hx-swap="outerHTML">
 			for _, contact := range contacts {
 				@ContactLi(contact)
 			}
@@ -79,11 +89,26 @@ templ ContactLi(contact models.Contact) {
 }
 
 templ ContactPutForm(contact models.Contact) {
+	// hx-include="closest tr"
+	// hx-target="this"
+	// maybe we should swap it??
+	// Should check this out: https://htmx.org/examples/click-to-edit/
+	// hx-swap="outerHTML"
 	<form
 		hx-put={ "/contacts/" + contact.ID.String() }
-		hx-target="#hx-contacts"
+		hx-target="body"
 		class="table rows dense"
 	>
+		<p inert class="vh">
+			<label for="id">Name</label>
+			<input
+				inert
+				id="id"
+				name="id"
+				placeholder="id"
+				value={ contact.ID.String() }
+			/>
+		</p>
 		<p>
 			<label for="name" class="!vh">Name</label>
 			<!-- size="45" -->
@@ -139,8 +164,20 @@ templ ContactPutForm(contact models.Contact) {
 	</form>
 }
 
+// Note: how to close the parent slideout component?
+//
+// x-data="{ isOpen: true, }"
+// x-show="isOpen"
+// x-transition:enter.duration.500ms
+// x-transition:leave.duration.750ms
+// @submit.prevent="isOpen = false"
+//
 templ ContactPostForm() {
-	<form hx-post="/contacts" hx-target="#hx-contacts" class="table rows dense">
+	<form
+		hx-post="/contacts"
+		hx-target="#hx-contacts"
+		class="table rows dense"
+	>
 		<p>
 			<label for="name" class="!vh">Name</label>
 			<!-- size="45" -->
@@ -188,7 +225,10 @@ templ ContactPostForm() {
 			<label for="fakerContacts" class="!vh">Faker</label>
 			<input type="checkbox" id="fakerContacts" name="fakerContacts"/>
 		</p>
-		<button type="submit" class="big margin-block">Submit</button>
+		<button
+			type="submit"
+			class="big margin-block"
+		>Submit</button>
 	</form>
 }
 
@@ -250,10 +290,11 @@ templ editDropdown(contact models.Contact) {
 			class="box no-bullets smooth dropdown-container"
 		>
 			<li class="margin-block-start">
+				<!-- Note: ensure that server renders inside the body tag -->
 				<button
 					hx-get={ "/contacts/" + contact.ID.String() + "/edit" }
 					hx-target="body"
-					hx-swap="afterend"
+					hx-swap="beforeend"
 					type="button"
 					role="button"
 					title={ "Edit" + contact.Name }
