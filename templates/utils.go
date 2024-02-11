@@ -10,3 +10,10 @@ func GetPageTitle(ctx context.Context) string {
 	}
 	return title
 }
+
+func BoolToStrJS(b bool) string {
+	if b {
+		return "true"
+	}
+	return "false"
+}

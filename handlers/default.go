@@ -116,7 +116,7 @@ func (h *DefaultHandler) HandleReadContacts(w http.ResponseWriter, r *http.Reque
 	h.RenderView(w, r, components.ContactsTable(contacts))
 }
 
-// HandleReadContact handles HTTP GET - /contacts/{id}
+// HandleReadContact handles HTTP GET - /contacts/{id}.
 func (h *DefaultHandler) HandleReadContact(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		h.Log.Fatalf("expected %s but got %s", http.MethodGet, r.Method)
@@ -143,7 +143,7 @@ func (h *DefaultHandler) HandleCreateContact(w http.ResponseWriter, r *http.Requ
 		h.Log.Fatalf("expected %s but got %s", http.MethodPost, r.Method)
 	}
 
-	contact, err := h.parseContactFromRequestForm(r)
+	contact, err := h.parseNewContactFromRequestForm(r)
 	if err != nil { // Akcshually form value or query error? TODO: use better errors from this method.
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
@@ -162,14 +162,33 @@ func (h *DefaultHandler) HandleCreateContact(w http.ResponseWriter, r *http.Requ
 	h.RenderView(w, r, html)
 }
 
-// HandleUpdateContact handles HTTP PUT - /contacts/{id}
+// HandleGetUpdateContactForm handles HTTP GET - /contacts/{id}/edit.
+// Renders a slideout aside with a form pre-filled with contact of id's details.
+func (h *DefaultHandler) HandleGetUpdateContactForm(w http.ResponseWriter, r *http.Request) {
+	rawid := r.PathValue("id")
+
+	id, err := uuid.Parse(rawid)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	contact := h.ContactService.CrudOps(services.ActionEdit, models.Contact{ID: id})
+	updatedContact := h.ContactService.CrudOps(services.ActionUpdate, contact)
+
+	w.WriteHeader(http.StatusOK)
+	html := components.Slideout(components.ContactPutForm(updatedContact), "Close", true)
+	h.RenderView(w, r, html)
+}
+
+// HandleUpdateContact handles HTTP PUT - /contacts/{id}.
 func (h *DefaultHandler) HandleUpdateContact(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPut {
 		h.Log.Fatalf("expected %s but got %s", http.MethodPut, r.Method)
 	}
 
 	// FIXME: error while validating email: mail: no address
-	contact, err := h.parseContactFromRequestForm(r)
+	contact, err := h.parseNewContactFromRequestForm(r)
 	if err != nil {
 		h.Log.Println("failed to parse contact from request form", err.Error(), http.StatusInternalServerError)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -180,7 +199,6 @@ func (h *DefaultHandler) HandleUpdateContact(w http.ResponseWriter, r *http.Requ
 
 	enableSwap := true
 	if enableSwap {
-
 		w.WriteHeader(http.StatusOK)
 		html := components.ContactLi(updatedContact)
 		h.RenderView(w, r, html)
@@ -191,26 +209,7 @@ func (h *DefaultHandler) HandleUpdateContact(w http.ResponseWriter, r *http.Requ
 	}
 }
 
-/* tmp
-func deleteContact(ctx echo.Context) error {
-	id := ctx.Param("id")
-	found := false
-	for i, contact := range contacts {
-		if contact.ID.String() == id {
-			contacts, found = append(contacts[:i], contacts[i+1:]...), true
-			break
-		}
-	}
-	// Consider options like `hx-swap='none'` for preserving the current state or `hx-swap='delete'` for removing elements in response to the request.
-	// FIXME: How to avoid replacing a <tr> if it's not allowd to be deleted?
-	if !found { // return ctx.String(http.StatusNotFound, "")
-		log.Println(errors.New("failed to find contact with the request id param"))
-		return ctx.JSON(http.StatusNotFound, map[string]string{"message": "Contact not found"})
-	}
-	return ctx.String(http.StatusOK, "") // Send empty string back to swap nothinw with row to delete.
-}
-*/
-// HandleDeleteContact handles HTTP DELETE - /contacts/{id}
+// HandleDeleteContact handles HTTP DELETE - /contacts/{id}.
 //
 // To remove the element following a successful DELETE, return a
 // 200 status code with an empty body; if the server responds with a 204,
@@ -267,7 +266,7 @@ func (h *DefaultHandler) HandleHealthcheck(w http.ResponseWriter, r *http.Reques
 
 // --------------------------------------------------------------------------------------------------
 
-func (h *DefaultHandler) parseContactFromRequestForm(r *http.Request) (models.Contact, error) {
+func (h *DefaultHandler) parseNewContactFromRequestForm(r *http.Request) (models.Contact, error) {
 
 	name := r.FormValue("name")
 	email := r.FormValue("email")
@@ -337,9 +336,12 @@ type ViewProps struct {
 // 		pages.Page(props.Count.Global, props.Counts.Session).Render(r.Context(), w)
 // }
 
-// RenderView renders the provided templ.Component to http.ResponseWriter with text/html content type.
+// RenderView renders the provided templ.Component to http.ResponseWriter with
+// text/html content type.
 //
-// Handle the errors and return an error message to the user. That way if something does go wrong, the server will function exactly how we want and the user can be notified.
+// Handle the errors and return an error message to the user. That way if
+// something does go wrong, the server will function exactly how we want and
+// the user can be notified.
 func (h *DefaultHandler) RenderView(w http.ResponseWriter, r *http.Request, component templ.Component) {
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 

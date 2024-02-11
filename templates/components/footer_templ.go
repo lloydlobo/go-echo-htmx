@@ -9,6 +9,22 @@ import "github.com/a-h/templ"
 import "context"
 import "io"
 import "bytes"
+import "strings"
+
+import (
+	"fmt"
+	"time"
+)
+
+func slimFooter() templ.CSSClass {
+	var templ_7745c5c3_CSSBuilder strings.Builder
+	templ_7745c5c3_CSSBuilder.WriteString(`margin-block:0;`)
+	templ_7745c5c3_CSSID := templ.CSSID(`slimFooter`, templ_7745c5c3_CSSBuilder.String())
+	return templ.ComponentCSSClass{
+		ID:    templ_7745c5c3_CSSID,
+		Class: templ.SafeCSS(`.` + templ_7745c5c3_CSSID + `{` + templ_7745c5c3_CSSBuilder.String() + `}`),
+	}
+}
 
 func Footer() templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
@@ -23,7 +39,56 @@ func Footer() templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<footer><div class=\"center\"><p x-cloak x-data=\"{ initialYear: 2024, date: new Date().getFullYear() }\">Copyright © <span x-text=\"initialYear\"></span><template x-if=\"date != initialYear\"><span>&nbsp;-&nbsp;</span> <span x-text=\"date\"></span></template></p></div></footer>")
+		var templ_7745c5c3_Var2 = []any{slimFooter}
+		templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var2...)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<footer class=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ.CSSClasses(templ_7745c5c3_Var2).String()))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\"><div class=\"center\"><p>Copyright ©  <span>")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var3 string
+		templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprint(2024))
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates\components\footer.templ`, Line: 16, Col: 28}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</span> ")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		if time.Now().Year() != 2024 {
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<span>&nbsp;-&nbsp;</span> <span>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var4 string
+			templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprint(time.Now().Year()))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates\components\footer.templ`, Line: 19, Col: 42}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</span>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</p></div></footer>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -33,3 +98,46 @@ func Footer() templ.Component {
 		return templ_7745c5c3_Err
 	})
 }
+
+/*
+Archive:
+
+# With global state (not idempotent, pure templ function)
+
+    var (
+        initialYear = fmt.Sprint(2024)
+        currentYear = fmt.Sprint(time.Now().Year())
+    )
+
+    templ Footer() {
+        <footer class={ slimFooter }>
+            <div class="center">
+                <p>
+                    Copyright ©
+                    <span>{ initialYear }</span>
+                    if currentYear != initialYear {
+                        <span>&nbsp;-&nbsp;</span>
+                        <span>{ currentYear }</span>
+                    }
+                </p>
+            </div>
+        </footer>
+    }
+
+# With AlpineJS
+
+    templ Footer() {
+        <footer>
+            <div class={ "center", maxHeight }>
+                <p x-cloak x-data="{ initialYear: initialYear, date: new Date().getFullYear() }">
+                    Copyright © <span x-text="initialYear"></span>
+                    <template x-if="date != initialYear">
+                        <span>&nbsp;-&nbsp;</span>
+                        <span x-text="date"></span>
+                    </template>
+                </p>
+            </div>
+        </footer>
+    }
+
+*/

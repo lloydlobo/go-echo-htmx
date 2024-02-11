@@ -1,18 +1,25 @@
 package components
 
+import "github.com/lloydlobo/go-headcount/templates"
+
 // Requires: <script defer src="https://unpkg.com/alpinejs@latest/dist/cdn.min.js"></script>
-templ Slideout(triggerText string) {
-	<div x-cloak x-data="{ slideOut: false }" @keydown.window.escape="slideOut = false">
+templ Slideout(contents templ.Component, triggerText string, isOpen bool) {
+	<div x-cloak x-data={ "{ slideOut: " + templates.BoolToStrJS(isOpen) + " }" } @keydown.window.escape="slideOut = false">
 		<!-- trigger -->
 		if triggerText != "" {
-			<button @click="slideOut = !slideOut" class="underline">{ templ.EscapeString(triggerText) } </button>
+			<button @click="slideOut = !slideOut" class="big">{ templ.EscapeString(triggerText) } </button>
 		} else {
-			<button @click="slideOut = !slideOut" class="underline">Toggle</button>
+			<button @click="slideOut = !slideOut" class="big">Toggle</button>
 		}
 		<!-- overlay -->
-		<div x-cloak x-transition.opacity x-show="slideOut" class="fixed" style="inset: 0; background: #00000050;"></div>
+		<div
+			x-cloak
+			x-transition.opacity
+			x-show="slideOut"
+			class="fixed"
+			style="inset: 0; background: #00000050;"
+		></div>
 		<!-- content -->
-		<!-- use aside -->
 		<aside
 			x-cloak
 			x-show="slideOut"
@@ -24,9 +31,60 @@ templ Slideout(triggerText string) {
 			x-transition:leave-end="translate-x-full"
 			@click.away="slideOut = false"
 			class="fixed box"
-			style="position: fixed; top: 0; right: 0; bottom: 0; width: 300px; z-index: 50;"
 		>
-			{ children... }
+			// { children... }
+			@contents
 		</aside>
 	</div>
+	<style type="text/css">
+        aside {
+            position: fixed; 
+            top: 0; 
+            right: 0; 
+            bottom: 0; 
+            width: 300px; 
+            z-index: 50;
+        }
+    </style>
+	<style type="text/css">
+        .transition {
+            transition: ease-out 300ms;
+        }
+        .ease-out {
+            transition-timing-function: ease-out;
+        }
+        .duration-300 {
+            transition-duration: 300ms;
+        }
+        .translate-x-full {
+            transform: translateX(100%);
+        }
+        .translate-x-0 {
+            transform: translateX(0);
+        }
+        .ease-in {
+            transition-timing-function: ease-in;
+        }
+    </style>
 }
+
+/*
+	// c := paragraph("Dynamic contents")
+	// layout(c).Render(context.Background(), os.Stdout)
+
+// TODO:
+// https://templ.guide/syntax-and-usage/template-composition/
+templ layout(contents templ.Component) {
+	<div id="heading">
+		@heading()
+	</div>
+	<div id="contents">
+		@contents
+	</div>
+}
+
+templ paragraph(contents string) {
+	<p>{ contents }</p>
+}
+
+*/

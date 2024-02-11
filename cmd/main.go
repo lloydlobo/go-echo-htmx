@@ -85,6 +85,8 @@ func main() {
 //	   // ... (similar groups for partials, etc.)
 //	   return mux
 //	}
+//
+// TODO: refactor me to handlers/router.go
 func initializeRoutes(logger *log.Logger, h *handlers.DefaultHandler) *http.ServeMux {
 	var withGzip bool = true
 	mux := http.NewServeMux()
@@ -103,6 +105,9 @@ func initializeRoutes(logger *log.Logger, h *handlers.DefaultHandler) *http.Serv
 	mux.HandleFunc("GET /contacts/{id}", h.HandleReadContact)
 	mux.HandleFunc("PUT /contacts/{id}", h.HandleUpdateContact)
 	mux.HandleFunc("DELETE /contacts/{id}", h.HandleDeleteContact)
+
+	// Routes for intermediate requests
+	mux.HandleFunc("GET /contacts/{id}/edit", h.HandleGetUpdateContactForm)
 
 	mux.HandleFunc("/healthcheck", h.HandleHealthcheck)
 

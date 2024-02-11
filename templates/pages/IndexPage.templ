@@ -14,9 +14,10 @@ templ IndexPage() {
 	}
 }
 
+//  this span requests GET "/contacts" and targets response HTML to element
+//  with id hx-contacts
+//
 templ IndexContent() {
-	//  this span requests GET "/contacts" and targets response HTML to element
-	//  with id hx-contacts
 	<span
 		inert
 		hx-get="/contacts"
@@ -25,10 +26,11 @@ templ IndexContent() {
 		hx-trigger="load"
 	></span>
 	<main>
-		<section>
-			@components.Slideout("New +") {
-				@components.ContactPostForm()
-			}
+		<section x-cloak>
+			// @components.Slideout("New +", false) {
+			// 	@components.ContactPostForm()
+			// }
+			@components.Slideout(components.ContactPostForm(), "New +", false)
 		</section>
 		<section>
 			<div class={ "content-auto" }>

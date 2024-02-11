@@ -1,15 +1,68 @@
 package components
 
+import (
+	"fmt"
+	"time"
+)
+
+css slimFooter() {
+	margin-block: 0;
+}
+
 templ Footer() {
-	<footer>
+	<footer class={ slimFooter }>
 		<div class="center">
-			<p x-cloak x-data="{ initialYear: 2024, date: new Date().getFullYear() }">
-				Copyright © <span x-text="initialYear"></span>
-				<template x-if="date != initialYear">
+			<p>
+				Copyright © 
+				<span>{ fmt.Sprint(2024) }</span>
+				if time.Now().Year() != 2024 {
 					<span>&nbsp;-&nbsp;</span>
-					<span x-text="date"></span>
-				</template>
+					<span>{ fmt.Sprint(time.Now().Year()) }</span>
+				}
 			</p>
 		</div>
 	</footer>
 }
+
+/*
+Archive:
+
+# With global state (not idempotent, pure templ function)
+
+    var (
+        initialYear = fmt.Sprint(2024)
+        currentYear = fmt.Sprint(time.Now().Year())
+    )
+
+    templ Footer() {
+        <footer class={ slimFooter }>
+            <div class="center">
+                <p>
+                    Copyright ©
+                    <span>{ initialYear }</span>
+                    if currentYear != initialYear {
+                        <span>&nbsp;-&nbsp;</span>
+                        <span>{ currentYear }</span>
+                    }
+                </p>
+            </div>
+        </footer>
+    }
+
+# With AlpineJS
+
+    templ Footer() {
+        <footer>
+            <div class={ "center", maxHeight }>
+                <p x-cloak x-data="{ initialYear: initialYear, date: new Date().getFullYear() }">
+                    Copyright © <span x-text="initialYear"></span>
+                    <template x-if="date != initialYear">
+                        <span>&nbsp;-&nbsp;</span>
+                        <span x-text="date"></span>
+                    </template>
+                </p>
+            </div>
+        </footer>
+    }
+
+*/
