@@ -255,10 +255,11 @@ func (h *DefaultHandler) HandleDeleteContact(w http.ResponseWriter, r *http.Requ
 
 	_ = h.ContactService.CrudOps(services.ActionDelete, models.Contact{ID: uuidID})
 
-	// TODO!!!!!!!!!!!!!!!!!!!!!!!!!1: put the table of contacts inside a form
-	// remove hx-target or swap with body:. see htmx docs
+	// Note: remove hx-target or swap with body:. see htmx docs
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte{}) // or use fmt.Fprintf(w, "")
+	// w.Write([]byte{})
+	// OR
+	fmt.Fprintf(w, "")
 }
 
 // --------------------------------------------------------------------------------------------------

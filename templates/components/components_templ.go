@@ -17,6 +17,22 @@ import (
 
 var TodoContactLiArgClazz = "activate" // or was it active?
 
+// <!--
+// Reference: https://htmx.org/examples/update-other-content/#events
+//
+//	<tbody id="contacts-table" hx-get="/contacts/table" hx-trigger="newContact from:body">
+//
+// When a successful contact creation occurs during a POST to /contacts, the
+// response includes an HX-Trigger response header that looks like this:
+//
+// HX-Trigger:newContact
+// This will trigger the table to issue a GET to /contacts/table and this
+// will render the newly added contact row (in addition to the rest of the table.)
+//
+// Very clean, event driven programming!
+// <tbody id="contacts-table" hx-get="/contacts" hx-trigger="newContact from:body" >
+// -->
+// <!-- hx-confirm="Are you sure?" -->
 func ContactsTable(contacts models.Contacts) templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templ_7745c5c3_W.(*bytes.Buffer)
@@ -30,7 +46,7 @@ func ContactsTable(contacts models.Contacts) templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<table class=\"table\"><thead><tr><th></th><th>Name</th><th>Phone</th><th>Email</th><th>Status</th><th style=\"min-width:10ch;\">Action</th></tr></thead><!--\n\t\tReference: https://htmx.org/examples/update-other-content/#events\n            <tbody id=\"contacts-table\" hx-get=\"/contacts/table\" hx-trigger=\"newContact from:body\">\n\n        When a successful contact creation occurs during a POST to /contacts, the \n        response includes an HX-Trigger response header that looks like this:\n\n        HX-Trigger:newContact\n        This will trigger the table to issue a GET to /contacts/table and this \n        will render the newly added contact row (in addition to the rest of the table.)\n\n        Very clean, event driven programming!\n        --><tbody id=\"contacts-table\" hx-get=\"/contacts\" hx-trigger=\"newContact from:body\">")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<table class=\"table\"><thead><tr><th></th><th>Name</th><th>Phone</th><th>Email</th><th>Status</th><th style=\"min-width:14ch;\">Action</th></tr></thead> <tbody id=\"tBody\" hx-target=\"closest tr\" hx-swap=\"outerHTML swap:1s\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -40,7 +56,7 @@ func ContactsTable(contacts models.Contacts) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</tbody></table><style type=\"text/css\">\n        table {\n            tr td {\n                text-wrap: balance;\n\n                /* style the second td that is the name thead field value */\n                /* &:nth-child(2) { min-width: min(45vw, 22ch); } */ \n                /* style the third td that is the phone thead field value */\n                /* &:nth-child(3) { min-width: min(25vw, 16ch); }*/ \n            }\n        }\n    </style>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</tbody></table><style type=\"text/css\">\n        table {\n            tr td {\n                text-wrap: balance;\n                /* style the second td that is the name thead field value */\n                /* &:nth-child(2) { min-width: min(45vw, 22ch); } */ \n                /* style the third td that is the phone thead field value */\n                /* &:nth-child(3) { min-width: min(25vw, 16ch); }*/ \n            }\n        }\n    </style>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -109,7 +125,7 @@ func ContactLi(contact models.Contact) templ.Component {
 		var templ_7745c5c3_Var3 string
 		templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(contact.Name)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates\components\components.templ`, Line: 74, Col: 20}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates\components\components.templ`, Line: 72, Col: 20}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 		if templ_7745c5c3_Err != nil {
@@ -122,7 +138,7 @@ func ContactLi(contact models.Contact) templ.Component {
 		var templ_7745c5c3_Var4 string
 		templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(contact.Phone)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates\components\components.templ`, Line: 75, Col: 21}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates\components\components.templ`, Line: 73, Col: 21}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 		if templ_7745c5c3_Err != nil {
@@ -135,7 +151,7 @@ func ContactLi(contact models.Contact) templ.Component {
 		var templ_7745c5c3_Var5 string
 		templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(contact.Email)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates\components\components.templ`, Line: 76, Col: 21}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates\components\components.templ`, Line: 74, Col: 21}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 		if templ_7745c5c3_Err != nil {
@@ -153,7 +169,7 @@ func ContactLi(contact models.Contact) templ.Component {
 			var templ_7745c5c3_Var6 string
 			templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(contact.Status.String())
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates\components\components.templ`, Line: 79, Col: 68}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates\components\components.templ`, Line: 77, Col: 68}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 			if templ_7745c5c3_Err != nil {
@@ -171,7 +187,7 @@ func ContactLi(contact models.Contact) templ.Component {
 			var templ_7745c5c3_Var7 string
 			templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(contact.Status.String())
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates\components\components.templ`, Line: 81, Col: 70}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates\components\components.templ`, Line: 79, Col: 70}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 			if templ_7745c5c3_Err != nil {
@@ -534,7 +550,7 @@ func Toast(notificationText string) templ.Component {
 		var templ_7745c5c3_Var16 string
 		templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.JoinStringErrs(notificationText)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates\components\components.templ`, Line: 406, Col: 52}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates\components\components.templ`, Line: 404, Col: 52}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var16))
 		if templ_7745c5c3_Err != nil {
@@ -547,7 +563,7 @@ func Toast(notificationText string) templ.Component {
 		var templ_7745c5c3_Var17 string
 		templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.JoinStringErrs(notificationText)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates\components\components.templ`, Line: 411, Col: 21}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates\components\components.templ`, Line: 409, Col: 21}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var17))
 		if templ_7745c5c3_Err != nil {
@@ -560,7 +576,7 @@ func Toast(notificationText string) templ.Component {
 		var templ_7745c5c3_Var18 string
 		templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.JoinStringErrs(notificationText)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates\components\components.templ`, Line: 421, Col: 21}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates\components\components.templ`, Line: 419, Col: 21}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var18))
 		if templ_7745c5c3_Err != nil {

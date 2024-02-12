@@ -11,6 +11,21 @@ import (
 
 var TodoContactLiArgClazz = "activate" // or was it active?
 
+// <!--
+// Reference: https://htmx.org/examples/update-other-content/#events
+//     <tbody id="contacts-table" hx-get="/contacts/table" hx-trigger="newContact from:body">
+//
+// When a successful contact creation occurs during a POST to /contacts, the
+// response includes an HX-Trigger response header that looks like this:
+//
+// HX-Trigger:newContact
+// This will trigger the table to issue a GET to /contacts/table and this
+// will render the newly added contact row (in addition to the rest of the table.)
+//
+// Very clean, event driven programming!
+// <tbody id="contacts-table" hx-get="/contacts" hx-trigger="newContact from:body" >
+// -->
+// <!-- hx-confirm="Are you sure?" -->
 templ ContactsTable(contacts models.Contacts) {
 	<table class="table">
 		<thead>
@@ -20,26 +35,10 @@ templ ContactsTable(contacts models.Contacts) {
 				<th>Phone</th>
 				<th>Email</th>
 				<th>Status</th>
-				<th style="min-width:10ch;">Action</th>
+				<th style="min-width:14ch;">Action</th>
 			</tr>
 		</thead>
-		// hx-swap="outerHTML swap:1s"
-		// hx-confirm="Are you sure?"
-		<!--
-		Reference: https://htmx.org/examples/update-other-content/#events
-            <tbody id="contacts-table" hx-get="/contacts/table" hx-trigger="newContact from:body">
-
-        When a successful contact creation occurs during a POST to /contacts, the 
-        response includes an HX-Trigger response header that looks like this:
-
-        HX-Trigger:newContact
-        This will trigger the table to issue a GET to /contacts/table and this 
-        will render the newly added contact row (in addition to the rest of the table.)
-
-        Very clean, event driven programming!
-        -->
-		<tbody id="contacts-table" hx-get="/contacts" hx-trigger="newContact from:body">
-			// <tbody id="tBody" hx-target="closest tr" hx-swap="outerHTML">
+		<tbody id="tBody" hx-target="closest tr" hx-swap="outerHTML swap:1s">
 			for _, contact := range contacts {
 				@ContactLi(contact)
 			}
@@ -49,7 +48,6 @@ templ ContactsTable(contacts models.Contacts) {
         table {
             tr td {
                 text-wrap: balance;
-
                 /* style the second td that is the name thead field value */
                 /* &:nth-child(2) { min-width: min(45vw, 22ch); } */ 
                 /* style the third td that is the phone thead field value */
