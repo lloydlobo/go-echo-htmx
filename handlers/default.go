@@ -25,6 +25,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"html"
 	"log"
 	"net/http"
 	"regexp"
@@ -90,8 +91,6 @@ func (h *DefaultHandler) AboutPageHandler(w http.ResponseWriter, r *http.Request
 	aboutHTML := pages.AboutPage()
 	h.RenderView(w, r, aboutHTML)
 }
-
-// TODO: Fetch users from jsonplaceholders.typicode in services:. API/DB
 
 // HandleReadContacts handles requests for contact partials.
 //
@@ -207,8 +206,6 @@ func (h *DefaultHandler) HandleUpdateContact(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	h.Log.Printf("got form values to update: %+v", contact)
-
 	oldContact := h.ContactService.CrudOps(services.ActionEdit, contact)
 	if oldContact.ID != contact.ID {
 		err := errors.New("error matching records")
@@ -220,6 +217,16 @@ func (h *DefaultHandler) HandleUpdateContact(w http.ResponseWriter, r *http.Requ
 
 	updatedContact := h.ContactService.CrudOps(services.ActionUpdate, contact)
 
+	var emptyContact models.Contact
+	if updatedContact == emptyContact {
+		err := errors.New("something went wrong when updating record") // if update action returns empty value, incorrect email or contact was deleted due to empty name(courtesy of todomvc style action.)
+		h.Log.Println(err.Error(), http.StatusInternalServerError)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	// FIXME: implement this to update the whole table on newContact event.
+	//     this ensures that data stays uptodate and doesnt remain stale(multi users sessions.)
 	w.Header().Add("HX-Trigger", "newContact")
 	w.WriteHeader(http.StatusOK)
 	html := components.ContactLi(updatedContact)
@@ -281,85 +288,6 @@ func (h *DefaultHandler) HandleHealthcheck(w http.ResponseWriter, r *http.Reques
 	}
 }
 
-// --------------------------------------------------------------------------------------------------
-
-func (h *DefaultHandler) parseContactFromRequestForm(r *http.Request) (models.Contact, error) {
-	var (
-		uuidID uuid.UUID
-		err    error
-	)
-
-	id := r.FormValue("id")
-	name := r.FormValue("name")
-	email := r.FormValue("email")
-	phone := r.FormValue("phone")
-	status := r.FormValue("status")
-
-	if id != "" {
-		uuidID, err = uuid.Parse(id)
-		if err != nil {
-			h.Log.Printf("failed to parse form id value: %v", err)
-			return models.Contact{}, fmt.Errorf("error while validating email: %v", err)
-		}
-	}
-
-	if err := internal.ValidateEmail(email); err != nil {
-		h.Log.Printf("failed to validate email: %v", err)
-		return models.Contact{}, fmt.Errorf("error while validating email: %v", err)
-	}
-
-	// TODO: escape user input
-	contact := models.Contact{
-		ID: func() uuid.UUID {
-			if id == "" {
-				return uuid.New()
-			}
-			return uuidID
-		}(),
-		Name:  strings.Trim(name, " "),
-		Phone: strings.Trim(phone, " "),
-		Email: strings.Trim(email, " "),
-		Status: func() (s models.Status) {
-			if status == "on" {
-				return models.StatusActive
-			}
-			return models.StatusInactive
-		}(),
-	}
-
-	return contact, nil
-}
-
-func (h *DefaultHandler) handleCookieSession(w http.ResponseWriter, r *http.Request) error {
-	cookieName := "sessionID"
-
-	_, err := r.Cookie(cookieName)
-	if err == http.ErrNoCookie {
-
-		newCookieValue, err := internal.GenRandStr(32)
-		if err != nil {
-			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-			return err
-		}
-
-		newCookie := http.Cookie{
-			Name:     cookieName,
-			Value:    newCookieValue,
-			Expires:  time.Now().Add(time.Second * 6000),
-			HttpOnly: true,
-		}
-
-		http.SetCookie(w, &newCookie)
-		h.ContactService.ResetContacts()
-
-		return nil
-	}
-
-	return err
-}
-
-// --------------------------------------------------------------------------------------------------
-
 // YAGNI: See [HTTP Layer](https://templ.guide/project-structure/project-structure/#http-layer)
 type ViewProps struct {
 	Filter services.Filter
@@ -383,4 +311,75 @@ func (h *DefaultHandler) RenderView(w http.ResponseWriter, r *http.Request, comp
 	if err := component.Render(r.Context(), w); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
+}
+
+func (h *DefaultHandler) parseContactFromRequestForm(r *http.Request) (models.Contact, error) {
+	id := strings.TrimSpace(html.EscapeString(r.FormValue("id")))
+	name := strings.TrimSpace(html.EscapeString(r.FormValue("name")))
+	email := strings.TrimSpace(html.EscapeString(r.FormValue("email")))
+	phone := strings.TrimSpace(html.EscapeString(r.FormValue("phone")))
+	statusRaw := strings.TrimSpace(html.EscapeString(r.FormValue("status")))
+
+	var uuidID uuid.UUID
+	if id == "" {
+		uuidID = uuid.New() // for a POST request
+	} else {
+		var err error
+		uuidID, err = uuid.Parse(id)
+		if err != nil {
+			return models.Contact{}, fmt.Errorf("error parsing id: %v", err)
+		}
+	}
+
+	if err := internal.ValidateEmail(email); err != nil {
+		return models.Contact{}, fmt.Errorf("error parsing email: %v", err)
+	}
+
+	var status models.Status
+	switch statusRaw {
+	case "on":
+		status = models.StatusActive
+	case "":
+		status = models.StatusInactive
+	default:
+		return models.Contact{}, fmt.Errorf("unexpected form value for 'status': %s", statusRaw)
+	}
+
+	contact := models.Contact{
+		ID:     uuidID,
+		Name:   name,
+		Email:  email,
+		Phone:  phone,
+		Status: status,
+	}
+
+	return contact, nil
+}
+
+func (h *DefaultHandler) handleCookieSession(w http.ResponseWriter, r *http.Request) error {
+	cookieName := "sessionID"
+
+	_, err := r.Cookie(cookieName)
+	if err == http.ErrNoCookie {
+
+		newCookieValue, err := internal.GenRandStr(32)
+		if err != nil {
+			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+			return err
+		}
+
+		newCookie := http.Cookie{
+			Name:     cookieName,
+			Value:    newCookieValue,
+			Expires:  time.Now().Add(time.Second * 6000),
+			HttpOnly: true,
+		}
+
+		http.SetCookie(w, &newCookie)
+		h.ContactService.ResetContacts()
+
+		return nil
+	}
+
+	return err
 }

@@ -96,6 +96,7 @@ func (cs *ContactService) ResetContacts() {
 	cs.idCounter = 0
 }
 
+// FIXME: return (value, error)
 func (cs *ContactService) CrudOps(action Action, contact models.Contact) models.Contact {
 	cs.lock.Lock()
 	defer cs.lock.Unlock()
@@ -126,13 +127,18 @@ func (cs *ContactService) CrudOps(action Action, contact models.Contact) models.
 	case ActionUpdate:
 		name := strings.TrimSpace(contact.Name)
 		phone := strings.TrimSpace(contact.Phone)
-		email := strings.TrimSpace(contact.Email) // TODO: add email regexp validation
-		// TODO: add status update too
+		email := strings.TrimSpace(contact.Email)
+		if err := internal.ValidateEmail(email); err != nil {
+			log.Printf("failed to validate email: %v", err)
+			return models.Contact{} //, fmt.Errorf("error while validating email: %v", err)
+		}
+		status := contact.Status
 
 		if name != "" && phone != "" && email != "" {
 			cs.Contacts[index].Name = name
 			cs.Contacts[index].Email = email
 			cs.Contacts[index].Phone = phone
+			cs.Contacts[index].Status = status
 			return contact
 		}
 		cs.deleteContact(index) // else remove if name is empty
