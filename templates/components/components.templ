@@ -66,7 +66,7 @@ templ ContactsTable(contacts models.Contacts) {
 //     return "deactivate"
 // }() }
 templ ContactLi(contact models.Contact) {
-	<tr>
+	<tr id={ "tr-" + contact.ID.String() }>
 		<td scope="row">
 			<label for={ templ.EscapeString("ids" + contact.ID.String()) } aria-label="id">
 				<input type="checkbox" name={ templ.EscapeString("ids" + contact.ID.String()) } value={ contact.ID.String() }/>
@@ -94,9 +94,11 @@ templ ContactPutForm(contact models.Contact) {
 	// maybe we should swap it??
 	// Should check this out: https://htmx.org/examples/click-to-edit/
 	// hx-swap="outerHTML"
+	// Note: use hx-vals or hx-include for passing id without using it in markup
 	<form
 		hx-put={ "/contacts/" + contact.ID.String() }
-		hx-target="body"
+		hx-target={ "#tr-" + contact.ID.String() }
+		hx-swap="outerHTML"
 		class="table rows dense"
 	>
 		<p inert class="vh">
