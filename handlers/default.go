@@ -262,6 +262,55 @@ func (h *DefaultHandler) HandleDeleteContact(w http.ResponseWriter, r *http.Requ
 	fmt.Fprintf(w, "")
 }
 
+/*
+
+	if activeQueryParam != "" && activeQueryParam !=  {
+		http.Error(w, fmt.Sprintf("Invalid query parameter: expected '%s' found %s", models.StatusActive.QueryParam(), activeQueryParam), http.StatusBadRequest)
+	}
+	if inactiveQueryParam != "" && inactiveQueryParam !=  {
+		http.Error(w, fmt.Sprintf("Invalid query parameter: expected '%s' found '%s'", models.StatusActive.QueryParam(), activeQueryParam), http.StatusBadRequest)
+	}
+
+*/
+
+// HandleGetContactsCount handles HTTP GET requests to /contacts/count
+// with optional filtering by active/inactive status.
+//
+// Filters:
+//   - "GET /contacts/count?active=true"
+//   - "GET /contacts/count?inactive=true"
+//
+// Note: consider implementing rate limiting or other security measures if necessary.
+// Todo: htmx includes a feature called HX-Request-ID that generates a unique
+// identifier for each HTTP request triggered by htmx. This can be a useful way
+// to distinguish between concurrent requests and handle them independently on
+// the server-side.
+func (h *DefaultHandler) HandleGetContactsCount(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		http.Error(w, http.StatusText(http.StatusMethodNotAllowed), http.StatusMethodNotAllowed)
+		return
+	}
+
+	query := r.URL.Query()
+	active, inactive := query.Get(models.StatusActiveQueryKey), query.Get(models.StatusInactiveQueryKey)
+
+	if active != "" && inactive != "" {
+		http.Error(w, "invalid query parameters: use either 'active' or 'inactive'", http.StatusBadRequest)
+		return
+	}
+
+	count := 11 // Placeholder for total contacts count
+
+	if active == "true" {
+		count = 4 // Placeholder for active contacts count
+	} else if inactive == "true" {
+		count = 7 // Placeholder for inactive contacts count
+	}
+
+	w.WriteHeader(http.StatusOK)
+	fmt.Fprintf(w, "%d", count)
+}
+
 // --------------------------------------------------------------------------------------------------
 
 // TODO: use with central error handling middleware

@@ -14,7 +14,7 @@ templ Slideout(contents templ.Component, triggerText string, isOpen bool) {
 			if triggerText == "" {
 				<button
 					@click="slideOut = !slideOut"
-					class="big"
+					class="!big"
 				>Toggle</button>
 			} else {
 				<button
@@ -89,24 +89,3 @@ templ Slideout(contents templ.Component, triggerText string, isOpen bool) {
         }
     </style>
 }
-
-/*
-	// c := paragraph("Dynamic contents")
-	// layout(c).Render(context.Background(), os.Stdout)
-
-// TODO:
-// https://templ.guide/syntax-and-usage/template-composition/
-templ layout(contents templ.Component) {
-	<div id="heading">
-		@heading()
-	</div>
-	<div id="contents">
-		@contents
-	</div>
-}
-
-templ paragraph(contents string) {
-	<p>{ contents }</p>
-}
-
-*/

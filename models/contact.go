@@ -1,6 +1,10 @@
 package models
 
-import "github.com/google/uuid"
+import (
+	"strings"
+
+	"github.com/google/uuid"
+)
 
 type (
 	Contacts []Contact
@@ -12,6 +16,7 @@ type (
 		Phone  string    `json:"phone" form:"phone"`
 		Status Status    `json:"status" form:"status"`
 	}
+
 	ContactDTOS struct {
 		Name   string
 		Email  string
@@ -28,8 +33,14 @@ const (
 	StatusInactive Status = "Inactive"
 )
 
-func (s Status) String() string  { return string(s) }
-func (s Status) IsEnabled() bool { return s == StatusActive }
+var (
+	StatusActiveQueryKey   = StatusActive.QueryParam()
+	StatusInactiveQueryKey = StatusInactive.QueryParam()
+)
+
+func (s Status) String() string     { return string(s) }
+func (s Status) IsEnabled() bool    { return s == StatusActive }
+func (s Status) QueryParam() string { return strings.ToLower(s.String()) }
 func (s Status) IsEnabledAsCheckboxValue() string {
 	if s == StatusActive {
 		return "on"

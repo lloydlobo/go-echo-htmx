@@ -6,6 +6,7 @@ CMD_DIR := cmd
 # Commands
 GENERATE_CMD := templ generate
 BUILD_CMD := go build
+FORMAT_CMD := gofmt
 GO_MAIN := $(CMD_DIR)/main.go
 
 # Determine operating system
@@ -38,6 +39,9 @@ build-optimized:
 # clean: Remove temporary and bin directories
 clean:
 	$(RM) $(TMP_DIR) $(BIN_DIR)
+
+fmt:
+	$(FORMAT_CMD) cmd handlers internal models services templates
 
 # all: Run prebuild and build
 all: prebuild build

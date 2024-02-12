@@ -26,12 +26,40 @@ templ IndexContent() {
 		hx-trigger="load"
 	></span>
 	<main>
-		<section x-cloak>
-			// @components.Slideout("New +", false) {
-			// 	@components.ContactPostForm()
-			// }
-			@components.Slideout(components.ContactPostForm(), "New +", false)
-		</section>
+		<nav aria-label="Table toolbar actions" x-cloak>
+			<div class="f-row justify-content:space-between padding-block">
+				<ul class="f-row no-bullets smooth">
+					<li>
+						<span>0</span> of 
+						<output
+							hx-get="/contacts/count"
+							hx-trigger="load, every 10s"
+							hx-target="this"
+						>0</output>
+						&nbsp;row(s) selected
+					</li>
+					<li>
+						<output
+							hx-get="/contacts/count?active=true"
+							hx-trigger="load, every 10s"
+							hx-target="this"
+						>0</output>
+						&nbsp;active
+					</li>
+					<li>
+						<output
+							hx-get="/contacts/count?inactive=true"
+							hx-trigger="load, every 10s"
+							hx-target="this"
+						>0</output>
+						&nbsp;inactive
+					</li>
+				</ul>
+				<div>
+					@components.Slideout(components.ContactPostForm(), "New +", false)
+				</div>
+			</div>
+		</nav>
 		<section>
 			<div class={ "content-auto" }>
 				<div class="overflow:auto">

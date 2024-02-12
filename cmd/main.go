@@ -105,6 +105,9 @@ func initializeRoutes(logger *log.Logger, h *handlers.DefaultHandler) *http.Serv
 	mux.HandleFunc("GET /contacts/{id}", h.HandleReadContact)
 	mux.HandleFunc("PUT /contacts/{id}", h.HandleUpdateContact)
 	mux.HandleFunc("DELETE /contacts/{id}", h.HandleDeleteContact)
+	mux.HandleFunc("GET /contacts/count", h.HandleGetContactsCount)               // Query parameters are not considered when matching routes?
+	mux.HandleFunc("GET /contacts/count?active=true", h.HandleGetContactsCount)   // ?active=true
+	mux.HandleFunc("GET /contacts/count?inactive=true", h.HandleGetContactsCount) // ?inactive=true
 
 	// Routes for intermediate requests
 	mux.HandleFunc("GET /contacts/{id}/edit", h.HandleGetUpdateContactForm)
@@ -129,6 +132,14 @@ func recoveryMiddleware(next http.Handler) http.Handler {
 		next.ServeHTTP(w, r)
 	})
 }
+func loggingMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// Log the request
+		log.Printf("Received requeset: %s %s", r.Method, r.RequestURI)
+		// Call the next handler
+		// next.ServeHTTP(w, r)
+	})
+}
 func gzipMiddleware(next http.Handler, withGzip bool) http.Handler {
 	if withGzip {
 		return internal.Gzip(next)
@@ -142,7 +153,8 @@ func gzipMiddleware(next http.Handler, withGzip bool) http.Handler {
 // "GET /static/" matches a GET request whose path begins with "/static/".
 // "example.com/" matches any request to the host "example.com".
 // "example.com/{$}" matches requests with host "example.com" and path "/".
-// "/b/{bucket}/o/{objectname...}" matches paths whose first segment is "b" and whose third segment is "o". The name "bucket" denotes the second segment and "objectname" denotes the remainder of the path.
+// "/b/{bucket}/o/{objectname...}" matches paths whose first segment is "b" and whose third segment is "o".
+// The name "bucket" denotes the second segment and "objectname" denotes the remainder of the path.
 // In general, a pattern looks like
 // [METHOD ][HOST]/[PATH]
 //

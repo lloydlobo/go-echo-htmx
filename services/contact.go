@@ -18,6 +18,17 @@ import (
 	"github.com/lloydlobo/go-headcount/models"
 )
 
+func TmpInit() {
+	cs := NewContactServiceFromAPI()
+	cs.updateContactCountCache()
+	go func() {
+		for {
+			time.Sleep(time.Minute)
+			cs.updateContactCountCache()
+		}
+	}()
+}
+
 // Usage
 //
 //	var filters = []services.Filter{
@@ -74,14 +85,18 @@ func NewContactServiceFromAPI() *ContactService {
 }
 
 type ContactService struct {
-	lock      sync.Mutex      // Lock and defer Unlock during mutation of contacts.
-	Contacts  models.Contacts // FUTURE: map[int]*Contact // Contacts: models.Contacts{}, // Contact store -> *db.ContactStore
-	seq       int             // Tracks times contact is created while server is running. Start from 1.
-	idCounter int             // Tracks current count of Contact till when session resets. Start from 0.
+	lock              sync.Mutex      // Lock and defer Unlock during mutation of contacts.
+	Contacts          models.Contacts // FUTURE: map[int]*Contact // Contacts: models.Contacts{}, // Contact store -> *db.ContactStore
+	seq               int             // Tracks times contact is created while server is running. Start from 1.
+	idCounter         int             // Tracks current count of Contact till when session resets. Start from 0.
+	ContactCountCache *int64
 }
 
 // Get(ctx context.Context, sessionID string)
 func (cs *ContactService) Get() (models.Contacts, error) {
+	cs.lock.Lock()
+	defer cs.lock.Unlock()
+
 	if len(cs.Contacts) == 0 {
 		return models.Contacts{}, nil
 	}
@@ -158,6 +173,28 @@ func (cs *ContactService) CrudOps(action Action, contact models.Contact) models.
 	return models.Contact{} //, errors.Join(errs...)
 }
 
+func (cs *ContactService) Count() int {
+	cs.lock.Lock()
+	defer cs.lock.Unlock()
+
+	return len(cs.Contacts)
+}
+
+func (cs *ContactService) CountByStatus(s models.Status) (count int) {
+	cs.lock.Lock()
+	defer cs.lock.Unlock()
+
+	count = 0
+
+	for _, c := range cs.Contacts {
+		if c.Status == s {
+			count++
+		}
+	}
+
+	return count
+}
+
 func (cs *ContactService) findIndexByID(id uuid.UUID) int {
 	for i, c := range cs.Contacts {
 		if c.ID == id {
@@ -232,4 +269,23 @@ func fetchUsers(ctx context.Context, apiURL string) (models.Contacts, error) {
 	}
 
 	return nil, errors.New("failed to fetch user data after all retries")
+}
+
+// # Usage
+//
+//	func handleTotalContacts(w http.ResponseWriter, r *http.Request) {
+//	  if contactCountCache == nil {
+//	    // Handle error or wait for initial cache update
+//	    return
+//	  }
+//	  count := *contactCountCache
+//	  // Respond with JSON
+//	  json.NewEncoder(w).Encode(map[string]int64{"count": count})
+//	}
+func (cs *ContactService) updateContactCountCache() {
+	cs.lock.Lock()
+	defer cs.lock.Unlock()
+
+	n := int64(len(cs.Contacts))
+	cs.ContactCountCache = &n
 }
