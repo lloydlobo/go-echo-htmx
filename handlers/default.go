@@ -1,6 +1,3 @@
-// The handlers layer reads HTTP requests, uses the service to perform CRUD like
-// operations, and renders the templ Components.
-//
 // Errorlog:
 //
 //   - Note: missing method ServeHTTP
@@ -49,8 +46,10 @@ var (
 
 // ContactService defines the interface for contact-related operations.
 type ContactService interface {
-	CrudOps(action services.Action, contact models.Contact) models.Contact
 	Get() (models.Contacts, error)
+	CrudOps(action services.Action, contact models.Contact) models.Contact
+	Count() int
+	CountByStatus(s models.Status) (count int)
 	ResetContacts()
 }
 
@@ -299,12 +298,14 @@ func (h *DefaultHandler) HandleGetContactsCount(w http.ResponseWriter, r *http.R
 		return
 	}
 
-	count := 11 // Placeholder for total contacts count
+	var count int
 
 	if active == "true" {
-		count = 4 // Placeholder for active contacts count
+		count = h.ContactService.CountByStatus(models.StatusActive)
 	} else if inactive == "true" {
-		count = 7 // Placeholder for inactive contacts count
+		count = h.ContactService.CountByStatus(models.StatusInactive)
+	} else {
+		count = h.ContactService.Count()
 	}
 
 	w.WriteHeader(http.StatusOK)

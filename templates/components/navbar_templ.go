@@ -23,7 +23,7 @@ func Navbar(swapOob bool) templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<header class=\"navbar\" data-overflow-nav><!-- The navbar will still also remain horizontally scrollable. --><button class=\"iconbutton\" data-nav-expander aria-hidden>&#x2630; <!-- trigram for heaven --></button><!-- rest of navbar... --><nav id=\"navbarContainer\"")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<header class=\"navbar\" style=\"background:var(--bg);\" data-overflow-nav><!-- The navbar will still also remain horizontally scrollable. --><button class=\"iconbutton\" data-nav-expander aria-hidden>&#x2630; <!-- trigram for heaven --></button><!-- rest of navbar... --><nav id=\"navbarContainer\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

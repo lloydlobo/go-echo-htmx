@@ -88,7 +88,7 @@ func IndexContent() templ.Component {
 			templ_7745c5c3_Var4 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<span inert hx-get=\"/contacts\" hx-target=\"#hx-contacts\" hx-swap=\"beforeend\" hx-trigger=\"load\"></span><main><nav aria-label=\"Table toolbar actions\" x-cloak><div class=\"f-row justify-content:space-between padding-block\"><ul class=\"f-row no-bullets smooth\"><li><span>0</span> of  <output hx-get=\"/contacts/count\" hx-trigger=\"load, every 10s\" hx-target=\"this\">0</output> &nbsp;row(s) selected</li><li><output hx-get=\"/contacts/count?active=true\" hx-trigger=\"load, every 10s\" hx-target=\"this\">0</output> &nbsp;active</li><li><output hx-get=\"/contacts/count?inactive=true\" hx-trigger=\"load, every 10s\" hx-target=\"this\">0</output> &nbsp;inactive</li></ul><div>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<span inert hx-get=\"/contacts\" hx-target=\"#hx-contacts\" hx-swap=\"beforeend\" hx-trigger=\"load\"></span><main><nav aria-label=\"Table toolbar actions\" x-cloak><ul class=\"grid no-bullets smooth &lt;small&gt;\"><li class=\"box\" data-cols=\"1 3\" style=\"background:var(--bg);\"><span class=\"block\">Total</span> <output hx-get=\"/contacts/count\" hx-trigger=\"revealed, every 10s\" hx-target=\"this\" class=\"big\">0</output></li><li class=\"box\" data-cols=\"4 6\" style=\"background:var(--bg);\"><span class=\"block\">Active Now</span> <output hx-get=\"/contacts/count?active=true\" hx-trigger=\"revealed, every 10s\" hx-target=\"this\" class=\"big\">0</output></li><li class=\"box\" data-cols=\"7 9\" style=\"background:var(--bg);\"><span class=\"block\">Inactive</span> <output hx-get=\"/contacts/count?inactive=true\" hx-trigger=\"revealed, every 10s\" hx-target=\"this\" class=\"big\">0</output></li></ul><div class=\"f-row justify-content:space-between padding-block\"><div></div><div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -123,3 +123,13 @@ func IndexContent() templ.Component {
 		return templ_7745c5c3_Err
 	})
 }
+
+//        <!--
+//		<section>
+//			<div x-data="{ inputQuantity: 1 }" class="flex items-center gap-2">
+//				<button @click="inputQuantity--" class="underline">Decrease</button>
+//				<input x-model="inputQuantity" type="number" class="w-full"/>
+//				<button @click="inputQuantity++" class="underline">Increase</button>
+//			</div>
+//		</section>
+//        -->
