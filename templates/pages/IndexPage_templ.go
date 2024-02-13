@@ -10,6 +10,8 @@ import "context"
 import "io"
 import "bytes"
 
+import "github.com/lloydlobo/go-headcount/templates/components"
+
 func IndexPage() templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templ_7745c5c3_W.(*bytes.Buffer)
@@ -71,7 +73,9 @@ func IndexPage() templ.Component {
 	})
 }
 
-func radioGroup() templ.Component {
+// this span requests GET "/contacts" and targets response HTML to element
+// with id hx-contacts
+func IndexContent() templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templ_7745c5c3_W.(*bytes.Buffer)
 		if !templ_7745c5c3_IsBuffer {
@@ -84,36 +88,20 @@ func radioGroup() templ.Component {
 			templ_7745c5c3_Var4 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div role=\"radiogroup\" aria-labelledby=\"status-lbl\"><span id=\"status-lbl\">Status</span><div><div><label><input type=\"radio\" name=\"color\" value=\"ff0000\"> -</label></div><div><label><input type=\"radio\" name=\"color\" value=\"00ff00\"> Active</label></div><div><label><input type=\"radio\" name=\"color\" value=\"0000ff\"> Inactive</label></div></div></div>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<span inert hx-get=\"/contacts\" hx-target=\"#hx-contacts\" hx-swap=\"beforeend\" hx-trigger=\"load\"></span><main><nav aria-label=\"Table toolbar actions\" x-cloak><ul class=\"grid no-bullets smooth &lt;small&gt;\"><li class=\"box\" data-cols=\"1 3\" style=\"background:var(--bg);\"><span class=\"block\">Total</span> <output hx-get=\"/contacts/count\" hx-trigger=\"revealed, every 10s\" hx-target=\"this\" class=\"big\">0</output></li><li class=\"box\" data-cols=\"4 6\" style=\"background:var(--bg);\"><span class=\"block\">Active Now</span> <output hx-get=\"/contacts/count?active=true\" hx-trigger=\"revealed, every 10s\" hx-target=\"this\" class=\"big\">0</output></li><li class=\"box\" data-cols=\"7 9\" style=\"background:var(--bg);\"><span class=\"block\">Inactive</span> <output hx-get=\"/contacts/count?inactive=true\" hx-trigger=\"revealed, every 10s\" hx-target=\"this\" class=\"big\">0</output></li></ul><div class=\"f-row justify-content:space-between padding-block\"><div></div><div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		if !templ_7745c5c3_IsBuffer {
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteTo(templ_7745c5c3_W)
-		}
-		return templ_7745c5c3_Err
-	})
-}
-
-func IndexContent() templ.Component {
-	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
-		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templ_7745c5c3_W.(*bytes.Buffer)
-		if !templ_7745c5c3_IsBuffer {
-			templ_7745c5c3_Buffer = templ.GetBuffer()
-			defer templ.ReleaseBuffer(templ_7745c5c3_Buffer)
-		}
-		ctx = templ.InitializeContext(ctx)
-		templ_7745c5c3_Var5 := templ.GetChildren(ctx)
-		if templ_7745c5c3_Var5 == nil {
-			templ_7745c5c3_Var5 = templ.NopComponent
-		}
-		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<main><span hx-get=\"/contacts\" hx-target=\"#hx-contacts\" hx-swap=\"beforeend\" hx-trigger=\"load\"></span><section class=\"tool-bar\"><button type=\"button\">Cut</button> <button type=\"button\">Copy</button> <button type=\"button\">Paste</button><hr aria-orientation=\"vertical\"><label>Find: <input type=\"text\"></label></section><div class=\"box\"><form class=\"table rows\" hx-post=\"/contacts\" hx-target=\"#hx-contacts\" hx-swap=\"beforeend\"><p><label for=\"name\" class=\"!vh\">Name</label> <input type=\"text\" pattern=\"[a-zA-Z ]{4,8}\" id=\"name\" name=\"name\" placeholder=\"Name\" required size=\"45\" title=\"Please enter a name with 4 to 8 characters, including spaces. Only letters are allowed.\" value=\"John Doe\"></p><p><label for=\"phone\" class=\"!vh\">Phone</label> <input type=\"tel\" pattern=\"[0-9]{10}\" id=\"phone\" name=\"phone\" placeholder=\"Phone\" required title=\"Please enter a 10-digit phone number.\" value=\"1029384756\"></p><p><label for=\"email\" class=\"!vh\">Email</label> <input type=\"email\" id=\"email\" name=\"email\" placeholder=\"Email\" required title=\"Please enter a valid email address.\" value=\"hi@johndoe.com\"></p><p><label for=\"status\" class=\"!vh\">Status</label> <input type=\"checkbox\" id=\"status\" name=\"status\" class=\"margin:0\"></p><button type=\"submit\" class=\"button\">Submit</button></form></div>")
+		templ_7745c5c3_Err = components.Slideout(components.ContactPostForm(), "New +", false).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		var templ_7745c5c3_Var6 = []any{"content-auto"}
-		templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var6...)
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div></div></nav><section>")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var5 = []any{"content-auto"}
+		templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var5...)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -121,11 +109,11 @@ func IndexContent() templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ.CSSClasses(templ_7745c5c3_Var6).String()))
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ.CSSClasses(templ_7745c5c3_Var5).String()))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\"><div class=\"box\"><ul id=\"hx-contacts\"></ul></div></div></main>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\"><div class=\"overflow:auto\"><form id=\"checked-contacts\"><div id=\"hx-contacts\"><div id=\"loader\" class=\"smooth\"><!-- @SkeletonTable --></div></div></form></div></div></section></main>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -136,67 +124,12 @@ func IndexContent() templ.Component {
 	})
 }
 
-/*
-Notes:
-
-    // Naive handler:
-
-    func (c *Contacts) pageHandler(w http.ResponseWriter, r *http.Request) {
-    	x := fmt.Sprintf("Hello, this is a simple Go server!\n%+v", c)
-    	fmt.Fprintln(w, x)
-    }
-
-    // Naive handler with template:
-
-    tmpl, err := template.ParseFiles("index.html")
-    if err != nil {
-    	fmt.Println("Error parsing template:", err)
-    	return
-    }
-
-    data := struct{ Name string }{"John"}
-    if err := tmpl.Execute(w, data); err != nil {
-    	fmt.Println("Error executing template:", err)
-    }
-*/
-
-/*
-Notes:
-
-   <p class="hidden">
-   	<label>
-   		Enter your phone number in the format (123) - 456 - 7890 (
-   		<input
-   			name="tel1"
-   			type="tel"
-   			pattern="[0-9]{3}"
-   			placeholder="###"
-   			aria-label="3-digit area code"
-   			size="2"
-   		/>) -
-   		<input name="tel2" type="tel" pattern="[0-9]{3}" placeholder="###" aria-label="3-digit prefix" size="2"/>
-   		-
-   		<input name="tel3" type="tel" pattern="[0-9]{4}" placeholder="####" aria-label="4-digit number" size="3"/>
-   	</label>
-   </p>
-
-   <form class="hidden">
-   	<div>
-   		<label for="uname">Choose a username: </label>
-   		<input
-   			type="text"
-   			id="uname"
-   			name="name"
-   			required
-   			size="45"
-   			pattern="[a-z]{4,8}"
-   			title="4 to 8 lowercase letters"
-   		/>
-   		<span class="validity"></span>
-   		<p>Usernames must be lowercase and 4-8 characters in length.</p>
-   	</div>
-   	<div>
-   		<button>Submit</button>
-   	</div>
-   </form>
-*/
+//        <!--
+//		<section>
+//			<div x-data="{ inputQuantity: 1 }" class="flex items-center gap-2">
+//				<button @click="inputQuantity--" class="underline">Decrease</button>
+//				<input x-model="inputQuantity" type="number" class="w-full"/>
+//				<button @click="inputQuantity++" class="underline">Increase</button>
+//			</div>
+//		</section>
+//        -->

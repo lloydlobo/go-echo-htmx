@@ -23,7 +23,7 @@ func Navbar(swapOob bool) templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<header class=\"navbar\" data-overflow-nav><button class=\"iconbutton\" data-nav-expander aria-hidden>&#x2630; <!-- trigram for heaven --></button><!-- rest of navbar... --><nav id=\"navbarContainer\"")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<header class=\"navbar\" style=\"background:var(--bg);\" data-overflow-nav><!-- The navbar will still also remain horizontally scrollable. --><button class=\"iconbutton\" data-nav-expander aria-hidden>&#x2630; <!-- trigram for heaven --></button><!-- rest of navbar... --><nav id=\"navbarContainer\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -33,7 +33,7 @@ func Navbar(swapOob bool) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(" aria-label=\"Site sections\" class=\"contents\"><ul role=\"list\"><li><a href=\"/\"><span>head<b>count</b></span></a></li><li><a href=\"/about\">About</a></li></ul></nav><nav aria-label=\"Social media links\" class=\"contents\"><ul role=\"list\"><li><a href=\"https://github.com/lloydlobo/go-headcount\">GitHub</a></li></ul></nav></header><span hx-get=\"/contacts\" hx-target=\"#contact-list\" hx-indicator=\"#loader\" hx-trigger=\"load\"><span class=\"htmx-indicator indicator !vh\" id=\"loader\" alt=\"Loading...\" aria-busy=\"true\"></span></span>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(" aria-label=\"Site sections\" class=\"contents\"><ul role=\"list\"><li><a href=\"/\" aria-label=\"Home\"><span>head<b>count</b></span></a></li><hr><li><a href=\"/about\">About</a></li><li><a href=\"https://github.com/lloydlobo/go-headcount\">GitHub</a></li><!-- <li><a href=\"/\"><img alt=\"\"/></a></li> --></ul></nav></header><!-- \n    Note: deprecated: using this directly at callsite i.e. in IndexPage\n    This should only appears during loading\n\t<span\n\t\thx-get=\"/contacts\"\n\t\thx-target=\"#contact-list\"\n\t\thx-indicator=\"#loader\"\n\t\thx-trigger=\"load\"\n\t>\n\t\t<span\n\t\t\tclass=\"htmx-indicator indicator !vh\"\n\t\t\tid=\"loader\"\n\t\t\talt=\"Loading...\"\n\t\t\taria-busy=\"true\"\n\t\t></span>\n\t</span>\n     -->")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

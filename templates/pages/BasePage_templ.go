@@ -33,7 +33,7 @@ func Base() templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<link rel=\"stylesheet\" href=\"/static/css/missing.min.css\"><!-- Thie src /static/js/missing.css.overflow-nav.min.js is minified and compiled file from https://unpkg.com/missing.css@1.1.1/dist/js/overflow-nav.js, that also imports helpers from 19.js --><script type=\"module\" src=\"/static/js/missing.css.overflow-nav.min.js\"></script><script type=\"text/hyperscript\" src=\"/static/hs/start-me-up._hs\"></script><script type=\"text/hyperscript\" src=\"/static/hs/main._hs\"></script><script defer src=\"/static/js/htmx.min.js\"></script><script defer src=\"/static/js/_hyperscript.min.js\"></script><style type=\"text/css\">\n                @media (prefers-color-scheme: dark) {\n                    :root:not(.-no-dark-theme) {\n                        --fg: oklch(0.95 0.01 243.80);\n                        --bg: oklch(0.18 0.01 258.40 / 1);\n                        --box-bg: oklch(0.22 0.02 256.84 / 1);\n                        --accent: oklch(0.62 0.20 258.32);\n                        --graphical-fg: oklch(0.34 0.01 252.36);\n                        --interactive-bg: oklch(0.28 0.01 256.82);\n                        --muted-fg: oklch(0.66 0.02 251 / 1);\n                        --muted-fg: oklch(0.97 0.01 248.12 / 0.1);\n                        // This is fg for button // --interactive-fg: oklch(0.86 0.01 248.11);\n                        // for header navbar bg: // --box-bg: oklch(0.1 0.02 248.35);\n                    }\n                    // Note: The pointer cursor is for links\n                    button,\n                    a.\\<button\\> {\n                        box-shadow: none;\n                    }\n                }\n                @media (width >= 1250px) {\n                    // hints to the browser about how content should be rendered and handled in terms of rendering performance.\n                    .content-auto { \n                        content-visibility: auto; \n                    }\n                }\n                input:invalid { \n                    border: 3px red solid; \n                }\n                td:has(.chip){ \n                    vertical-align: middle; \n                }\n            </style></head><body>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<noscript><div style=\"color: red\"><p>JavaScript is disabled or not supported in your browser.</p><p>Please enable JavaScript to view this page.</p></div></noscript><link rel=\"stylesheet\" href=\"/static/css/missing.min.css\"><link rel=\"stylesheet\" href=\"/static/css/style.css\"><!-- This src /static/js/missing.css.overflow-nav.min.js is minified and compiled file from https://unpkg.com/missing.css@1.1.1/dist/js/overflow-nav.js, that also imports helpers from 19.js --><script type=\"module\" src=\"/static/js/missing.css.overflow-nav.min.js\"></script><script type=\"text/hyperscript\" src=\"/static/hs/start-me-up._hs\"></script><script type=\"text/hyperscript\" src=\"/static/hs/main._hs\"></script><script src=\"/static/js/htmx.min.js\"></script><script defer src=\"/static/js/_hyperscript.min.js\"></script><script defer src=\"https://unpkg.com/alpinejs-notify@latest/dist/notifications.min.js\"></script><script defer src=\"https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js\"></script><script defer type=\"module\" src=\"https://unpkg.com/missing.css@1.1.1/dist/js/menu.js\"></script><script defer src=\"https://unpkg.com/htmx.org/dist/ext/debug.js\"></script><script defer src=\"https://cdn.jsdelivr.net/npm/sweetalert2@11\"></script><script defer type=\"text/javascript\">\n                htmx.logAll();\n            </script></head><body>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -49,7 +49,15 @@ func Base() templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div><div class=\"toast-container\" class=\"fixed flex flex-col gap-2 bottom-0 right-0 p-3\"></div></body></html>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div>")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = components.Footer().Render(ctx, templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div id=\"toast-container\" class=\"fixed bottom-0 right-0 flex flex-col gap-2 p-3\"></div></body></html>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

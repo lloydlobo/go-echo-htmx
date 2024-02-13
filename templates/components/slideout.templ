@@ -1,0 +1,91 @@
+package components
+
+import "github.com/lloydlobo/go-headcount/templates"
+
+// Requires: <script defer src="https://unpkg.com/alpinejs@latest/dist/cdn.min.js"></script>
+templ Slideout(contents templ.Component, triggerText string, isOpen bool) {
+	<div
+		x-cloak
+		x-data={ "{ slideOut: " + templates.BoolToStrJS(isOpen) + " }" }
+		@keydown.window.escape="slideOut = false"
+	>
+		<!-- trigger open -->
+		if !isOpen {
+			if triggerText == "" {
+				<button
+					@click="slideOut = !slideOut"
+					class="!big"
+				>Toggle</button>
+			} else {
+				<button
+					@click="slideOut = !slideOut"
+					class="big"
+				>{ templ.EscapeString(triggerText) } </button>
+			}
+		}
+		<!-- overlay -->
+		<div
+			x-cloak
+			x-transition.opacity
+			x-show="slideOut"
+			class="fixed"
+			style="inset: 0; background: #00000050;"
+		></div>
+		<!-- content -->
+		<aside
+			x-cloak
+			x-show="slideOut"
+			x-transition:enter="transition ease-out duration-300"
+			x-transition:enter-start="translate-x-full"
+			x-transition:enter-end="translate-x-0"
+			x-transition:leave="transition ease-in duration-300"
+			x-transition:leave-start="translate-x-0"
+			x-transition:leave-end="translate-x-full"
+			@click.away="slideOut = false"
+			class="fixed box"
+		>
+			<!-- trigger close -->
+			<button
+				@click="slideOut = !slideOut"
+				class="iconbutton"
+				title="Close"
+				type="button"
+				role="button"
+			>
+				@XIcon()
+			</button>
+			<!-- children content -->
+			@contents
+		</aside>
+	</div>
+	<style type="text/css">
+        aside {
+            position: fixed; 
+            top: 0; 
+            right: 0; 
+            bottom: 0; 
+            width: 300px; 
+            z-index: 50;
+        }
+    </style>
+	<style type="text/css">
+        .transition {
+            transition: ease-out 300ms;
+        }
+        .ease-out {
+            transition-timing-function: ease-out;
+        }
+        .duration-300 {
+            transition-duration: 300ms;
+        }
+        .translate-x-full {
+            transform: translateX(100%);
+        }
+        .translate-x-0 {
+            transform: translateX(0);
+        }
+        .ease-in {
+            transition-timing-function: ease-in;
+        }
+    </style>
+}

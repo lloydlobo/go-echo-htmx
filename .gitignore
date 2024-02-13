@@ -23,6 +23,7 @@ tmp/build-errors.log
 
 # Scratches
 .scratches/
+.tmp
 .tmp.txt
 
 # templ build artifacts (if ignoring these, ensure your build step before deployment builds this)
