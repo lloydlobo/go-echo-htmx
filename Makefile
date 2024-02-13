@@ -34,7 +34,7 @@ build:
 
 # build-optimized: Build optimized app executable with netgo tags, stripped debug info, suppressed linker warnings
 build-optimized: 
-	$(BUILD_CMD) -tags netgo -ldflags '-s -w' -o app $(GO_MAIN)
+	$(BUILD_CMD) -tags netgo -ldflags '-s -w' -o $(BIN_DIR)/app $(GO_MAIN)
 
 # clean: Remove temporary and bin directories
 clean:
@@ -45,10 +45,3 @@ fmt:
 
 # all: Run prebuild and build
 all: prebuild build
-
-# # curl
-# ADDR := http://localhost:1234
-# CURL_HEADER := curl -I $(ADDR)
-# curl-header:
-# 	$(CURL_HEADER)
-
