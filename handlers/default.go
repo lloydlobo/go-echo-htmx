@@ -1,3 +1,6 @@
+// The handlers layer reads HTTP requests, uses the service to perform CRUD like
+// operations, and renders the templ Components.
+//
 // Errorlog:
 //
 //   - Note: missing method ServeHTTP
@@ -56,7 +59,6 @@ type ContactService interface {
 // New creates a new DefaultHandler with the given ContactService.
 func New(logger *log.Logger, cs ContactService) *DefaultHandler {
 	return &DefaultHandler{
-		// Log:            log.New(os.Stdout, "HTTP: ", log.LstdFlags),
 		Log:            logger,
 		ContactService: cs,
 	}
@@ -68,8 +70,8 @@ type DefaultHandler struct {
 	ContactService ContactService
 }
 
-// IndexPageHandler handles requests for GET "/index" page.
-func (h *DefaultHandler) IndexPageHandler(w http.ResponseWriter, r *http.Request) {
+// HandleIndexPage handles requests for GET "/index" page.
+func (h *DefaultHandler) HandleIndexPage(w http.ResponseWriter, r *http.Request) {
 	if err := h.handleCookieSession(w, r); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -80,8 +82,8 @@ func (h *DefaultHandler) IndexPageHandler(w http.ResponseWriter, r *http.Request
 	h.renderView(w, r, indexHTML)
 }
 
-// AboutPageHandler handles requests for GET "/about" page.
-func (h *DefaultHandler) AboutPageHandler(w http.ResponseWriter, r *http.Request) {
+// HandleAboutPage handles requests for GET "/about" page.
+func (h *DefaultHandler) HandleAboutPage(w http.ResponseWriter, r *http.Request) {
 	if err := h.handleCookieSession(w, r); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

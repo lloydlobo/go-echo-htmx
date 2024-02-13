@@ -18,6 +18,7 @@ import (
 	"github.com/lloydlobo/go-headcount/models"
 )
 
+// Hack: bypass linter warning for unused function
 func TmpInit() {
 	cs := NewContactServiceFromAPI()
 	cs.updateContactCountCache()
@@ -27,19 +28,6 @@ func TmpInit() {
 			cs.updateContactCountCache()
 		}
 	}()
-}
-
-// Usage
-//
-//	var filters = []services.Filter{
-//			{Url: "#/", Name: "All", Selected: true},
-//			{Url: "#/active", Name: "Active", Selected: false},
-//			{Url: "#/completed", Name: "Completed", Selected: false},
-//	}
-type Filter struct {
-	Url      string
-	Name     string
-	Selected bool
 }
 
 // Action implements enumeration of actions
@@ -60,7 +48,7 @@ var (
 
 func NewContactService() *ContactService {
 	return &ContactService{
-		Contacts: models.Contacts{}, // Contact store
+		Contacts: models.Contacts{},
 		seq:      1,
 	}
 }
@@ -79,14 +67,14 @@ func NewContactServiceFromAPI() *ContactService {
 	}
 
 	return &ContactService{
-		Contacts: contacts, // Contact store
+		Contacts: contacts,
 		seq:      1,
 	}
 }
 
 type ContactService struct {
 	lock              sync.Mutex      // Lock and defer Unlock during mutation of contacts.
-	Contacts          models.Contacts // FUTURE: map[int]*Contact // Contacts: models.Contacts{}, // Contact store -> *db.ContactStore
+	Contacts          models.Contacts 
 	seq               int             // Tracks times contact is created while server is running. Start from 1.
 	idCounter         int             // Tracks current count of Contact till when session resets. Start from 0.
 	ContactCountCache *int64
@@ -100,6 +88,7 @@ func (cs *ContactService) Get() (models.Contacts, error) {
 	if len(cs.Contacts) == 0 {
 		return models.Contacts{}, nil
 	}
+	
 	return cs.Contacts, nil
 }
 
@@ -107,7 +96,7 @@ func (cs *ContactService) ResetContacts() {
 	cs.lock.Lock()
 	defer cs.lock.Unlock()
 
-	cs.Contacts = nil // OR cs.Contacts = make([]models.Contact, 0)
+	cs.Contacts = make([]models.Contact, 0) // OR = nil
 	cs.idCounter = 0
 }
 
@@ -129,10 +118,10 @@ func (cs *ContactService) CrudOps(action Action, contact models.Contact) models.
 
 	switch action {
 	case ActionCreate:
-		// contact.ID = uuid.New()
 		cs.Contacts = append(cs.Contacts, contact)
 		cs.idCounter++
 		cs.seq++
+		// contact.ID = uuid.New() // expect ID to be set by caller
 		return contact
 
 	case ActionToggle:
@@ -156,7 +145,8 @@ func (cs *ContactService) CrudOps(action Action, contact models.Contact) models.
 			cs.Contacts[index].Status = status
 			return contact
 		}
-		cs.deleteContact(index) // else remove if name is empty
+		// otherwise remove if name is empty
+		cs.deleteContact(index) 
 		return models.Contact{}
 
 	case ActionDelete:
@@ -185,7 +175,6 @@ func (cs *ContactService) CountByStatus(s models.Status) (count int) {
 	defer cs.lock.Unlock()
 
 	count = 0
-
 	for _, c := range cs.Contacts {
 		if c.Status == s {
 			count++
@@ -201,11 +190,13 @@ func (cs *ContactService) findIndexByID(id uuid.UUID) int {
 			return i
 		}
 	}
+
 	return -1
 }
 
 func (cs *ContactService) deleteContact(index int) {
 	// OR cs.Contacts = append(cs.Contacts[:index], cs.Contacts[index+1:]...)
+
 	if index != -1 {
 		_ = copy(cs.Contacts[index:], cs.Contacts[index+1:])
 		cs.Contacts = cs.Contacts[:len(cs.Contacts)-1]
@@ -213,12 +204,11 @@ func (cs *ContactService) deleteContact(index int) {
 }
 
 func fetchUsers(ctx context.Context, apiURL string) (models.Contacts, error) {
-	var contacts models.Contacts
-
+	client := &http.Client{Timeout: 5 * time.Second}
 	maxRetries := 3
 	delay := 1 * time.Second // use exponential backoff for retries instead of fixed count
-
-	client := &http.Client{Timeout: 5 * time.Second}
+	
+	var contacts models.Contacts
 
 	for attempt := 1; attempt <= maxRetries; attempt++ {
 		req, err := http.NewRequestWithContext(ctx, http.MethodGet, apiURL, nil)
@@ -233,7 +223,8 @@ func fetchUsers(ctx context.Context, apiURL string) (models.Contacts, error) {
 			if attempt < maxRetries {
 				time.Sleep(delay)
 				delay *= 2 // exponential backoff
-				continue   // early continue
+
+				continue   
 			}
 			return nil, fmt.Errorf("failed to fetch user data after %d retries: %v", maxRetries, err)
 		}

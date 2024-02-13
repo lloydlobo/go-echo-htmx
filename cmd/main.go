@@ -33,7 +33,7 @@ func main() {
 	sigCh := make(chan os.Signal, 1)
 	signal.Notify(sigCh, os.Interrupt, syscall.SIGTERM)
 
-	logger := log.New(os.Stderr, "", log.LstdFlags)
+	logger := log.New(os.Stderr, "HTTP ", log.LstdFlags)
 	ctx = context.WithValue(ctx, loggerKey, logger)
 
 	cs := services.NewContactServiceFromAPI()
@@ -66,20 +66,19 @@ func main() {
 
 // initializeRoutes accepts a router instance instead of directly registering routes.
 //
-// Patterns can match the method, host and path of a request.
+// Patterns can match the method, host and path of a request. See Paterns, https://pkg.go.dev/net/http#hdr-Patterns
 // [METHOD ][HOST]/[PATH]
-// See Paterns, https://pkg.go.dev/net/http#hdr-Patterns
 func initializeRoutes(h *handlers.DefaultHandler) *http.ServeMux {
-	var withGzip bool = true // flag
 	mux := http.NewServeMux()
-
+	
 	// Serve static files
 	mux.Handle("/static/", internal.Gzip(http.StripPrefix("/static/", http.FileServer(http.Dir("static/")))))
 	mux.HandleFunc("/robots.txt", func(w http.ResponseWriter, r *http.Request) { http.ServeFile(w, r, "robots.txt") })
-
+	
 	// Routes for pages
-	mux.Handle("/", gzipMiddleware(http.HandlerFunc(h.IndexPageHandler), withGzip))
-	mux.Handle("/about", gzipMiddleware(http.HandlerFunc(h.AboutPageHandler), withGzip))
+	var withGzip bool = true // flag
+	mux.Handle("/", gzipMiddleware(http.HandlerFunc(h.HandleIndexPage), withGzip))
+	mux.Handle("/about", gzipMiddleware(http.HandlerFunc(h.HandleAboutPage), withGzip))
 
 	// Routes for partials
 	mux.HandleFunc("POST /contacts", h.HandleCreateContact)
