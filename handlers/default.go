@@ -56,6 +56,7 @@ type ContactService interface {
 // New creates a new DefaultHandler with the given ContactService.
 func New(logger *log.Logger, cs ContactService) *DefaultHandler {
 	return &DefaultHandler{
+		// Log:            log.New(os.Stdout, "HTTP: ", log.LstdFlags),
 		Log:            logger,
 		ContactService: cs,
 	}
@@ -70,25 +71,25 @@ type DefaultHandler struct {
 // IndexPageHandler handles requests for GET "/index" page.
 func (h *DefaultHandler) IndexPageHandler(w http.ResponseWriter, r *http.Request) {
 	if err := h.handleCookieSession(w, r); err != nil {
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
 	w.WriteHeader(http.StatusOK)
 	indexHTML := pages.IndexPage()
-	h.RenderView(w, r, indexHTML)
+	h.renderView(w, r, indexHTML)
 }
 
 // AboutPageHandler handles requests for GET "/about" page.
 func (h *DefaultHandler) AboutPageHandler(w http.ResponseWriter, r *http.Request) {
 	if err := h.handleCookieSession(w, r); err != nil {
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
 	w.WriteHeader(http.StatusOK)
 	aboutHTML := pages.AboutPage()
-	h.RenderView(w, r, aboutHTML)
+	h.renderView(w, r, aboutHTML)
 }
 
 // HandleReadContacts handles requests for contact partials.
@@ -96,36 +97,19 @@ func (h *DefaultHandler) AboutPageHandler(w http.ResponseWriter, r *http.Request
 // HTMX calls this via `<span hx-get="/contacts" hx-target="#hx-contacts" hx-swap="beforeend" hx-trigger="load"></span>`
 // So "beforeend" ensures that swap does not mutate the previous elements
 func (h *DefaultHandler) HandleReadContacts(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodGet {
-		h.Log.Printf("expected %s but got %s", http.MethodGet, r.Method)
-		http.Error(w, http.StatusText(http.StatusMethodNotAllowed), http.StatusMethodNotAllowed)
-		return
-	}
-
 	contacts, err := h.ContactService.Get()
 	if err != nil {
 		http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
 		return
 	}
 
-	// PERF: reduce rendering calls and use double buffering like method (collect all <li> and render once at request.)
-
-	// for _, contact := range contacts {
-	// 	h.RenderView(w, r, components.ContactLi(contact))
-	// }
-	h.RenderView(w, r, components.ContactsTable(contacts))
+	h.renderView(w, r, components.ContactsTable(contacts))
 }
 
 // HandleReadContact handles HTTP GET - /contacts/{id}.
 func (h *DefaultHandler) HandleReadContact(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodGet {
-		h.Log.Fatalf("expected %s but got %s", http.MethodGet, r.Method)
-	}
-
-	// Note: Parse should not be used to validate strings as it parses non-standard encodings
-	uuidID, err := uuid.Parse(r.PathValue("id"))
+	uuidID, err := uuid.Parse(r.PathValue("id")) // Note: Parse should not be used to validate strings as it parses non-standard encodings
 	if err != nil {
-		// 	return ctx.JSON(http.StatusNotAcceptable, map[string]string{"message": "Unparsable parameter"})
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -134,18 +118,14 @@ func (h *DefaultHandler) HandleReadContact(w http.ResponseWriter, r *http.Reques
 
 	w.WriteHeader(http.StatusOK)
 	html := components.ContactLi(contact)
-	h.RenderView(w, r, html)
+	h.renderView(w, r, html)
 }
 
 // HandleCreateContact handles HTTP POST - /contacts
 func (h *DefaultHandler) HandleCreateContact(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPost {
-		h.Log.Fatalf("expected %s but got %s", http.MethodPost, r.Method)
-	}
-
 	contact, err := h.parseContactFromRequestForm(r)
-	if err != nil { // Akcshually form value or query error? TODO: use better errors from this method.
-		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
@@ -159,77 +139,58 @@ func (h *DefaultHandler) HandleCreateContact(w http.ResponseWriter, r *http.Requ
 
 	w.WriteHeader(http.StatusOK)
 	html := components.ContactsTable(contacts)
-	h.RenderView(w, r, html)
+	h.renderView(w, r, html)
 }
 
 // HandleGetUpdateContactForm handles HTTP GET - /contacts/{id}/edit.
 // Renders a slideout aside with a form pre-filled with contact of id's details.
 func (h *DefaultHandler) HandleGetUpdateContactForm(w http.ResponseWriter, r *http.Request) {
-	rawid := r.PathValue("id")
-
-	id, err := uuid.Parse(rawid)
+	uuidID, err := uuid.Parse(r.PathValue("id")) // Note: Parse should not be used to validate strings as it parses non-standard encodings.
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	contact := h.ContactService.CrudOps(services.ActionEdit, models.Contact{ID: id})
+	contact := h.ContactService.CrudOps(services.ActionEdit, models.Contact{ID: uuidID})
 
 	w.WriteHeader(http.StatusOK)
 	html := components.Slideout(components.ContactPutForm(contact), "Close", true)
-	h.RenderView(w, r, html)
+	h.renderView(w, r, html)
 }
 
 // HandleUpdateContact handles HTTP PUT - /contacts/{id}.
-//
-// Reference: https://htmx.org/examples/update-other-content/#events
-//
-//	<tbody id="contacts-table" hx-get="/contacts/table" hx-trigger="newContact from:body">
-//
-// When a successful contact creation occurs during a POST to /contacts, the
-// response includes an HX-Trigger response header that looks like this:
-//
-// HX-Trigger:newContact
-// This will trigger the table to issue a GET to /contacts/table and this
-// will render the newly added contact row (in addition to the rest of the table.)
 func (h *DefaultHandler) HandleUpdateContact(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPut {
-		h.Log.Fatalf("expected %s but got %s", http.MethodPut, r.Method)
-	}
-
-	// FIXME: error while validating email: mail: no address
 	contact, err := h.parseContactFromRequestForm(r)
+
 	if err != nil {
-		h.Log.Println("failed to parse contact from request form", err.Error(), http.StatusInternalServerError)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
 	oldContact := h.ContactService.CrudOps(services.ActionEdit, contact)
+
 	if oldContact.ID != contact.ID {
 		err := errors.New("error matching records")
 		h.Log.Println(err.Error(), http.StatusNotFound)
 		http.Error(w, err.Error(), http.StatusNotFound)
 		return
-
 	}
 
 	updatedContact := h.ContactService.CrudOps(services.ActionUpdate, contact)
 
+	// If update action returns empty value, incorrect email or contact was deleted,
+	// due to empty name (courtesy of todomvc style action.)
 	var emptyContact models.Contact
 	if updatedContact == emptyContact {
-		err := errors.New("something went wrong when updating record") // if update action returns empty value, incorrect email or contact was deleted due to empty name(courtesy of todomvc style action.)
+		err := errors.New("something went wrong when updating record")
 		h.Log.Println(err.Error(), http.StatusInternalServerError)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	// FIXME: implement this to update the whole table on newContact event.
-	//     this ensures that data stays uptodate and doesnt remain stale(multi users sessions.)
-	w.Header().Add("HX-Trigger", "newContact")
 	w.WriteHeader(http.StatusOK)
 	html := components.ContactLi(updatedContact)
-	h.RenderView(w, r, html)
+	h.renderView(w, r, html)
 }
 
 // HandleDeleteContact handles HTTP DELETE - /contacts/{id}.
@@ -241,12 +202,7 @@ func (h *DefaultHandler) HandleUpdateContact(w http.ResponseWriter, r *http.Requ
 // Consider options like `hx-swap='none'` for preserving the current state
 // or `hx-swap='delete'` for removing elements in response to the request.
 func (h *DefaultHandler) HandleDeleteContact(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodDelete {
-		h.Log.Fatalf("expected %s but got %s", http.MethodDelete, r.Method)
-	}
-
-	// Note: Parse should not be used to validate strings as it parses non-standard encodings
-	uuidID, err := uuid.Parse(r.PathValue("id"))
+	uuidID, err := uuid.Parse(r.PathValue("id")) // Note: Parse should not be used to validate strings as it parses non-standard encodings.
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -254,23 +210,9 @@ func (h *DefaultHandler) HandleDeleteContact(w http.ResponseWriter, r *http.Requ
 
 	_ = h.ContactService.CrudOps(services.ActionDelete, models.Contact{ID: uuidID})
 
-	// Note: remove hx-target or swap with body:. see htmx docs
 	w.WriteHeader(http.StatusOK)
-	// w.Write([]byte{})
-	// OR
 	fmt.Fprintf(w, "")
 }
-
-/*
-
-	if activeQueryParam != "" && activeQueryParam !=  {
-		http.Error(w, fmt.Sprintf("Invalid query parameter: expected '%s' found %s", models.StatusActive.QueryParam(), activeQueryParam), http.StatusBadRequest)
-	}
-	if inactiveQueryParam != "" && inactiveQueryParam !=  {
-		http.Error(w, fmt.Sprintf("Invalid query parameter: expected '%s' found '%s'", models.StatusActive.QueryParam(), activeQueryParam), http.StatusBadRequest)
-	}
-
-*/
 
 // HandleGetContactsCount handles HTTP GET requests to /contacts/count
 // with optional filtering by active/inactive status.
@@ -278,12 +220,6 @@ func (h *DefaultHandler) HandleDeleteContact(w http.ResponseWriter, r *http.Requ
 // Filters:
 //   - "GET /contacts/count?active=true"
 //   - "GET /contacts/count?inactive=true"
-//
-// Note: consider implementing rate limiting or other security measures if necessary.
-// Todo: htmx includes a feature called HX-Request-ID that generates a unique
-// identifier for each HTTP request triggered by htmx. This can be a useful way
-// to distinguish between concurrent requests and handle them independently on
-// the server-side.
 func (h *DefaultHandler) HandleGetContactsCount(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, http.StatusText(http.StatusMethodNotAllowed), http.StatusMethodNotAllowed)
@@ -312,20 +248,18 @@ func (h *DefaultHandler) HandleGetContactsCount(w http.ResponseWriter, r *http.R
 	fmt.Fprintf(w, "%d", count)
 }
 
-// --------------------------------------------------------------------------------------------------
-
 // TODO: use with central error handling middleware
 func (h *DefaultHandler) HandleNotFound(w http.ResponseWriter, r *http.Request) { // 404
 	w.WriteHeader(http.StatusNotFound)
 	html := pages.NotFoundPage()
-	h.RenderView(w, r, html)
+	h.renderView(w, r, html)
 }
 
 // TODO: use with central error handling middleware
 func (h *DefaultHandler) HandlerInternalServerError(w http.ResponseWriter, r *http.Request) { // 500
 	w.WriteHeader(http.StatusInternalServerError)
 	html := pages.ServerErrorPage()
-	h.RenderView(w, r, html)
+	h.renderView(w, r, html)
 }
 
 func (h *DefaultHandler) HandleHealthcheck(w http.ResponseWriter, r *http.Request) { // "/healthcheck"
@@ -339,24 +273,9 @@ func (h *DefaultHandler) HandleHealthcheck(w http.ResponseWriter, r *http.Reques
 	}
 }
 
-// YAGNI: See [HTTP Layer](https://templ.guide/project-structure/project-structure/#http-layer)
-type ViewProps struct {
-	Filter services.Filter
-	// Counts services.Counts
-}
-
-// Note that the View method uses the templ Components from the components directory to render the page.
-// func (h *DefaultHandler) View(w http.ResponseWriter, r *http.Request, props ViewProps) {
-// 		pages.Page(props.Count.Global, props.Counts.Session).Render(r.Context(), w)
-// }
-
-// RenderView renders the provided templ.Component to http.ResponseWriter with
+// renderView renders the provided templ.Component to http.ResponseWriter with
 // text/html content type.
-//
-// Handle the errors and return an error message to the user. That way if
-// something does go wrong, the server will function exactly how we want and
-// the user can be notified.
-func (h *DefaultHandler) RenderView(w http.ResponseWriter, r *http.Request, component templ.Component) {
+func (h *DefaultHandler) renderView(w http.ResponseWriter, r *http.Request, component templ.Component) {
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 
 	if err := component.Render(r.Context(), w); err != nil {
@@ -364,36 +283,41 @@ func (h *DefaultHandler) RenderView(w http.ResponseWriter, r *http.Request, comp
 	}
 }
 
+// parseContactFromRequestForm parses contact data from the request form.
 func (h *DefaultHandler) parseContactFromRequestForm(r *http.Request) (models.Contact, error) {
+
+	validationError := func(field string, err error) error {
+		return fmt.Errorf("validation error for %s: %v", field, err)
+	}
+
+	// Extract form values and sanitize them
 	id := strings.TrimSpace(html.EscapeString(r.FormValue("id")))
 	name := strings.TrimSpace(html.EscapeString(r.FormValue("name")))
 	email := strings.TrimSpace(html.EscapeString(r.FormValue("email")))
 	phone := strings.TrimSpace(html.EscapeString(r.FormValue("phone")))
 	statusRaw := strings.TrimSpace(html.EscapeString(r.FormValue("status")))
 
-	var uuidID uuid.UUID
+	var (
+		err    error
+		uuidID uuid.UUID
+		status models.Status
+	)
+
+	// If ID is empty, create a new UUID for POST request; else parse provided ID
 	if id == "" {
-		uuidID = uuid.New() // for a POST request
+		uuidID = uuid.New()
 	} else {
-		var err error
-		uuidID, err = uuid.Parse(id)
-		if err != nil {
-			return models.Contact{}, fmt.Errorf("error parsing id: %v", err)
+		if uuidID, err = uuid.Parse(id); err != nil {
+			return models.Contact{}, validationError("ID", err)
 		}
 	}
 
 	if err := internal.ValidateEmail(email); err != nil {
-		return models.Contact{}, fmt.Errorf("error parsing email: %v", err)
+		return models.Contact{}, validationError("Email", err)
 	}
 
-	var status models.Status
-	switch statusRaw {
-	case "on":
-		status = models.StatusActive
-	case "":
-		status = models.StatusInactive
-	default:
-		return models.Contact{}, fmt.Errorf("unexpected form value for 'status': %s", statusRaw)
+	if status, err = (models.StatusParser{}.FormCheckboxValue(statusRaw)); err != nil {
+		return models.Contact{}, validationError("Status", err)
 	}
 
 	contact := models.Contact{
@@ -407,6 +331,7 @@ func (h *DefaultHandler) parseContactFromRequestForm(r *http.Request) (models.Co
 	return contact, nil
 }
 
+// handleCookieSession handles session management using cookies.
 func (h *DefaultHandler) handleCookieSession(w http.ResponseWriter, r *http.Request) error {
 	cookieName := "sessionID"
 
@@ -428,7 +353,6 @@ func (h *DefaultHandler) handleCookieSession(w http.ResponseWriter, r *http.Requ
 
 		http.SetCookie(w, &newCookie)
 		h.ContactService.ResetContacts()
-
 		return nil
 	}
 
