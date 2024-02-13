@@ -33,8 +33,14 @@ build:
 	$(BUILD_CMD) -o $(BIN_DIR)/app$(EXEC_EXT) $(GO_MAIN)
 
 # build-optimized: Build optimized app executable with netgo tags, stripped debug info, suppressed linker warnings
-build-optimized: 
-	$(BUILD_CMD) -tags netgo -ldflags '-s -w' -o $(BIN_DIR)/app $(GO_MAIN)
+# $(BUILD_CMD) -tags netgo -ldflags '-s -w' -o $(BIN_DIR)/app $(GO_MAIN)
+build-prod: 
+	$(BUILD_CMD) -tags netgo -ldflags '-s -w' -o app $(GO_MAIN)
+
+build-prod-linux:
+	set GOOS=linux
+	set GOARCH=amd64
+	$(BUILD_CMD) -tags netgo -ldflags '-s -w' -o app $(GO_MAIN)
 
 # clean: Remove temporary and bin directories
 clean:
