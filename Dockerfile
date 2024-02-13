@@ -1,7 +1,8 @@
 # syntax=docker/dockerfile:1
 
+FROM golang:1.22
 # Use alpine linux for smaller image size
-FROM alpine:3.16
+# FROM alpine:3.16
 
 # Set working directory
 WORKDIR /app
@@ -9,20 +10,20 @@ WORKDIR /app
 # Copy go.mod and go.sum for reproducible builds
 COPY go.mod go.sum ./
 
-# Download and install Go 1.22.0
-RUN apk add --no-cache --virtual build-deps \
-    wget \
-    gcc \
-    libc-dev \
-    make \
-    && \
-    wget -q https://dl.google.com/go/go1.22.osarch.tar.gz -O go.tar.gz \
-    && \
-    tar -xzf go.tar.gz -C /usr/local \
-    && \
-    rm go.tar.gz \
-    && \
-    rm -rf /var/lib/apk/cache/*
+# # Download and install Go 1.22.0
+# RUN apk add --no-cache --virtual build-deps \
+#     wget \
+#     gcc \
+#     libc-dev \
+#     make \
+#     && \
+#     wget -q https://dl.google.com/go/go1.22.osarch.tar.gz -O go.tar.gz \
+#     && \
+#     tar -xzf go.tar.gz -C /usr/local \
+#     && \
+#     rm go.tar.gz \
+#     && \
+#     rm -rf /var/lib/apk/cache/*
 
 # Set environment variables for Go tools
 ENV GOPATH /app
@@ -37,13 +38,13 @@ COPY . .
 RUN go mod download
 
 # Build the application for the current architecture
-RUN go build -tags $GO_TAGS -ldflags "$GO_LDFLAGS" -o app cmd/main.go
+RUN CGO_ENABLED=0 GOOS=linux go build -tags $GO_TAGS -ldflags "$GO_LDFLAGS" -o app cmd/main.go
 
 # (Optional) Build for other architectures (modify as needed)
 # RUN GOOS=linux GOARCH=amd64 go build -o app .
 
 # Clean up build dependencies
-RUN apk del build-deps
+# RUN apk del build-deps
 
 # Expose port 10000 (modify as needed)
 EXPOSE 10000
