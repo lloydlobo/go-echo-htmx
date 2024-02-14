@@ -1,3 +1,5 @@
+// Package models contains plain structs that represent common data structures
+// in the application, such as `Contact`.
 package models
 
 import (

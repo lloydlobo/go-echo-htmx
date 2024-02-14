@@ -13,8 +13,8 @@
 //
 // Pre-Build Commands:
 //
-//	$ tailwindcss -i .\templates\css\globals.css -o .\static\css\style.css --minify
 //	$ templ generate
+//	$ tailwindcss -i .\templates\css\globals.css -o .\static\css\style.css --minify
 //
 // Build Command:
 //
@@ -31,11 +31,12 @@
 //	$ air init
 //	$ air
 //
-// Install templ `go install github.com/a-h/templ/cmd/templ@latest`
+// Install templ
 //
+//	$ go install github.com/a-h/templ/cmd/templ@latest
 //	$ templ generate
 //
-// # Documentation using godoc
+// # Document using godoc
 //
 // Install with:
 //

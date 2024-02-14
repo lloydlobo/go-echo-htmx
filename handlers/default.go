@@ -99,7 +99,7 @@ func (h *DefaultHandler) HandleAboutPage(w http.ResponseWriter, r *http.Request)
 //
 // HTMX calls this via:
 //
-//	`<span hx-get="/contacts" hx-target="#hx-contacts" hx-swap="beforeend" hx-trigger="load"></span>`
+//	<span hx-get="/contacts" hx-target="#hx-contacts" hx-swap="beforeend" hx-trigger="load"></span>
 //
 // So `beforeend` ensures that swap does not mutate the previous elements.
 func (h *DefaultHandler) HandleReadContacts(w http.ResponseWriter, r *http.Request) {
@@ -256,6 +256,7 @@ func (h *DefaultHandler) HandleGetContactsCount(w http.ResponseWriter, r *http.R
 }
 
 // TODO: use with central error handling middleware
+
 func (h *DefaultHandler) HandleNotFound(w http.ResponseWriter, r *http.Request) { // 404
 	w.WriteHeader(http.StatusNotFound)
 	html := pages.NotFoundPage()
@@ -263,6 +264,7 @@ func (h *DefaultHandler) HandleNotFound(w http.ResponseWriter, r *http.Request) 
 }
 
 // TODO: use with central error handling middleware
+
 func (h *DefaultHandler) HandlerInternalServerError(w http.ResponseWriter, r *http.Request) { // 500
 	w.WriteHeader(http.StatusInternalServerError)
 	html := pages.ServerErrorPage()
