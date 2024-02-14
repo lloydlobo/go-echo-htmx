@@ -42,7 +42,7 @@ templ Slideout(contents templ.Component, triggerText string, isOpen bool) {
 			x-transition:leave-start="translate-x-0"
 			x-transition:leave-end="translate-x-full"
 			@click.away="slideOut = false"
-			class="fixed box"
+			class="fixed box slideout-aside"
 		>
 			<!-- trigger close -->
 			<button
@@ -59,12 +59,13 @@ templ Slideout(contents templ.Component, triggerText string, isOpen bool) {
 		</aside>
 	</div>
 	<style type="text/css">
-        aside {
+        aside.slideout-aside {
             position: fixed; 
             top: 0; 
             right: 0; 
             bottom: 0; 
-            width: 300px; 
+            min-width: 300px; 
+            margin-block: 0;
             z-index: 50;
         }
     </style>
