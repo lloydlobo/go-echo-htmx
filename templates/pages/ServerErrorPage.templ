@@ -1,7 +1,23 @@
 package pages
 
+var (
+	flagServiceErrorPageHxPageEnabled = true
+)
+
 // 500: Internal Server Error
 templ ServerErrorPage() {
+	if !flagServiceErrorPageHxPageEnabled {
+		@HxPage() {
+			@ServerErrorContent()
+		}
+	} else {
+		@Base() {
+			@ServerErrorContent()
+		}
+	}
+}
+
+templ ServerErrorContent() {
 	<main class="container">
 		<section>
 			<hgroup>
