@@ -30,11 +30,13 @@ func TmpInit() {
 	}()
 }
 
-// Action implements enumeration of actions
+// Action implements enumeration of actions.
 type Action int
 
-// Enumerate Action related constants in one type
-const ( // Hack: using `-1` as `default` case value to act as ActionGet operation.
+// Hack: using `-1` as `default` case value to act as ActionGet operation.
+
+// Enumerate Action related constants in one type.
+const (
 	ActionCreate Action = iota
 	ActionToggle
 	ActionEdit
@@ -56,8 +58,7 @@ func NewContactService() *ContactService {
 func NewContactServiceFromAPI() *ContactService {
 	apiURL := internal.LookupEnv("API_URL", "https://jsonplaceholder.typicode.com/users")
 
-	// Note: Using context.Background() is not idiomatic. Because this is for
-	// development and happens before the http server is started.
+	// Note: Using context.Background() is not idiomatic. But still using it before the http server is started.
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel() // cancel context when done fetching
 
@@ -80,7 +81,6 @@ type ContactService struct {
 	ContactCountCache *int64
 }
 
-// Get(ctx context.Context, sessionID string)
 func (cs *ContactService) Get() (models.Contacts, error) {
 	cs.lock.Lock()
 	defer cs.lock.Unlock()
@@ -100,8 +100,9 @@ func (cs *ContactService) ResetContacts() {
 	cs.idCounter = 0
 }
 
-// FIXME: return (value, error)
 func (cs *ContactService) CrudOps(action Action, contact models.Contact) models.Contact {
+	// FIXME: return (value, error)
+
 	cs.lock.Lock()
 	defer cs.lock.Unlock()
 
@@ -262,18 +263,19 @@ func fetchUsers(ctx context.Context, apiURL string) (models.Contacts, error) {
 	return nil, errors.New("failed to fetch user data after all retries")
 }
 
-// # Usage
-//
-//	func handleTotalContacts(w http.ResponseWriter, r *http.Request) {
-//	  if contactCountCache == nil {
-//	    // Handle error or wait for initial cache update
-//	    return
-//	  }
-//	  count := *contactCountCache
-//	  // Respond with JSON
-//	  json.NewEncoder(w).Encode(map[string]int64{"count": count})
-//	}
 func (cs *ContactService) updateContactCountCache() {
+	// # Usage
+	//
+	//	func handleTotalContacts(w http.ResponseWriter, r *http.Request) {
+	//	  if contactCountCache == nil {
+	//	    // Handle error or wait for initial cache update
+	//	    return
+	//	  }
+	//	  count := *contactCountCache
+	//	  // Respond with JSON
+	//	  json.NewEncoder(w).Encode(map[string]int64{"count": count})
+	//	}
+
 	cs.lock.Lock()
 	defer cs.lock.Unlock()
 

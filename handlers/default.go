@@ -1,11 +1,13 @@
 // The handlers layer reads HTTP requests, uses the service to perform CRUD like
 // operations, and renders the templ Components.
 //
-// Errorlog:
+// # Errorlog
 //
-//   - Note: missing method ServeHTTP
-//     cannot use h.IndexPageHandler (value of type func(w http.ResponseWriter, r *http.Request)) as http.Handler value in struct literal: func(w http.ResponseWriter, r *http.Request) does not implement http.Handler (missing method ServeHTTP)compilerInvalidIfaceAssign
+// Missing method ServeHTTP
 //
+//	cannot use h.IndexPageHandler (value of type func(w http.ResponseWriter, r *http.Request)) as http.Handler value in struct literal: func(w http.ResponseWriter, r *http.Request) does not implement http.Handler (missing method ServeHTTP)compilerInvalidIfaceAssign
+package handlers
+
 // Future:
 //
 //   - Handling non-existent pages:
@@ -19,7 +21,6 @@
 //     renderTemplate(w, "view", p)
 //     }
 //     The http.Redirect function adds an HTTP status code of http.StatusFound (302) and a Location header to the HTTP response.
-package handlers
 
 import (
 	"encoding/json"
@@ -43,8 +44,8 @@ import (
 )
 
 var (
-	// Validation Expression to validate title, See Validation, https://go.dev/doc/articles/wiki/
-	ValidPath = regexp.MustCompile("^/(about|contacts)/([a-zA-Z0-9]+)$") // Note: unimplemented
+	// Validation Expression to validate title. @unimplemented
+	ValidPath = regexp.MustCompile("^/(about|contacts)/([a-zA-Z0-9]+)$") // See Validation, https://go.dev/doc/articles/wiki/
 )
 
 // ContactService defines the interface for contact-related operations.
@@ -96,8 +97,11 @@ func (h *DefaultHandler) HandleAboutPage(w http.ResponseWriter, r *http.Request)
 
 // HandleReadContacts handles requests for contact partials.
 //
-// HTMX calls this via `<span hx-get="/contacts" hx-target="#hx-contacts" hx-swap="beforeend" hx-trigger="load"></span>`
-// So "beforeend" ensures that swap does not mutate the previous elements
+// HTMX calls this via:
+//
+//	`<span hx-get="/contacts" hx-target="#hx-contacts" hx-swap="beforeend" hx-trigger="load"></span>`
+//
+// So `beforeend` ensures that swap does not mutate the previous elements.
 func (h *DefaultHandler) HandleReadContacts(w http.ResponseWriter, r *http.Request) {
 	contacts, err := h.ContactService.Get()
 	if err != nil {
@@ -145,6 +149,7 @@ func (h *DefaultHandler) HandleCreateContact(w http.ResponseWriter, r *http.Requ
 }
 
 // HandleGetUpdateContactForm handles HTTP GET - /contacts/{id}/edit.
+//
 // Renders a slideout aside with a form pre-filled with contact of id's details.
 func (h *DefaultHandler) HandleGetUpdateContactForm(w http.ResponseWriter, r *http.Request) {
 	uuidID, err := uuid.Parse(r.PathValue("id")) // Note: Parse should not be used to validate strings as it parses non-standard encodings.
