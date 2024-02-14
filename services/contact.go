@@ -73,10 +73,10 @@ func NewContactServiceFromAPI() *ContactService {
 }
 
 type ContactService struct {
-	lock              sync.Mutex      // Lock and defer Unlock during mutation of contacts.
-	Contacts          models.Contacts 
-	seq               int             // Tracks times contact is created while server is running. Start from 1.
-	idCounter         int             // Tracks current count of Contact till when session resets. Start from 0.
+	lock              sync.Mutex // Lock and defer Unlock during mutation of contacts.
+	Contacts          models.Contacts
+	seq               int // Tracks times contact is created while server is running. Start from 1.
+	idCounter         int // Tracks current count of Contact till when session resets. Start from 0.
 	ContactCountCache *int64
 }
 
@@ -88,7 +88,7 @@ func (cs *ContactService) Get() (models.Contacts, error) {
 	if len(cs.Contacts) == 0 {
 		return models.Contacts{}, nil
 	}
-	
+
 	return cs.Contacts, nil
 }
 
@@ -146,7 +146,7 @@ func (cs *ContactService) CrudOps(action Action, contact models.Contact) models.
 			return contact
 		}
 		// otherwise remove if name is empty
-		cs.deleteContact(index) 
+		cs.deleteContact(index)
 		return models.Contact{}
 
 	case ActionDelete:
@@ -207,7 +207,7 @@ func fetchUsers(ctx context.Context, apiURL string) (models.Contacts, error) {
 	client := &http.Client{Timeout: 5 * time.Second}
 	maxRetries := 3
 	delay := 1 * time.Second // use exponential backoff for retries instead of fixed count
-	
+
 	var contacts models.Contacts
 
 	for attempt := 1; attempt <= maxRetries; attempt++ {
@@ -224,7 +224,7 @@ func fetchUsers(ctx context.Context, apiURL string) (models.Contacts, error) {
 				time.Sleep(delay)
 				delay *= 2 // exponential backoff
 
-				continue   
+				continue
 			}
 			return nil, fmt.Errorf("failed to fetch user data after %d retries: %v", maxRetries, err)
 		}

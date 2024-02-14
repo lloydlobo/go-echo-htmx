@@ -44,7 +44,7 @@ import (
 
 var (
 	// Validation Expression to validate title, See Validation, https://go.dev/doc/articles/wiki/
-	ValidPath = regexp.MustCompile("^/(about|contacts)/([a-zA-Z0-9]+)$")
+	ValidPath = regexp.MustCompile("^/(about|contacts)/([a-zA-Z0-9]+)$") // Note: unimplemented
 )
 
 // ContactService defines the interface for contact-related operations.
