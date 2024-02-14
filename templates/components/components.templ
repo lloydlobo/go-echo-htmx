@@ -46,16 +46,16 @@ templ ContactsTable(contacts models.Contacts) {
 	</table>
 	<style type="text/css">
         table {
-            border: 1px solid var(--muted-fg);
-            border-radius: 5px;
+            // border: 1px solid var(--muted-fg);
+            // border-radius: 5px;
             border-collapse: unset;
 
             tr td {
                 text-wrap: balance;
                 /* style the second td that is the name thead field value */
-                /* &:nth-child(2) { min-width: min(45vw, 22ch); } */ 
+                &:nth-child(2) { min-width: min(45vw, 22ch); }
                 /* style the third td that is the phone thead field value */
-                /* &:nth-child(3) { min-width: min(25vw, 16ch); }*/ 
+                &:nth-child(3) { min-width: min(25vw, 16ch); }
             }
         }
     </style>
@@ -68,7 +68,7 @@ templ ContactsTable(contacts models.Contacts) {
 //     return "deactivate"
 // }() }
 templ ContactLi(contact models.Contact) {
-	<tr id={ "tr-" + contact.ID.String() }>
+	<tr id={ "tr-" + contact.ID.String() } class={  }>
 		<td scope="row">
 			<label for={ templ.EscapeString("ids" + contact.ID.String()) } aria-label="id">
 				<input type="checkbox" name={ templ.EscapeString("ids" + contact.ID.String()) } value={ contact.ID.String() }/>
@@ -90,13 +90,8 @@ templ ContactLi(contact models.Contact) {
 	</tr>
 }
 
+// Note: use hx-vals or hx-include for passing id without using it in markup
 templ ContactPutForm(contact models.Contact) {
-	// hx-include="closest tr"
-	// hx-target="this"
-	// maybe we should swap it??
-	// Should check this out: https://htmx.org/examples/click-to-edit/
-	// hx-swap="outerHTML"
-	// Note: use hx-vals or hx-include for passing id without using it in markup
 	<form
 		hx-put={ "/contacts/" + contact.ID.String() }
 		hx-target={ "#tr-" + contact.ID.String() }
@@ -262,17 +257,10 @@ templ hoverExpandable() {
 //
 // Note: use arrow fn to access this as current button.
 // Note: type="button" avoids page to reload when clicked
+// .dropdown-btn {
+//     gap: 1em;
+// }
 templ editDropdown(contact models.Contact) {
-	<style type="text/css">
-        .dropdown-btn {
-            gap: 1em;
-            justify-content: space-between;
-        }
-        .dropdown-container {
-            position:absolute; 
-            z-index:1;
-        }
-    </style>
 	<div x-data="{showDropdown: false,}" class="smooth">
 		<!-- Trigger -->
 		<button
@@ -291,66 +279,54 @@ templ editDropdown(contact models.Contact) {
 			x-transition:enter.duration.500ms
 			x-transition:leave.duration.300ms
 			@click.outside="showDropdown = false"
-			class="box no-bullets smooth dropdown-container"
+			style="position:absolute; z-index: 1;"
+			class="box no-bullets smooth"
 		>
 			<li class="margin-block-start">
 				<!-- Note: ensure that server renders inside the body tag -->
 				<button
+					name={ "Edit " + contact.Name }
+					title={ "Edit " + contact.Name }
 					hx-get={ "/contacts/" + contact.ID.String() + "/edit" }
 					hx-target="body"
 					hx-swap="beforeend"
 					type="button"
 					role="button"
-					title={ "Edit" + contact.Name }
-					class={ "width:100%", "dropdown-btn" }
+					class={ "big f-row width:100% justify-content:space-between", "" }
 				>
 					<span class="!vh">Edit</span>
-					<hr aria-orientation="vertical"/>
-					@PencilIcon()
+					<span class="iconbutton">
+						@PencilIcon()
+					</span>
 				</button>
 			</li>
 			<li>
-				// hx-trigger="confirmed"
-				// onclick={ templ.ComponentScript{ Call: `
-				//    Swal.fire({ title: 'Confirm', text: 'Do you want to delete?', }).then((result) => {
-				//        if (result.isConfirmed) {
-				//            htmx.trigger(this, 'confirmed');
-				//        }
-				//    });
-				// `, } }
 				<button
+					name={ "Remove " + contact.Name }
+					title={ "Remove " + contact.Name }
 					hx-delete={ "/contacts/" + contact.ID.String() }
+					hx-trigger="confirmed"
+					onclick={ templ.ComponentScript{ Call: `
+                    Swal.fire({ title: 'Confirm', text: 'Do you want to delete?', }).then((result) => {
+                        if (result.isConfirmed) {
+                            htmx.trigger(this, 'confirmed');
+                        }
+                    });
+                    `, } }
 					type="button"
 					role="button"
-					title={ "Remove" + contact.Name }
-					class={ "width:100%", "dropdown-btn bad color" }
+					class={ "big f-row width:100% justify-content:space-between", "bad color" }
 				>
 					<span class="!vh">Delete</span>
-					<hr aria-orientation="vertical"/>
-					@TrashIcon()
+					<span class="iconbutton">
+						@TrashIcon()
+					</span>
 				</button>
 			</li>
 		</ul>
 	</div>
 }
 
-// //    querying all via ids may fail as we are appending each id. maybe choose a global id for each checkbox laabel/input???
-// // Note: use .contents class when not surrounded by .box
-// templ filter(filters []services.Filter) {
-// 	<ul class="filters" _="on load set $filter to me">
-// 		for _, filter := range filters {
-// 			<li>
-// 				<a
-// 					class={ templ.KV("selected", filter.Selected) }
-// 					href={ templ.SafeURL(filter.Url) }
-// 					_="on click add .selected to me"
-// 				>
-// 					{ filter.Name }
-// 				</a>
-// 			</li>
-// 		}
-// 	</ul>
-// }
 templ ToggleAll(checked bool) {
 	<input
 		id="toggle-all"

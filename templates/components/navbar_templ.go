@@ -33,7 +33,7 @@ func Navbar(swapOob bool) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(" aria-label=\"Site sections\" class=\"contents\"><ul role=\"list\"><li><a href=\"/\" aria-label=\"Home\"><span>head<b>count</b></span></a></li><hr><li><a href=\"/about\">About</a></li><li><a href=\"https://github.com/lloydlobo/go-headcount\">GitHub</a></li><!-- <li><a href=\"/\"><img alt=\"\"/></a></li> --></ul></nav></header><!-- \r\n    Note: deprecated: using this directly at callsite i.e. in IndexPage\r\n    This should only appears during loading\r\n\t<span\r\n\t\thx-get=\"/contacts\"\r\n\t\thx-target=\"#contact-list\"\r\n\t\thx-indicator=\"#loader\"\r\n\t\thx-trigger=\"load\"\r\n\t>\r\n\t\t<span\r\n\t\t\tclass=\"htmx-indicator indicator !vh\"\r\n\t\t\tid=\"loader\"\r\n\t\t\talt=\"Loading...\"\r\n\t\t\taria-busy=\"true\"\r\n\t\t></span>\r\n\t</span>\r\n     -->")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(" aria-label=\"Site sections\" class=\"contents\"><ul role=\"list\" style=\"width:-webkit-fill-available;\"><li class=\"logo f-row\" style=\"flex:1;\"><a href=\"/\" aria-label=\"Home\"><span>head<b>count</b></span></a><hr class=\"vh\" aria-orientation=\"vertical\"></li><li><a href=\"/about\">About</a></li><li><a href=\"https://github.com/lloydlobo/go-headcount\">GitHub</a></li><!-- <li><a href=\"/\"><img alt=\"\"/></a></li> --></ul></nav></header>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

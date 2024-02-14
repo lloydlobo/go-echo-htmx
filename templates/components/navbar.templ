@@ -19,34 +19,17 @@ templ Navbar(swapOob bool) {
 			aria-label="Site sections"
 			class="contents"
 		>
-			<ul role="list">
-				<li>
+			<ul role="list" style="width:-webkit-fill-available;">
+				<li class="logo f-row" style="flex:1;">
 					<a href="/" aria-label="Home">
 						<span>head<b>count</b></span>
 					</a>
+					<hr class="vh" aria-orientation="vertical"/>
 				</li>
-				<hr/>
 				<li><a href="/about">About</a></li>
 				<li><a href="https://github.com/lloydlobo/go-headcount">GitHub</a></li>
 				<!-- <li><a href="/"><img alt=""/></a></li> -->
 			</ul>
 		</nav>
 	</header>
-	<!-- 
-    Note: deprecated: using this directly at callsite i.e. in IndexPage
-    This should only appears during loading
-	<span
-		hx-get="/contacts"
-		hx-target="#contact-list"
-		hx-indicator="#loader"
-		hx-trigger="load"
-	>
-		<span
-			class="htmx-indicator indicator !vh"
-			id="loader"
-			alt="Loading..."
-			aria-busy="true"
-		></span>
-	</span>
-     -->
 }
