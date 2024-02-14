@@ -9,6 +9,8 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/google/uuid"
+
 	"github.com/lloydlobo/go-headcount/handlers"
 	"github.com/lloydlobo/go-headcount/internal"
 	"github.com/lloydlobo/go-headcount/services"
@@ -19,9 +21,12 @@ type (
 )
 
 const (
-	buildID                 = "1234567890"
-	buildTag                = "v0.0.1"
 	loggerKey loggerKeyKind = "logger"
+)
+
+var (
+	BuildID  = uuid.New().String()
+	BuildTag = "v0.0.2"
 )
 
 func main() {
@@ -70,11 +75,11 @@ func main() {
 // [METHOD ][HOST]/[PATH]
 func initializeRoutes(h *handlers.DefaultHandler) *http.ServeMux {
 	mux := http.NewServeMux()
-	
+
 	// Serve static files
 	mux.Handle("/static/", internal.Gzip(http.StripPrefix("/static/", http.FileServer(http.Dir("static/")))))
 	mux.HandleFunc("/robots.txt", func(w http.ResponseWriter, r *http.Request) { http.ServeFile(w, r, "robots.txt") })
-	
+
 	// Routes for pages
 	var withGzip bool = true // flag
 	mux.Handle("/", gzipMiddleware(http.HandlerFunc(h.HandleIndexPage), withGzip))
