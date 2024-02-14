@@ -123,7 +123,7 @@ func (h *DefaultHandler) HandleReadContact(w http.ResponseWriter, r *http.Reques
 	contact := h.ContactService.CrudOps(services.ActionEdit, models.Contact{ID: uuidID})
 
 	w.WriteHeader(http.StatusOK)
-	html := components.ContactLi(contact)
+	html := components.ContactRow(contact)
 	h.renderView(w, r, html)
 }
 
@@ -196,7 +196,7 @@ func (h *DefaultHandler) HandleUpdateContact(w http.ResponseWriter, r *http.Requ
 	}
 
 	w.WriteHeader(http.StatusOK)
-	html := components.ContactLi(updatedContact)
+	html := components.ContactRow(updatedContact)
 	h.renderView(w, r, html)
 }
 

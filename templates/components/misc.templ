@@ -4,6 +4,32 @@ import (
 	"github.com/lloydlobo/go-headcount/templates"
 )
 
+// alpine js dropdown
+templ HoverExpandableDropdown(triggerText string) {
+	<div
+		x-data="{ showDropdown: false }"
+		class="smooth"
+	>
+		<button
+			@click="showDropdown = !showDropdown"
+			@mouseover="showDropdown = true"
+			@mouseleave="showDropdown = false"
+		>
+			{ triggerText }
+		</button>
+		<div
+			x-cloak
+			x-show="showDropdown"
+			@mouseover="showDropdown = true"
+			@mouseleave="showDropdown = false"
+			x-transition.opacity
+			class="box smooth"
+		>
+			{ children... }
+		</div>
+	</div>
+}
+
 templ ToggleAll(checked bool) {
 	<input id="toggle-all" class="toggle-all" type="checkbox" checked?={ checked } _="install ToggleAll"/>
 }

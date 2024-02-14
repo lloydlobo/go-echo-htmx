@@ -8,23 +8,10 @@ import (
 	"github.com/lloydlobo/go-headcount/models"
 )
 
-var TodoContactLiArgClazz = "activate" // or was it active?
+var (
+	TodoContactRowArgClazz = "activate" // "activate" | "deactivate"
+)
 
-// <!--
-// Reference: https://htmx.org/examples/update-other-content/#events
-//     <tbody id="contacts-table" hx-get="/contacts/table" hx-trigger="newContact from:body">
-//
-// When a successful contact creation occurs during a POST to /contacts, the
-// response includes an HX-Trigger response header that looks like this:
-//
-// HX-Trigger:newContact
-// This will trigger the table to issue a GET to /contacts/table and this
-// will render the newly added contact row (in addition to the rest of the table.)
-//
-// Very clean, event driven programming!
-// <tbody id="contacts-table" hx-get="/contacts" hx-trigger="newContact from:body" >
-// -->
-// <!-- hx-confirm="Are you sure?" -->
 templ ContactsTable(contacts models.Contacts) {
 	<table class="table">
 		<thead>
@@ -39,20 +26,20 @@ templ ContactsTable(contacts models.Contacts) {
 		</thead>
 		<tbody id="tBody" hx-target="closest tr" hx-swap="outerHTML swap:1s">
 			for _, contact := range contacts {
-				@ContactLi(contact)
+				@ContactRow(contact)
 			}
 		</tbody>
 	</table>
 	<style type="text/css">
         table {
-            // border: 1px solid var(--muted-fg);
-            // border-radius: 5px;
             border-collapse: unset;
 
             tr td {
                 text-wrap: balance;
+
                 /* style the second td that is the name thead field value */
                 &:nth-child(2) { min-width: min(45vw, 22ch); }
+
                 /* style the third td that is the phone thead field value */
                 &:nth-child(3) { min-width: min(25vw, 16ch); }
             }
@@ -66,7 +53,9 @@ templ ContactsTable(contacts models.Contacts) {
 //     }
 //     return "deactivate"
 // }() }
-templ ContactLi(contact models.Contact) {
+
+// ContactRow partial is <tr> for <tbody> in ContactTable.
+templ ContactRow(contact models.Contact) {
 	<tr id={ "tr-" + contact.ID.String() } class={  }>
 		<td scope="row">
 			<label for={ templ.EscapeString("ids" + contact.ID.String()) } aria-label="id">
@@ -78,9 +67,9 @@ templ ContactLi(contact models.Contact) {
 		<td>{ contact.Email }</td>
 		<td>
 			if contact.Status == models.StatusActive {
-				<output class="!chip ok color <small>">{ contact.Status.String() }</output>
+				<output class="ok color <small>">{ contact.Status.String() }</output>
 			} else {
-				<output class="!chip warn color <small>">{ contact.Status.String() }</output>
+				<output class="warn color <small>">{ contact.Status.String() }</output>
 			}
 		</td>
 		<td style="position:relative;">
@@ -89,6 +78,8 @@ templ ContactLi(contact models.Contact) {
 	</tr>
 }
 
+// ContactPutForm is rendered as a response to "GET /contacts/{id}/edit" via handlers.HandleGetUpdateContactForm.
+//
 // Note: use hx-vals or hx-include for passing id without using it in markup
 templ ContactPutForm(contact models.Contact) {
 	<form
@@ -162,14 +153,7 @@ templ ContactPutForm(contact models.Contact) {
 	</form>
 }
 
-// Note: how to close the parent slideout component?
-//
-// x-data="{ isOpen: true, }"
-// x-show="isOpen"
-// x-transition:enter.duration.500ms
-// x-transition:leave.duration.750ms
-// @submit.prevent="isOpen = false"
-//
+// ContactPostForm is rendered as a response to "POST /contacts" via handlers.HandleCreateContact.
 templ ContactPostForm() {
 	<form
 		hx-post="/contacts"
@@ -230,35 +214,10 @@ templ ContactPostForm() {
 	</form>
 }
 
-// alpine js dropdown
-templ hoverExpandable() {
-	<div
-		x-data="{ showDropdown: false }"
-		class="smooth"
-	>
-		<button
-			@click="showDropdown = !showDropdown"
-			@mouseover="showDropdown = true"
-			@mouseleave="showDropdown = false"
-		>Hover me</button>
-		<div
-			x-cloak
-			x-show="showDropdown"
-			@mouseover="showDropdown = true"
-			@mouseleave="showDropdown = false"
-			x-transition.opacity
-			class="box smooth"
-		>Hello, World!</div>
-	</div>
-}
-
-// editDropdown
+// editDropdown is an action ui component for ContactRow.
 //
 // Note: use arrow fn to access this as current button.
 // Note: type="button" avoids page to reload when clicked
-// .dropdown-btn {
-//     gap: 1em;
-// }
 templ editDropdown(contact models.Contact) {
 	<div x-data="{showDropdown: false,}" class="smooth">
 		<!-- Trigger -->
