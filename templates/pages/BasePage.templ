@@ -14,28 +14,24 @@ templ Base() {
 					<p>Please enable JavaScript to view this page.</p>
 				</div>
 			</noscript>
-			// Styles
 			<link rel="stylesheet" href="/static/css/missing.min.css"/>
 			<link rel="stylesheet" href="/static/css/style.css"/>
-			// Scripts
-			<!-- This src /static/js/missing.css.overflow-nav.min.js is minified and compiled file from https://unpkg.com/missing.css@1.1.1/dist/js/overflow-nav.js, that also imports helpers from 19.js -->
-			<script type="module" src="/static/js/missing.css.overflow-nav.min.js"></script>
-			<script type="text/hyperscript" src="/static/hs/start-me-up._hs"></script>
-			<script type="text/hyperscript" src="/static/hs/main._hs"></script>
-			<script src="/static/js/htmx.min.js"></script>
-			<script defer src="/static/js/_hyperscript.min.js"></script>
-			// CDN
-			<script defer src="https://unpkg.com/alpinejs-notify@latest/dist/notifications.min.js"></script>
-			<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+			<script defer type="module" src="/static/js/missing.css.overflow-nav.min.js"></script>
 			<script defer type="module" src="https://unpkg.com/missing.css@1.1.1/dist/js/menu.js"></script>
+			<script defer type="text/hyperscript" src="/static/hs/start-me-up._hs"></script>
+			<script defer type="text/hyperscript" src="/static/hs/main._hs"></script>
+			<script defer src="/static/js/_hyperscript.min.js"></script>
+			<script defer src="https://unpkg.com/alpinejs-notify@latest/dist/notifications.min.js"></script>
+			<script defer src="/static/js/alpinejs@3.x.x.min.js"></script>
+			<script defer src="/static/js/htmx.min.js"></script>
+			<!--
 			<script defer src="https://unpkg.com/htmx.org/dist/ext/debug.js"></script>
 			<script defer src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-			// Script init
 			<script defer type="text/javascript">
                 htmx.logAll();
             </script>
+            -->
 		</head>
-		// hx-ext="theme"
 		<body>
 			@components.Navbar(false)
 			<div
@@ -48,10 +44,7 @@ templ Base() {
 				{ children... }
 			</div>
 			@components.Footer()
-			<div
-				id="toast-container"
-				class="fixed bottom-0 right-0 flex flex-col gap-2 p-3"
-			></div>
+			<div id="toast-container" class="fixed bottom-0 right-0 flex flex-col gap-2 p-3"></div>
 		</body>
 	</html>
 }

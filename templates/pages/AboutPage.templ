@@ -15,13 +15,16 @@ templ AboutPage() {
 }
 
 var (
-	notificationText = "Nihil distinctio suscipit iste impedit magnam eius iure culpa mollitia tenetur"
+	notificationText          = "Nihil distinctio suscipit iste impedit magnam eius iure culpa mollitia tenetur"
+	flagAboutPageToastEnabled = true
 )
 
 templ AboutContent() {
-	<div class="center">
-		@components.Toast(notificationText)
-	</div>
+	if !flagAboutPageToastEnabled {
+		<div class="center">
+			@components.Toast(notificationText)
+		</div>
+	}
 	<main class="airy flow-gap">
 		<big-screen class="dense">
 			<h1>Quick and easy way to keep count of live gatherings</h1>

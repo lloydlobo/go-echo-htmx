@@ -12,6 +12,10 @@ import "bytes"
 
 import "github.com/lloydlobo/go-headcount/templates/components"
 
+var (
+	flagIndexPageHxPageEnabled = true
+)
+
 func IndexPage() templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templ_7745c5c3_W.(*bytes.Buffer)
@@ -25,7 +29,7 @@ func IndexPage() templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		if !true {
+		if !flagIndexPageHxPageEnabled {
 			templ_7745c5c3_Var2 := templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
 				templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templ_7745c5c3_W.(*bytes.Buffer)
 				if !templ_7745c5c3_IsBuffer {
@@ -73,8 +77,6 @@ func IndexPage() templ.Component {
 	})
 }
 
-// this span requests GET "/contacts" and targets response HTML to element
-// with id hx-contacts
 func IndexContent() templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templ_7745c5c3_W.(*bytes.Buffer)
@@ -88,7 +90,15 @@ func IndexContent() templ.Component {
 			templ_7745c5c3_Var4 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<span inert hx-get=\"/contacts\" hx-target=\"#hx-contacts\" hx-swap=\"beforeend\" hx-trigger=\"load\"></span><main><nav aria-label=\"Table toolbar actions\" x-cloak><ul class=\"grid no-bullets smooth &lt;small&gt;\"><li class=\"box\" data-cols=\"1 3\" style=\"background:var(--bg);\"><span class=\"block\">Total</span> <output hx-get=\"/contacts/count\" hx-trigger=\"revealed, every 10s\" hx-target=\"this\" class=\"big\">0</output></li><li class=\"box\" data-cols=\"4 6\" style=\"background:var(--bg);\"><span class=\"block\">Active Now</span> <output hx-get=\"/contacts/count?active=true\" hx-trigger=\"revealed, every 10s\" hx-target=\"this\" class=\"big\">0</output></li><li class=\"box\" data-cols=\"7 9\" style=\"background:var(--bg);\"><span class=\"block\">Inactive</span> <output hx-get=\"/contacts/count?inactive=true\" hx-trigger=\"revealed, every 10s\" hx-target=\"this\" class=\"big\">0</output></li></ul><div class=\"f-row justify-content:space-between padding-block\"><div></div><div>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<span inert hx-get=\"/contacts\" hx-target=\"#hx-contacts\" hx-swap=\"beforeend\" hx-trigger=\"load\"></span><main><nav x-cloak aria-label=\"Table toolbar actions\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = stats().Render(ctx, templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"f-row justify-content:space-between padding-block\"><div></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -96,7 +106,7 @@ func IndexContent() templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div></div></nav><section>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div></nav><section>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -124,12 +134,26 @@ func IndexContent() templ.Component {
 	})
 }
 
-//        <!--
-//		<section>
-//			<div x-data="{ inputQuantity: 1 }" class="flex items-center gap-2">
-//				<button @click="inputQuantity--" class="underline">Decrease</button>
-//				<input x-model="inputQuantity" type="number" class="w-full"/>
-//				<button @click="inputQuantity++" class="underline">Increase</button>
-//			</div>
-//		</section>
-//        -->
+func stats() templ.Component {
+	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
+		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templ_7745c5c3_W.(*bytes.Buffer)
+		if !templ_7745c5c3_IsBuffer {
+			templ_7745c5c3_Buffer = templ.GetBuffer()
+			defer templ.ReleaseBuffer(templ_7745c5c3_Buffer)
+		}
+		ctx = templ.InitializeContext(ctx)
+		templ_7745c5c3_Var6 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var6 == nil {
+			templ_7745c5c3_Var6 = templ.NopComponent
+		}
+		ctx = templ.ClearChildren(ctx)
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<ul class=\"grid no-bullets smooth &lt;small&gt;\"><li class=\"box\" data-cols=\"1 3\" style=\"background:var(--bg);\"><span class=\"block\">Total</span> <output hx-get=\"/contacts/count\" hx-trigger=\"revealed, every 10s\" hx-target=\"this\" class=\"big\">0</output></li><li class=\"box\" data-cols=\"4 6\" style=\"background:var(--bg);\"><span class=\"block\">Active Now</span> <output hx-get=\"/contacts/count?active=true\" hx-trigger=\"revealed, every 10s\" hx-target=\"this\" class=\"big\">0</output></li><li class=\"box\" data-cols=\"7 9\" style=\"background:var(--bg);\"><span class=\"block\">Inactive</span> <output hx-get=\"/contacts/count?inactive=true\" hx-trigger=\"revealed, every 10s\" hx-target=\"this\" class=\"big\">0</output></li></ul>")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		if !templ_7745c5c3_IsBuffer {
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteTo(templ_7745c5c3_W)
+		}
+		return templ_7745c5c3_Err
+	})
+}
