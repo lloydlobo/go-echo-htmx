@@ -1,3 +1,11 @@
+// References
+//
+// https://gist.github.com/bryfry/09a650eb8aac0fb76c24
+// https://gist.github.com/CJEnright/bc2d8b8dc0c1389a9feeddb110f822d7
+// https://github.com/labstack/echo/blob/master/middleware/compress.go
+// https://github.com/nytimes/gziphandler/blob/master/gzip.go
+// https://gist.github.com/erikdubbelboer/7df2b2b9f34f9f839a84
+
 package internal
 
 import (
@@ -7,13 +15,6 @@ import (
 	"strings"
 )
 
-// References
-//
-// https://gist.github.com/bryfry/09a650eb8aac0fb76c24
-// https://gist.github.com/CJEnright/bc2d8b8dc0c1389a9feeddb110f822d7
-// https://github.com/labstack/echo/blob/master/middleware/compress.go
-// https://github.com/nytimes/gziphandler/blob/master/gzip.go
-// https://gist.github.com/erikdubbelboer/7df2b2b9f34f9f839a84
 type gzipResponseWriter struct {
 	io.Writer
 	http.ResponseWriter
@@ -61,27 +62,14 @@ func Gzip(next http.Handler) http.Handler {
 	})
 }
 
-/*
-	{
-		if _, ok := w.Header()["Content-Type"]; !ok {
-			// If no content type, apply sniffing algorithm to un-gzipped body.
-			w.ResponseWriter.Header().Set("Content-Type", http.DetectContentType(b))
-		}
-		if !gzr.headerWritten {
-			// This is exactly what Go would also do if it hasn't been written yet.
-			w.WriteHeader(http.StatusOK)
-		}
-		return w.Writer.Write(b)
-
-}
-*/
 func (w gzipResponseWriter) Write(b []byte) (int, error) {
 	return w.Writer.Write(b)
 }
 
-// func (w gzipResponseWriter) WriteHeader(status int) {
-// 	w.Header().Del(headerContentLength)
-// 	// w.wroteHeader = true
-// 	// w.status = status
-// 	w.ResponseWriter.WriteHeader(status) // Write status code
-// }
+// Note: unimplemented
+func (w gzipResponseWriter) WriteHeader(status int) {
+	w.Header().Del(headerContentLength)
+	// w.wroteHeader = true
+	// w.status = status
+	w.ResponseWriter.WriteHeader(status) // Write status code
+}

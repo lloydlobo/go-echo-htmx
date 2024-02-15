@@ -32,7 +32,11 @@ func TestStatusIsEnabledAsCheckboxValue(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			if got := test.status.IsEnabledAsCheckboxValue(); got != test.want {
+			got, err := test.status.CheckboxValue()
+			if err != nil {
+				t.Errorf("got %q, want %q, error: %v", got, test.want, err)
+			}
+			if got != test.want {
 				t.Errorf("got %q, want %q", got, test.want)
 			}
 		})

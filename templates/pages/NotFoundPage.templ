@@ -1,12 +1,28 @@
 package pages
 
+var (
+	flagNotFoundPageHxPageEnabled = true
+)
+
 // 400: Resource Not Found
 templ NotFoundPage() {
+	if !flagIndexPageHxPageEnabled {
+		@HxPage() {
+			@NotFoundContent()
+		}
+	} else {
+		@Base() {
+			@NotFoundContent()
+		}
+	}
+}
+
+templ NotFoundContent() {
 	<main class="container">
 		<section>
 			<hgroup>
-				<h1>404</h1>
-				<h2>Resource not found</h2>
+				<h1 aria-label="error status">404</h1>
+				<h2 aria-label="error message">Resource not found</h2>
 			</hgroup>
 			<p>
 				The requested resource could not be found but may be available again in the future.

@@ -1,6 +1,9 @@
+// Package models contains plain structs that represent common data structures
+// in the application, such as `Contact`.
 package models
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/google/uuid"
@@ -22,15 +25,15 @@ type (
 		Email  string
 		Phone  string
 		Status string // "on" | ""
-		// 	   Form status value -> "on" or "" // Can we use json to restrict available strings? like discriminated unions?
 	}
-
-	Status string
 )
+
+type Status string
 
 const (
 	StatusActive   Status = "Active"
 	StatusInactive Status = "Inactive"
+	StatusError    Status = "Error" // Sentinel value for unexpected status
 )
 
 var (
@@ -41,9 +44,29 @@ var (
 func (s Status) String() string     { return string(s) }
 func (s Status) IsEnabled() bool    { return s == StatusActive }
 func (s Status) QueryParam() string { return strings.ToLower(s.String()) }
-func (s Status) IsEnabledAsCheckboxValue() string {
-	if s == StatusActive {
-		return "on"
+
+func (s Status) CheckboxValue() (string, error) {
+	switch s {
+	case StatusActive:
+		return "on", nil
+	case StatusInactive:
+		return "", nil
+	default:
+		return string(StatusError), fmt.Errorf("unexpected status: %v", s)
 	}
-	return ""
+}
+
+type StatusParser struct {
+	Status Status
+}
+
+func (sh StatusParser) FormCheckboxValue(s string) (status Status, err error) {
+	switch strings.TrimSpace(s) {
+	case "on":
+		return StatusActive, nil
+	case "":
+		return StatusInactive, nil
+	default:
+		return StatusError, fmt.Errorf("invalid checkbox value for status: %s", s)
+	}
 }

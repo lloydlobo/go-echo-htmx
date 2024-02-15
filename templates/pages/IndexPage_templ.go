@@ -9,8 +9,13 @@ import "github.com/a-h/templ"
 import "context"
 import "io"
 import "bytes"
+import "strings"
 
 import "github.com/lloydlobo/go-headcount/templates/components"
+
+var (
+	flagIndexPageHxPageEnabled = true
+)
 
 func IndexPage() templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
@@ -25,7 +30,7 @@ func IndexPage() templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		if !true {
+		if !flagIndexPageHxPageEnabled {
 			templ_7745c5c3_Var2 := templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
 				templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templ_7745c5c3_W.(*bytes.Buffer)
 				if !templ_7745c5c3_IsBuffer {
@@ -73,8 +78,6 @@ func IndexPage() templ.Component {
 	})
 }
 
-// this span requests GET "/contacts" and targets response HTML to element
-// with id hx-contacts
 func IndexContent() templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templ_7745c5c3_W.(*bytes.Buffer)
@@ -88,24 +91,16 @@ func IndexContent() templ.Component {
 			templ_7745c5c3_Var4 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<span inert hx-get=\"/contacts\" hx-target=\"#hx-contacts\" hx-swap=\"beforeend\" hx-trigger=\"load\"></span><main><nav aria-label=\"Table toolbar actions\" x-cloak><ul class=\"grid no-bullets smooth &lt;small&gt;\"><li class=\"box\" data-cols=\"1 3\" style=\"background:var(--bg);\"><span class=\"block\">Total</span> <output hx-get=\"/contacts/count\" hx-trigger=\"revealed, every 10s\" hx-target=\"this\" class=\"big\">0</output></li><li class=\"box\" data-cols=\"4 6\" style=\"background:var(--bg);\"><span class=\"block\">Active Now</span> <output hx-get=\"/contacts/count?active=true\" hx-trigger=\"revealed, every 10s\" hx-target=\"this\" class=\"big\">0</output></li><li class=\"box\" data-cols=\"7 9\" style=\"background:var(--bg);\"><span class=\"block\">Inactive</span> <output hx-get=\"/contacts/count?inactive=true\" hx-trigger=\"revealed, every 10s\" hx-target=\"this\" class=\"big\">0</output></li></ul><div class=\"f-row justify-content:space-between padding-block\"><div></div><div>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<span hx-get=\"/contacts\" hx-target=\"#hx-contacts\" hx-swap=\"beforeend\" hx-trigger=\"load\"></span><main>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = components.Slideout(components.ContactPostForm(), "New +", false).Render(ctx, templ_7745c5c3_Buffer)
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div></div></nav><section>")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		var templ_7745c5c3_Var5 = []any{"content-auto"}
+		var templ_7745c5c3_Var5 = []any{"margin-block-end"}
 		templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var5...)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<section class=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -113,7 +108,57 @@ func IndexContent() templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\"><div class=\"overflow:auto\"><form id=\"checked-contacts\"><div id=\"hx-contacts\"><div id=\"loader\" class=\"smooth\"><!-- @SkeletonTable --></div></div></form></div></div></section></main>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\" style=\"border:1px solid var(--muted-fg); border-radius:5px;\"><nav x-cloak aria-label=\"Table Toolbar Actions\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var6 = []any{"f-switch justify-content:space-between align-items:center", toolbarStyle()}
+		templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var6...)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ.CSSClasses(templ_7745c5c3_Var6).String()))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\"><div class=\"f-row align-items:center\"><b class=\"\">Contacts</b>")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = contactsStats().Render(ctx, templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div><div class=\"flex-grow:0\" style=\"min-width:fit-content;\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = components.Slideout(components.ContactPostForm(), "New +", false).Render(ctx, templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div></div></nav>")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var7 = []any{"content-auto", "overflow:auto"}
+		templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var7...)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ.CSSClasses(templ_7745c5c3_Var7).String()))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\"><form id=\"checked-contacts\" style=\"margin-block-end:0;\"><div id=\"hx-contacts\"><div id=\"loader\" class=\"smooth\"><!-- @SkeletonTable --></div></div></form></div></section></main>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -124,12 +169,51 @@ func IndexContent() templ.Component {
 	})
 }
 
-//        <!--
-//		<section>
-//			<div x-data="{ inputQuantity: 1 }" class="flex items-center gap-2">
-//				<button @click="inputQuantity--" class="underline">Decrease</button>
-//				<input x-model="inputQuantity" type="number" class="w-full"/>
-//				<button @click="inputQuantity++" class="underline">Increase</button>
-//			</div>
-//		</section>
-//        -->
+func contactsStats() templ.Component {
+	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
+		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templ_7745c5c3_W.(*bytes.Buffer)
+		if !templ_7745c5c3_IsBuffer {
+			templ_7745c5c3_Buffer = templ.GetBuffer()
+			defer templ.ReleaseBuffer(templ_7745c5c3_Buffer)
+		}
+		ctx = templ.InitializeContext(ctx)
+		templ_7745c5c3_Var8 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var8 == nil {
+			templ_7745c5c3_Var8 = templ.NopComponent
+		}
+		ctx = templ.ClearChildren(ctx)
+		var templ_7745c5c3_Var9 = []any{"f-row smooth no-bullets", "<small>"}
+		templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var9...)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<ul class=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ.CSSClasses(templ_7745c5c3_Var9).String()))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\"><li class=\"margin:0\"><output hx-get=\"/contacts/count\" hx-trigger=\"revealed, every 10s\" hx-target=\"this\">0</output> <span>results</span></li><li class=\"margin:0\"><output hx-get=\"/contacts/count?active=true\" hx-trigger=\"revealed, every 10s\" hx-target=\"this\">0</output> <span>active</span></li><li class=\"margin:0\"><output hx-get=\"/contacts/count?inactive=true\" hx-trigger=\"revealed, every 10s\" hx-target=\"this\">0</output> <span>inactive</span></li></ul>")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		if !templ_7745c5c3_IsBuffer {
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteTo(templ_7745c5c3_W)
+		}
+		return templ_7745c5c3_Err
+	})
+}
+
+func toolbarStyle() templ.CSSClass {
+	var templ_7745c5c3_CSSBuilder strings.Builder
+	templ_7745c5c3_CSSBuilder.WriteString(`padding:calc(var(--pico-spacing)/ 2) var(--pico-spacing);`)
+	templ_7745c5c3_CSSBuilder.WriteString(`border-bottom:1px solid var(--muted-fg);`)
+	templ_7745c5c3_CSSBuilder.WriteString(`background-color:var(--box-bg);`)
+	templ_7745c5c3_CSSID := templ.CSSID(`toolbarStyle`, templ_7745c5c3_CSSBuilder.String())
+	return templ.ComponentCSSClass{
+		ID:    templ_7745c5c3_CSSID,
+		Class: templ.SafeCSS(`.` + templ_7745c5c3_CSSID + `{` + templ_7745c5c3_CSSBuilder.String() + `}`),
+	}
+}

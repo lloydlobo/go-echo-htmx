@@ -18,6 +18,7 @@ import (
 	"github.com/lloydlobo/go-headcount/models"
 )
 
+// Hack: bypass linter warning for unused function
 func TmpInit() {
 	cs := NewContactServiceFromAPI()
 	cs.updateContactCountCache()
@@ -29,24 +30,13 @@ func TmpInit() {
 	}()
 }
 
-// Usage
-//
-//	var filters = []services.Filter{
-//			{Url: "#/", Name: "All", Selected: true},
-//			{Url: "#/active", Name: "Active", Selected: false},
-//			{Url: "#/completed", Name: "Completed", Selected: false},
-//	}
-type Filter struct {
-	Url      string
-	Name     string
-	Selected bool
-}
-
-// Action implements enumeration of actions
+// Action implements enumeration of actions.
 type Action int
 
-// Enumerate Action related constants in one type
-const ( // Hack: using `-1` as `default` case value to act as ActionGet operation.
+// Hack: using `-1` as `default` case value to act as ActionGet operation.
+
+// Enumerate Action related constants in one type.
+const (
 	ActionCreate Action = iota
 	ActionToggle
 	ActionEdit
@@ -60,7 +50,7 @@ var (
 
 func NewContactService() *ContactService {
 	return &ContactService{
-		Contacts: models.Contacts{}, // Contact store
+		Contacts: models.Contacts{},
 		seq:      1,
 	}
 }
@@ -68,8 +58,7 @@ func NewContactService() *ContactService {
 func NewContactServiceFromAPI() *ContactService {
 	apiURL := internal.LookupEnv("API_URL", "https://jsonplaceholder.typicode.com/users")
 
-	// Note: Using context.Background() is not idiomatic. Because this is for
-	// development and happens before the http server is started.
+	// Note: Using context.Background() is not idiomatic. But still using it before the http server is started.
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel() // cancel context when done fetching
 
@@ -79,20 +68,19 @@ func NewContactServiceFromAPI() *ContactService {
 	}
 
 	return &ContactService{
-		Contacts: contacts, // Contact store
+		Contacts: contacts,
 		seq:      1,
 	}
 }
 
 type ContactService struct {
-	lock              sync.Mutex      // Lock and defer Unlock during mutation of contacts.
-	Contacts          models.Contacts // FUTURE: map[int]*Contact // Contacts: models.Contacts{}, // Contact store -> *db.ContactStore
-	seq               int             // Tracks times contact is created while server is running. Start from 1.
-	idCounter         int             // Tracks current count of Contact till when session resets. Start from 0.
+	lock              sync.Mutex // Lock and defer Unlock during mutation of contacts.
+	Contacts          models.Contacts
+	seq               int // Tracks times contact is created while server is running. Start from 1.
+	idCounter         int // Tracks current count of Contact till when session resets. Start from 0.
 	ContactCountCache *int64
 }
 
-// Get(ctx context.Context, sessionID string)
 func (cs *ContactService) Get() (models.Contacts, error) {
 	cs.lock.Lock()
 	defer cs.lock.Unlock()
@@ -100,6 +88,7 @@ func (cs *ContactService) Get() (models.Contacts, error) {
 	if len(cs.Contacts) == 0 {
 		return models.Contacts{}, nil
 	}
+
 	return cs.Contacts, nil
 }
 
@@ -107,12 +96,13 @@ func (cs *ContactService) ResetContacts() {
 	cs.lock.Lock()
 	defer cs.lock.Unlock()
 
-	cs.Contacts = nil // OR cs.Contacts = make([]models.Contact, 0)
+	cs.Contacts = make([]models.Contact, 0) // OR = nil
 	cs.idCounter = 0
 }
 
-// FIXME: return (value, error)
 func (cs *ContactService) CrudOps(action Action, contact models.Contact) models.Contact {
+	// FIXME: return (value, error)
+
 	cs.lock.Lock()
 	defer cs.lock.Unlock()
 
@@ -129,10 +119,10 @@ func (cs *ContactService) CrudOps(action Action, contact models.Contact) models.
 
 	switch action {
 	case ActionCreate:
-		// contact.ID = uuid.New()
 		cs.Contacts = append(cs.Contacts, contact)
 		cs.idCounter++
 		cs.seq++
+		// contact.ID = uuid.New() // expect ID to be set by caller
 		return contact
 
 	case ActionToggle:
@@ -156,7 +146,8 @@ func (cs *ContactService) CrudOps(action Action, contact models.Contact) models.
 			cs.Contacts[index].Status = status
 			return contact
 		}
-		cs.deleteContact(index) // else remove if name is empty
+		// otherwise remove if name is empty
+		cs.deleteContact(index)
 		return models.Contact{}
 
 	case ActionDelete:
@@ -185,7 +176,6 @@ func (cs *ContactService) CountByStatus(s models.Status) (count int) {
 	defer cs.lock.Unlock()
 
 	count = 0
-
 	for _, c := range cs.Contacts {
 		if c.Status == s {
 			count++
@@ -201,11 +191,13 @@ func (cs *ContactService) findIndexByID(id uuid.UUID) int {
 			return i
 		}
 	}
+
 	return -1
 }
 
 func (cs *ContactService) deleteContact(index int) {
 	// OR cs.Contacts = append(cs.Contacts[:index], cs.Contacts[index+1:]...)
+
 	if index != -1 {
 		_ = copy(cs.Contacts[index:], cs.Contacts[index+1:])
 		cs.Contacts = cs.Contacts[:len(cs.Contacts)-1]
@@ -213,12 +205,11 @@ func (cs *ContactService) deleteContact(index int) {
 }
 
 func fetchUsers(ctx context.Context, apiURL string) (models.Contacts, error) {
-	var contacts models.Contacts
-
+	client := &http.Client{Timeout: 5 * time.Second}
 	maxRetries := 3
 	delay := 1 * time.Second // use exponential backoff for retries instead of fixed count
 
-	client := &http.Client{Timeout: 5 * time.Second}
+	var contacts models.Contacts
 
 	for attempt := 1; attempt <= maxRetries; attempt++ {
 		req, err := http.NewRequestWithContext(ctx, http.MethodGet, apiURL, nil)
@@ -233,7 +224,8 @@ func fetchUsers(ctx context.Context, apiURL string) (models.Contacts, error) {
 			if attempt < maxRetries {
 				time.Sleep(delay)
 				delay *= 2 // exponential backoff
-				continue   // early continue
+
+				continue
 			}
 			return nil, fmt.Errorf("failed to fetch user data after %d retries: %v", maxRetries, err)
 		}
@@ -271,18 +263,19 @@ func fetchUsers(ctx context.Context, apiURL string) (models.Contacts, error) {
 	return nil, errors.New("failed to fetch user data after all retries")
 }
 
-// # Usage
-//
-//	func handleTotalContacts(w http.ResponseWriter, r *http.Request) {
-//	  if contactCountCache == nil {
-//	    // Handle error or wait for initial cache update
-//	    return
-//	  }
-//	  count := *contactCountCache
-//	  // Respond with JSON
-//	  json.NewEncoder(w).Encode(map[string]int64{"count": count})
-//	}
 func (cs *ContactService) updateContactCountCache() {
+	// # Usage
+	//
+	//	func handleTotalContacts(w http.ResponseWriter, r *http.Request) {
+	//	  if contactCountCache == nil {
+	//	    // Handle error or wait for initial cache update
+	//	    return
+	//	  }
+	//	  count := *contactCountCache
+	//	  // Respond with JSON
+	//	  json.NewEncoder(w).Encode(map[string]int64{"count": count})
+	//	}
+
 	cs.lock.Lock()
 	defer cs.lock.Unlock()
 

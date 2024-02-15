@@ -48,13 +48,14 @@ graph TD
         HTTPHandler
     end
 
-    HTTPHandler -->|uses| Service1
+    HTTPHandler -->|uses| ContactService
     HTTPHandler -->|renders| Components
 
     subgraph "View"
         Components -->| uses| htmx
         subgraph "Hypermedia (event driven)"
             _hyperscript -->|Client side interactivity| Components
+            AlpineJS -->|Client side interactivity| Components
             htmx -->|Carries out event driven AJAX| HTTPHandler
         end
     end
@@ -64,14 +65,14 @@ graph TD
     %% Does not do anything related to HTML or HTTP
     %% Is not aware of the specifics of database calls
     subgraph "Services"
-        Service1
+        ContactService
         %% Service2 -->|Carries out application logic| DatabaseCode
     end
 
     %% Handles database activity such as inserting and querying records
     %% Ensures that the database representation (records) doesn't leak to the service layer
     subgraph "Database access code"
-        Service1 --> |use| DatabaseCode
+        ContactService --> |use| DatabaseCode
         %% Service2 -->|Carries out application logic| DatabaseCode
     end
 

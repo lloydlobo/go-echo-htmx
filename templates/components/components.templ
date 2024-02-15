@@ -6,26 +6,12 @@ package components
 
 import (
 	"github.com/lloydlobo/go-headcount/models"
-	"github.com/lloydlobo/go-headcount/templates"
 )
 
-var TodoContactLiArgClazz = "activate" // or was it active?
+var (
+	TodoContactRowArgClazz = "activate" // "activate" | "deactivate"
+)
 
-// <!--
-// Reference: https://htmx.org/examples/update-other-content/#events
-//     <tbody id="contacts-table" hx-get="/contacts/table" hx-trigger="newContact from:body">
-//
-// When a successful contact creation occurs during a POST to /contacts, the
-// response includes an HX-Trigger response header that looks like this:
-//
-// HX-Trigger:newContact
-// This will trigger the table to issue a GET to /contacts/table and this
-// will render the newly added contact row (in addition to the rest of the table.)
-//
-// Very clean, event driven programming!
-// <tbody id="contacts-table" hx-get="/contacts" hx-trigger="newContact from:body" >
-// -->
-// <!-- hx-confirm="Are you sure?" -->
 templ ContactsTable(contacts models.Contacts) {
 	<table class="table">
 		<thead>
@@ -40,22 +26,22 @@ templ ContactsTable(contacts models.Contacts) {
 		</thead>
 		<tbody id="tBody" hx-target="closest tr" hx-swap="outerHTML swap:1s">
 			for _, contact := range contacts {
-				@ContactLi(contact)
+				@ContactRow(contact)
 			}
 		</tbody>
 	</table>
 	<style type="text/css">
         table {
-            border: 1px solid var(--muted-fg);
-            border-radius: 5px;
             border-collapse: unset;
 
             tr td {
                 text-wrap: balance;
+
                 /* style the second td that is the name thead field value */
-                /* &:nth-child(2) { min-width: min(45vw, 22ch); } */ 
+                &:nth-child(2) { min-width: min(45vw, 22ch); }
+
                 /* style the third td that is the phone thead field value */
-                /* &:nth-child(3) { min-width: min(25vw, 16ch); }*/ 
+                &:nth-child(3) { min-width: min(25vw, 16ch); }
             }
         }
     </style>
@@ -67,8 +53,10 @@ templ ContactsTable(contacts models.Contacts) {
 //     }
 //     return "deactivate"
 // }() }
-templ ContactLi(contact models.Contact) {
-	<tr id={ "tr-" + contact.ID.String() }>
+
+// ContactRow partial is <tr> for <tbody> in ContactTable.
+templ ContactRow(contact models.Contact) {
+	<tr id={ "tr-" + contact.ID.String() } class={  }>
 		<td scope="row">
 			<label for={ templ.EscapeString("ids" + contact.ID.String()) } aria-label="id">
 				<input type="checkbox" name={ templ.EscapeString("ids" + contact.ID.String()) } value={ contact.ID.String() }/>
@@ -79,9 +67,9 @@ templ ContactLi(contact models.Contact) {
 		<td>{ contact.Email }</td>
 		<td>
 			if contact.Status == models.StatusActive {
-				<output class="!chip ok color <small>">{ contact.Status.String() }</output>
+				<output class="ok color <small>">{ contact.Status.String() }</output>
 			} else {
-				<output class="!chip warn color <small>">{ contact.Status.String() }</output>
+				<output class="warn color <small>">{ contact.Status.String() }</output>
 			}
 		</td>
 		<td style="position:relative;">
@@ -90,13 +78,10 @@ templ ContactLi(contact models.Contact) {
 	</tr>
 }
 
+// ContactPutForm is rendered as a response to "GET /contacts/{id}/edit" via handlers.HandleGetUpdateContactForm.
+//
+// Note: use hx-vals or hx-include for passing id without using it in markup
 templ ContactPutForm(contact models.Contact) {
-	// hx-include="closest tr"
-	// hx-target="this"
-	// maybe we should swap it??
-	// Should check this out: https://htmx.org/examples/click-to-edit/
-	// hx-swap="outerHTML"
-	// Note: use hx-vals or hx-include for passing id without using it in markup
 	<form
 		hx-put={ "/contacts/" + contact.ID.String() }
 		hx-target={ "#tr-" + contact.ID.String() }
@@ -168,14 +153,7 @@ templ ContactPutForm(contact models.Contact) {
 	</form>
 }
 
-// Note: how to close the parent slideout component?
-//
-// x-data="{ isOpen: true, }"
-// x-show="isOpen"
-// x-transition:enter.duration.500ms
-// x-transition:leave.duration.750ms
-// @submit.prevent="isOpen = false"
-//
+// ContactPostForm is rendered as a response to "POST /contacts" via handlers.HandleCreateContact.
 templ ContactPostForm() {
 	<form
 		hx-post="/contacts"
@@ -236,43 +214,11 @@ templ ContactPostForm() {
 	</form>
 }
 
-// alpine js dropdown
-templ hoverExpandable() {
-	<div
-		x-data="{ showDropdown: false }"
-		class="smooth"
-	>
-		<button
-			@click="showDropdown = !showDropdown"
-			@mouseover="showDropdown = true"
-			@mouseleave="showDropdown = false"
-		>Hover me</button>
-		<div
-			x-cloak
-			x-show="showDropdown"
-			@mouseover="showDropdown = true"
-			@mouseleave="showDropdown = false"
-			x-transition.opacity
-			class="box smooth"
-		>Hello, World!</div>
-	</div>
-}
-
-// editDropdown
+// editDropdown is an action ui component for ContactRow.
 //
 // Note: use arrow fn to access this as current button.
 // Note: type="button" avoids page to reload when clicked
 templ editDropdown(contact models.Contact) {
-	<style type="text/css">
-        .dropdown-btn {
-            gap: 1em;
-            justify-content: space-between;
-        }
-        .dropdown-container {
-            position:absolute; 
-            z-index:1;
-        }
-    </style>
 	<div x-data="{showDropdown: false,}" class="smooth">
 		<!-- Trigger -->
 		<button
@@ -291,149 +237,50 @@ templ editDropdown(contact models.Contact) {
 			x-transition:enter.duration.500ms
 			x-transition:leave.duration.300ms
 			@click.outside="showDropdown = false"
-			class="box no-bullets smooth dropdown-container"
+			style="position:absolute; z-index: 1;"
+			class="box no-bullets smooth"
 		>
 			<li class="margin-block-start">
 				<!-- Note: ensure that server renders inside the body tag -->
 				<button
+					name={ "Edit " + contact.Name }
+					title={ "Edit " + contact.Name }
 					hx-get={ "/contacts/" + contact.ID.String() + "/edit" }
 					hx-target="body"
 					hx-swap="beforeend"
 					type="button"
 					role="button"
-					title={ "Edit" + contact.Name }
-					class={ "width:100%", "dropdown-btn" }
+					class={ "big f-row width:100% justify-content:space-between", "" }
 				>
 					<span class="!vh">Edit</span>
-					<hr aria-orientation="vertical"/>
-					@PencilIcon()
+					<span class="iconbutton">
+						@PencilIcon()
+					</span>
 				</button>
 			</li>
 			<li>
-				// hx-trigger="confirmed"
-				// onclick={ templ.ComponentScript{ Call: `
-				//    Swal.fire({ title: 'Confirm', text: 'Do you want to delete?', }).then((result) => {
-				//        if (result.isConfirmed) {
-				//            htmx.trigger(this, 'confirmed');
-				//        }
-				//    });
-				// `, } }
 				<button
+					name={ "Remove " + contact.Name }
+					title={ "Remove " + contact.Name }
 					hx-delete={ "/contacts/" + contact.ID.String() }
+					hx-trigger="confirmed"
+					onclick={ templ.ComponentScript{ Call: `
+                    Swal.fire({ title: 'Confirm', text: 'Do you want to delete?', }).then((result) => {
+                        if (result.isConfirmed) {
+                            htmx.trigger(this, 'confirmed');
+                        }
+                    });
+                    `, } }
 					type="button"
 					role="button"
-					title={ "Remove" + contact.Name }
-					class={ "width:100%", "dropdown-btn bad color" }
+					class={ "big f-row width:100% justify-content:space-between", "bad color" }
 				>
 					<span class="!vh">Delete</span>
-					<hr aria-orientation="vertical"/>
-					@TrashIcon()
+					<span class="iconbutton">
+						@TrashIcon()
+					</span>
 				</button>
 			</li>
 		</ul>
-	</div>
-}
-
-// //    querying all via ids may fail as we are appending each id. maybe choose a global id for each checkbox laabel/input???
-// // Note: use .contents class when not surrounded by .box
-// templ filter(filters []services.Filter) {
-// 	<ul class="filters" _="on load set $filter to me">
-// 		for _, filter := range filters {
-// 			<li>
-// 				<a
-// 					class={ templ.KV("selected", filter.Selected) }
-// 					href={ templ.SafeURL(filter.Url) }
-// 					_="on click add .selected to me"
-// 				>
-// 					{ filter.Name }
-// 				</a>
-// 			</li>
-// 		}
-// 	</ul>
-// }
-templ ToggleAll(checked bool) {
-	<input
-		id="toggle-all"
-		class="toggle-all"
-		type="checkbox"
-		checked?={ checked }
-		_="install ToggleAll"
-	/>
-}
-
-templ Toast(notificationText string) {
-	<div x-data style="z-index: 50;">
-		<div
-			id="topRight"
-			style="max-width: 500px; right: 4em; top: 4em;"
-			class="fixed max-w-xs space-y-2 right-4 top-4"
-		></div>
-		<div
-			id="bottomLeft"
-			style="max-width: 500px; bottom: 4em; left: 4em;"
-			class="fixed max-w-xs space-y-2 bottom-4 left-4"
-		></div>
-		<div class="flex gap-2">
-			<button
-				@click="$notify('Nihil distinctio suscipit iste impedit magnam eius iure culpa mollitia tenetur', {
-              wrapperId: 'bottomLeft',
-              templateId: 'alertStandard',
-              autoRemove: 3000
-            })"
-				class="underline"
-			>
-				Standard
-			</button>
-			<button
-				@click="$notify('Earum aliquid quaerat officiis.', {
-                wrapperId: 'bottomLeft',
-                templateId: 'alertClose',
-              })"
-				class="underline"
-			>
-				Dismiss
-			</button>
-			<button
-				@click="$notify('Lorem ipsum dolor sit amet consectetur adipisicing elit. Optio, natus.', {
-              wrapperId: 'topRight',
-              templateId: 'alertAnimate',
-              autoClose: 3000,
-              autoRemove: true
-            })"
-				class="underline"
-			>
-				Animate
-			</button>
-		</div>
-		<template id="alertStandard">
-			<div role="alert" class="box ">{ notificationText }</div>
-		</template>
-	</div>
-	<template id="alertClose">
-		<div x-data role="alert" class="box bg-gray-100 p-4 data-[notify-show=false]:hidden">
-			{ notificationText }
-			<button @click="$root.setAttribute('data-notify-show', false)" class="underline">Close</button>
-		</div>
-	</template>
-	<template id="alertAnimate">
-		<div
-			x-data
-			role="alert"
-			class="data-[notify-show=true]:animate-slide-in data-[notify-show=false]:animate-slide-out bg-gray-100 p-4"
-		>
-			{ notificationText }
-			<button @click="$root.setAttribute('data-notify-show', false)" class="underline">Close</button>
-		</div>
-	</template>
-}
-
-templ ToggleVisuallyHidden(isOpen bool) {
-	<div
-		x-data={ "{ open:" + templates.BoolToStrJS(isOpen) + "}" }
-	>
-		<button @click="open = !open">Toggle visually hidden</button>
-		<div :class="{ 'vh': ! open }">
-			{ children... }
-		</div>
 	</div>
 }

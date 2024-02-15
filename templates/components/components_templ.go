@@ -12,27 +12,12 @@ import "bytes"
 
 import (
 	"github.com/lloydlobo/go-headcount/models"
-	"github.com/lloydlobo/go-headcount/templates"
 )
 
-var TodoContactLiArgClazz = "activate" // or was it active?
+var (
+	TodoContactRowArgClazz = "activate" // "activate" | "deactivate"
+)
 
-// <!--
-// Reference: https://htmx.org/examples/update-other-content/#events
-//
-//	<tbody id="contacts-table" hx-get="/contacts/table" hx-trigger="newContact from:body">
-//
-// When a successful contact creation occurs during a POST to /contacts, the
-// response includes an HX-Trigger response header that looks like this:
-//
-// HX-Trigger:newContact
-// This will trigger the table to issue a GET to /contacts/table and this
-// will render the newly added contact row (in addition to the rest of the table.)
-//
-// Very clean, event driven programming!
-// <tbody id="contacts-table" hx-get="/contacts" hx-trigger="newContact from:body" >
-// -->
-// <!-- hx-confirm="Are you sure?" -->
 func ContactsTable(contacts models.Contacts) templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templ_7745c5c3_W.(*bytes.Buffer)
@@ -51,12 +36,12 @@ func ContactsTable(contacts models.Contacts) templ.Component {
 			return templ_7745c5c3_Err
 		}
 		for _, contact := range contacts {
-			templ_7745c5c3_Err = ContactLi(contact).Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = ContactRow(contact).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</tbody></table><style type=\"text/css\">\r\n        table {\r\n            border: 1px solid var(--muted-fg);\r\n            border-radius: 5px;\r\n            border-collapse: unset;\r\n\r\n            tr td {\r\n                text-wrap: balance;\r\n                /* style the second td that is the name thead field value */\r\n                /* &:nth-child(2) { min-width: min(45vw, 22ch); } */ \r\n                /* style the third td that is the phone thead field value */\r\n                /* &:nth-child(3) { min-width: min(25vw, 16ch); }*/ \r\n            }\r\n        }\r\n    </style>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</tbody></table><style type=\"text/css\">\n        table {\n            border-collapse: unset;\n\n            tr td {\n                text-wrap: balance;\n\n                /* style the second td that is the name thead field value */\n                &:nth-child(2) { min-width: min(45vw, 22ch); }\n\n                /* style the third td that is the phone thead field value */\n                &:nth-child(3) { min-width: min(25vw, 16ch); }\n            }\n        }\n    </style>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -67,13 +52,15 @@ func ContactsTable(contacts models.Contacts) templ.Component {
 	})
 }
 
-//	class={ func() (string) {
-//	    if contact.Status == models.StatusActive {
-//	        return "activate"
-//	    }
-//	    return "deactivate"
-//	}() }
-func ContactLi(contact models.Contact) templ.Component {
+// class={ func() (string) {
+//     if contact.Status == models.StatusActive {
+//         return "activate"
+//     }
+//     return "deactivate"
+// }() }
+
+// ContactRow partial is <tr> for <tbody> in ContactTable.
+func ContactRow(contact models.Contact) templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templ_7745c5c3_W.(*bytes.Buffer)
 		if !templ_7745c5c3_IsBuffer {
@@ -86,11 +73,24 @@ func ContactLi(contact models.Contact) templ.Component {
 			templ_7745c5c3_Var2 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
+		var templ_7745c5c3_Var3 = []any{}
+		templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var3...)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<tr id=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString("tr-" + contact.ID.String()))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\" class=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ.CSSClasses(templ_7745c5c3_Var3).String()))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -122,23 +122,10 @@ func ContactLi(contact models.Contact) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		var templ_7745c5c3_Var3 string
-		templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(contact.Name)
-		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates\components\components.templ`, Line: 76, Col: 20}
-		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</td><td>")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
 		var templ_7745c5c3_Var4 string
-		templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(contact.Phone)
+		templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(contact.Name)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates\components\components.templ`, Line: 77, Col: 21}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates\components\components.templ`, Line: 64, Col: 20}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 		if templ_7745c5c3_Err != nil {
@@ -149,9 +136,9 @@ func ContactLi(contact models.Contact) templ.Component {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var5 string
-		templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(contact.Email)
+		templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(contact.Phone)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates\components\components.templ`, Line: 78, Col: 21}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates\components\components.templ`, Line: 65, Col: 21}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 		if templ_7745c5c3_Err != nil {
@@ -161,17 +148,30 @@ func ContactLi(contact models.Contact) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
+		var templ_7745c5c3_Var6 string
+		templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(contact.Email)
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates\components\components.templ`, Line: 66, Col: 21}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</td><td>")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
 		if contact.Status == models.StatusActive {
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<output class=\"!chip ok color &lt;small&gt;\">")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<output class=\"ok color &lt;small&gt;\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var6 string
-			templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(contact.Status.String())
+			var templ_7745c5c3_Var7 string
+			templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(contact.Status.String())
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates\components\components.templ`, Line: 81, Col: 68}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates\components\components.templ`, Line: 69, Col: 62}
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -180,16 +180,16 @@ func ContactLi(contact models.Contact) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		} else {
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<output class=\"!chip warn color &lt;small&gt;\">")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<output class=\"warn color &lt;small&gt;\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var7 string
-			templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(contact.Status.String())
+			var templ_7745c5c3_Var8 string
+			templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(contact.Status.String())
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates\components\components.templ`, Line: 83, Col: 70}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates\components\components.templ`, Line: 71, Col: 64}
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -217,6 +217,9 @@ func ContactLi(contact models.Contact) templ.Component {
 	})
 }
 
+// ContactPutForm is rendered as a response to "GET /contacts/{id}/edit" via handlers.HandleGetUpdateContactForm.
+//
+// Note: use hx-vals or hx-include for passing id without using it in markup
 func ContactPutForm(contact models.Contact) templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templ_7745c5c3_W.(*bytes.Buffer)
@@ -225,9 +228,9 @@ func ContactPutForm(contact models.Contact) templ.Component {
 			defer templ.ReleaseBuffer(templ_7745c5c3_Buffer)
 		}
 		ctx = templ.InitializeContext(ctx)
-		templ_7745c5c3_Var8 := templ.GetChildren(ctx)
-		if templ_7745c5c3_Var8 == nil {
-			templ_7745c5c3_Var8 = templ.NopComponent
+		templ_7745c5c3_Var9 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var9 == nil {
+			templ_7745c5c3_Var9 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<form hx-put=\"")
@@ -304,13 +307,7 @@ func ContactPutForm(contact models.Contact) templ.Component {
 	})
 }
 
-// Note: how to close the parent slideout component?
-//
-// x-data="{ isOpen: true, }"
-// x-show="isOpen"
-// x-transition:enter.duration.500ms
-// x-transition:leave.duration.750ms
-// @submit.prevent="isOpen = false"
+// ContactPostForm is rendered as a response to "POST /contacts" via handlers.HandleCreateContact.
 func ContactPostForm() templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templ_7745c5c3_W.(*bytes.Buffer)
@@ -319,9 +316,9 @@ func ContactPostForm() templ.Component {
 			defer templ.ReleaseBuffer(templ_7745c5c3_Buffer)
 		}
 		ctx = templ.InitializeContext(ctx)
-		templ_7745c5c3_Var9 := templ.GetChildren(ctx)
-		if templ_7745c5c3_Var9 == nil {
-			templ_7745c5c3_Var9 = templ.NopComponent
+		templ_7745c5c3_Var10 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var10 == nil {
+			templ_7745c5c3_Var10 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<form hx-post=\"/contacts\" hx-target=\"#hx-contacts\" class=\"table rows dense\"><p><label for=\"name\" class=\"!vh\">Name</label><!-- size=\"45\" --><input type=\"text\" pattern=\"[a-zA-Z ]{3,28}\" id=\"name\" name=\"name\" placeholder=\"Name\" required title=\"Please enter a name with 4 to 8 characters, including spaces. Only letters are allowed.\" value=\"John Doe\"></p><p><label for=\"phone\" class=\"!vh\">Phone</label> <input type=\"tel\" pattern=\"[0-9]{10}\" id=\"phone\" name=\"phone\" placeholder=\"Phone\" required title=\"Please enter a 10-digit phone number.\" value=\"1029384756\"></p><p><label for=\"email\" class=\"!vh\">Email</label> <input type=\"email\" id=\"email\" name=\"email\" placeholder=\"Email\" required title=\"Please enter a valid email address.\" value=\"hi@johndoe.com\"></p><p><label for=\"status\" class=\"!vh\">Status</label> <input type=\"checkbox\" id=\"status\" name=\"status\"></p><p><label for=\"fakerContacts\" class=\"!vh\">Faker</label> <input type=\"checkbox\" id=\"fakerContacts\" name=\"fakerContacts\"></p><button type=\"submit\" class=\"big margin-block\">Submit</button></form>")
@@ -335,32 +332,7 @@ func ContactPostForm() templ.Component {
 	})
 }
 
-// alpine js dropdown
-func hoverExpandable() templ.Component {
-	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
-		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templ_7745c5c3_W.(*bytes.Buffer)
-		if !templ_7745c5c3_IsBuffer {
-			templ_7745c5c3_Buffer = templ.GetBuffer()
-			defer templ.ReleaseBuffer(templ_7745c5c3_Buffer)
-		}
-		ctx = templ.InitializeContext(ctx)
-		templ_7745c5c3_Var10 := templ.GetChildren(ctx)
-		if templ_7745c5c3_Var10 == nil {
-			templ_7745c5c3_Var10 = templ.NopComponent
-		}
-		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div x-data=\"{ showDropdown: false }\" class=\"smooth\"><button @click=\"showDropdown = !showDropdown\" @mouseover=\"showDropdown = true\" @mouseleave=\"showDropdown = false\">Hover me</button><div x-cloak x-show=\"showDropdown\" @mouseover=\"showDropdown = true\" @mouseleave=\"showDropdown = false\" x-transition.opacity class=\"box smooth\">Hello, World!</div></div>")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		if !templ_7745c5c3_IsBuffer {
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteTo(templ_7745c5c3_W)
-		}
-		return templ_7745c5c3_Err
-	})
-}
-
-// editDropdown
+// editDropdown is an action ui component for ContactRow.
 //
 // Note: use arrow fn to access this as current button.
 // Note: type="button" avoids page to reload when clicked
@@ -377,7 +349,7 @@ func editDropdown(contact models.Contact) templ.Component {
 			templ_7745c5c3_Var11 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<style type=\"text/css\">\r\n        .dropdown-btn {\r\n            gap: 1em;\r\n            justify-content: space-between;\r\n        }\r\n        .dropdown-container {\r\n            position:absolute; \r\n            z-index:1;\r\n        }\r\n    </style><div x-data=\"{showDropdown: false,}\" class=\"smooth\"><!-- Trigger --><button @click=\"showDropdown = !showDropdown\" type=\"button\" role=\"button\" class=\"iconbutton\">")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div x-data=\"{showDropdown: false,}\" class=\"smooth\"><!-- Trigger --><button @click=\"showDropdown = !showDropdown\" type=\"button\" role=\"button\" class=\"iconbutton\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -385,16 +357,32 @@ func editDropdown(contact models.Contact) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</button><!-- Content --><ul x-cloak x-show=\"showDropdown\" x-transition.opacity x-transition:enter.duration.500ms x-transition:leave.duration.300ms @click.outside=\"showDropdown = false\" class=\"box no-bullets smooth dropdown-container\"><li class=\"margin-block-start\"><!-- Note: ensure that server renders inside the body tag -->")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</button><!-- Content --><ul x-cloak x-show=\"showDropdown\" x-transition.opacity x-transition:enter.duration.500ms x-transition:leave.duration.300ms @click.outside=\"showDropdown = false\" style=\"position:absolute; z-index: 1;\" class=\"box no-bullets smooth\"><li class=\"margin-block-start\"><!-- Note: ensure that server renders inside the body tag -->")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		var templ_7745c5c3_Var12 = []any{"width:100%", "dropdown-btn"}
+		var templ_7745c5c3_Var12 = []any{"big f-row width:100% justify-content:space-between", ""}
 		templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var12...)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<button hx-get=\"")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<button name=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString("Edit " + contact.Name))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\" title=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString("Edit " + contact.Name))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\" hx-get=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -402,15 +390,7 @@ func editDropdown(contact models.Contact) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\" hx-target=\"body\" hx-swap=\"beforeend\" type=\"button\" role=\"button\" title=\"")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString("Edit" + contact.Name))
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\" class=\"")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\" hx-target=\"body\" hx-swap=\"beforeend\" type=\"button\" role=\"button\" class=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -418,7 +398,7 @@ func editDropdown(contact models.Contact) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\"><span class=\"!vh\">Edit</span><hr aria-orientation=\"vertical\">")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\"><span class=\"!vh\">Edit</span> <span class=\"iconbutton\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -426,16 +406,42 @@ func editDropdown(contact models.Contact) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</button></li><li>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</span></button></li><li>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		var templ_7745c5c3_Var13 = []any{"width:100%", "dropdown-btn bad color"}
+		var templ_7745c5c3_Var13 = []any{"big f-row width:100% justify-content:space-between", "bad color"}
 		templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var13...)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<button hx-delete=\"")
+		templ_7745c5c3_Err = templ.RenderScriptItems(ctx, templ_7745c5c3_Buffer, templ.ComponentScript{Call: `
+                    Swal.fire({ title: 'Confirm', text: 'Do you want to delete?', }).then((result) => {
+                        if (result.isConfirmed) {
+                            htmx.trigger(this, 'confirmed');
+                        }
+                    });
+                    `})
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<button name=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString("Remove " + contact.Name))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\" title=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString("Remove " + contact.Name))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\" hx-delete=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -443,15 +449,22 @@ func editDropdown(contact models.Contact) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\" type=\"button\" role=\"button\" title=\"")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\" hx-trigger=\"confirmed\" onclick=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString("Remove" + contact.Name))
+		var templ_7745c5c3_Var14 templ.ComponentScript = templ.ComponentScript{Call: `
+                    Swal.fire({ title: 'Confirm', text: 'Do you want to delete?', }).then((result) => {
+                        if (result.isConfirmed) {
+                            htmx.trigger(this, 'confirmed');
+                        }
+                    });
+                    `}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var14.Call)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\" class=\"")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\" type=\"button\" role=\"button\" class=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -459,7 +472,7 @@ func editDropdown(contact models.Contact) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\"><span class=\"!vh\">Delete</span><hr aria-orientation=\"vertical\">")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\"><span class=\"!vh\">Delete</span> <span class=\"iconbutton\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -467,162 +480,7 @@ func editDropdown(contact models.Contact) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</button></li></ul></div>")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		if !templ_7745c5c3_IsBuffer {
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteTo(templ_7745c5c3_W)
-		}
-		return templ_7745c5c3_Err
-	})
-}
-
-// //    querying all via ids may fail as we are appending each id. maybe choose a global id for each checkbox laabel/input???
-// // Note: use .contents class when not surrounded by .box
-//
-//	templ filter(filters []services.Filter) {
-//		<ul class="filters" _="on load set $filter to me">
-//			for _, filter := range filters {
-//				<li>
-//					<a
-//						class={ templ.KV("selected", filter.Selected) }
-//						href={ templ.SafeURL(filter.Url) }
-//						_="on click add .selected to me"
-//					>
-//						{ filter.Name }
-//					</a>
-//				</li>
-//			}
-//		</ul>
-//	}
-func ToggleAll(checked bool) templ.Component {
-	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
-		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templ_7745c5c3_W.(*bytes.Buffer)
-		if !templ_7745c5c3_IsBuffer {
-			templ_7745c5c3_Buffer = templ.GetBuffer()
-			defer templ.ReleaseBuffer(templ_7745c5c3_Buffer)
-		}
-		ctx = templ.InitializeContext(ctx)
-		templ_7745c5c3_Var14 := templ.GetChildren(ctx)
-		if templ_7745c5c3_Var14 == nil {
-			templ_7745c5c3_Var14 = templ.NopComponent
-		}
-		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<input id=\"toggle-all\" class=\"toggle-all\" type=\"checkbox\"")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		if checked {
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(" checked")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(" _=\"install ToggleAll\">")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		if !templ_7745c5c3_IsBuffer {
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteTo(templ_7745c5c3_W)
-		}
-		return templ_7745c5c3_Err
-	})
-}
-
-func Toast(notificationText string) templ.Component {
-	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
-		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templ_7745c5c3_W.(*bytes.Buffer)
-		if !templ_7745c5c3_IsBuffer {
-			templ_7745c5c3_Buffer = templ.GetBuffer()
-			defer templ.ReleaseBuffer(templ_7745c5c3_Buffer)
-		}
-		ctx = templ.InitializeContext(ctx)
-		templ_7745c5c3_Var15 := templ.GetChildren(ctx)
-		if templ_7745c5c3_Var15 == nil {
-			templ_7745c5c3_Var15 = templ.NopComponent
-		}
-		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div x-data style=\"z-index: 50;\"><div id=\"topRight\" style=\"max-width: 500px; right: 4em; top: 4em;\" class=\"fixed max-w-xs space-y-2 right-4 top-4\"></div><div id=\"bottomLeft\" style=\"max-width: 500px; bottom: 4em; left: 4em;\" class=\"fixed max-w-xs space-y-2 bottom-4 left-4\"></div><div class=\"flex gap-2\"><button @click=\"$notify(&#39;Nihil distinctio suscipit iste impedit magnam eius iure culpa mollitia tenetur&#39;, {\n              wrapperId: &#39;bottomLeft&#39;,\n              templateId: &#39;alertStandard&#39;,\n              autoRemove: 3000\n            })\" class=\"underline\">Standard\r</button> <button @click=\"$notify(&#39;Earum aliquid quaerat officiis.&#39;, {\n                wrapperId: &#39;bottomLeft&#39;,\n                templateId: &#39;alertClose&#39;,\n              })\" class=\"underline\">Dismiss\r</button> <button @click=\"$notify(&#39;Lorem ipsum dolor sit amet consectetur adipisicing elit. Optio, natus.&#39;, {\n              wrapperId: &#39;topRight&#39;,\n              templateId: &#39;alertAnimate&#39;,\n              autoClose: 3000,\n              autoRemove: true\n            })\" class=\"underline\">Animate\r</button></div><template id=\"alertStandard\"><div role=\"alert\" class=\"box \">")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		var templ_7745c5c3_Var16 string
-		templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.JoinStringErrs(notificationText)
-		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates\components\components.templ`, Line: 408, Col: 52}
-		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var16))
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div></template></div><template id=\"alertClose\"><div x-data role=\"alert\" class=\"box bg-gray-100 p-4 data-[notify-show=false]:hidden\">")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		var templ_7745c5c3_Var17 string
-		templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.JoinStringErrs(notificationText)
-		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates\components\components.templ`, Line: 413, Col: 21}
-		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var17))
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(" <button @click=\"$root.setAttribute(&#39;data-notify-show&#39;, false)\" class=\"underline\">Close</button></div></template><template id=\"alertAnimate\"><div x-data role=\"alert\" class=\"data-[notify-show=true]:animate-slide-in data-[notify-show=false]:animate-slide-out bg-gray-100 p-4\">")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		var templ_7745c5c3_Var18 string
-		templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.JoinStringErrs(notificationText)
-		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates\components\components.templ`, Line: 423, Col: 21}
-		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var18))
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(" <button @click=\"$root.setAttribute(&#39;data-notify-show&#39;, false)\" class=\"underline\">Close</button></div></template>")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		if !templ_7745c5c3_IsBuffer {
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteTo(templ_7745c5c3_W)
-		}
-		return templ_7745c5c3_Err
-	})
-}
-
-func ToggleVisuallyHidden(isOpen bool) templ.Component {
-	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
-		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templ_7745c5c3_W.(*bytes.Buffer)
-		if !templ_7745c5c3_IsBuffer {
-			templ_7745c5c3_Buffer = templ.GetBuffer()
-			defer templ.ReleaseBuffer(templ_7745c5c3_Buffer)
-		}
-		ctx = templ.InitializeContext(ctx)
-		templ_7745c5c3_Var19 := templ.GetChildren(ctx)
-		if templ_7745c5c3_Var19 == nil {
-			templ_7745c5c3_Var19 = templ.NopComponent
-		}
-		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div x-data=\"")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString("{ open:" + templates.BoolToStrJS(isOpen) + "}"))
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\"><button @click=\"open = !open\">Toggle visually hidden</button><div :class=\"{ &#39;vh&#39;: ! open }\">")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = templ_7745c5c3_Var19.Render(ctx, templ_7745c5c3_Buffer)
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div></div>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</span></button></li></ul></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

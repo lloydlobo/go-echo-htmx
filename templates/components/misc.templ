@@ -1,0 +1,110 @@
+package components
+
+import (
+	"github.com/lloydlobo/go-headcount/templates"
+)
+
+// alpine js dropdown
+templ HoverExpandableDropdown(triggerText string) {
+	<div
+		x-data="{ showDropdown: false }"
+		class="smooth"
+	>
+		<button
+			@click="showDropdown = !showDropdown"
+			@mouseover="showDropdown = true"
+			@mouseleave="showDropdown = false"
+		>
+			{ triggerText }
+		</button>
+		<div
+			x-cloak
+			x-show="showDropdown"
+			@mouseover="showDropdown = true"
+			@mouseleave="showDropdown = false"
+			x-transition.opacity
+			class="box smooth"
+		>
+			{ children... }
+		</div>
+	</div>
+}
+
+templ ToggleAll(checked bool) {
+	<input id="toggle-all" class="toggle-all" type="checkbox" checked?={ checked } _="install ToggleAll"/>
+}
+
+templ ToggleVisuallyHidden(isOpen bool) {
+	<div x-data={ "{ open:" + templates.BoolToStrJS(isOpen) + "}" }>
+		<button @click="open = !open">Toggle visually hidden</button>
+		<div :class="{ 'vh': ! open }">
+			{ children... }
+		</div>
+	</div>
+}
+
+templ Toast(notificationText string) {
+	<div x-data style="z-index: 50;">
+		<div
+			id="topRight"
+			style="max-width: 500px; right: 4em; top: 4em;"
+			class="fixed max-w-xs space-y-2 right-4 top-4"
+		></div>
+		<div
+			id="bottomLeft"
+			style="max-width: 500px; bottom: 4em; left: 4em;"
+			class="fixed max-w-xs space-y-2 bottom-4 left-4"
+		></div>
+		<div class="flex gap-2">
+			<button
+				@click="$notify('Nihil distinctio suscipit iste impedit magnam eius iure culpa mollitia tenetur', {
+              wrapperId: 'bottomLeft',
+              templateId: 'alertStandard',
+              autoRemove: 3000
+            })"
+				class="underline"
+			>
+				Standard
+			</button>
+			<button
+				@click="$notify('Earum aliquid quaerat officiis.', {
+                wrapperId: 'bottomLeft',
+                templateId: 'alertClose',
+              })"
+				class="underline"
+			>
+				Dismiss
+			</button>
+			<button
+				@click="$notify('Lorem ipsum dolor sit amet consectetur adipisicing elit. Optio, natus.', {
+              wrapperId: 'topRight',
+              templateId: 'alertAnimate',
+              autoClose: 3000,
+              autoRemove: true
+            })"
+				class="underline"
+			>
+				Animate
+			</button>
+		</div>
+		<template id="alertStandard">
+			<div role="alert" class="box ">{ notificationText }</div>
+		</template>
+	</div>
+	<template id="alertClose">
+		<div x-data role="alert" class="box bg-gray-100 p-4 data-[notify-show=false]:hidden">
+			{ notificationText }
+			<button @click="$root.setAttribute('data-notify-show', false)" class="underline">Close</button>
+		</div>
+	</template>
+	<template id="alertAnimate">
+		<div
+			x-data
+			role="alert"
+			class="data-[notify-show=true]:animate-slide-in data-[notify-show=false]:animate-slide-out bg-gray-100 p-4"
+		>
+			{ notificationText }
+			<button @click="$root.setAttribute('data-notify-show', false)" class="underline">Close</button>
+		</div>
+	</template>
+}
